@@ -1,0 +1,16 @@
+[
+{
+  "modid": "terra121",
+  "name": "Terra 1 - 1",
+  "description": "...",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["orangeadam3", "shejan0"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": ["org.apache.commons.imaging"]
+}
+]
