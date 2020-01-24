@@ -11,6 +11,7 @@ import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
 import io.github.opencubicchunks.cubicchunks.cubicgen.CWGEventFactory;
 import io.github.terra121.dataset.Trees;
+import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
@@ -26,8 +27,9 @@ public class EarthTreePopulator implements ICubicPopulator {
 	Trees trees;
 	
 	public Set<Block> extraSurface;
+	private GeographicProjection projection;
 	
-	public EarthTreePopulator() {
+	public EarthTreePopulator(GeographicProjection proj) {
 		trees = new Trees();
 		extraSurface = new HashSet<Block>();
 		extraSurface.add(Blocks.CLAY);
@@ -37,11 +39,15 @@ public class EarthTreePopulator implements ICubicPopulator {
 		extraSurface.add(Blocks.HARDENED_CLAY);
 		extraSurface.add(Blocks.SAND);
 		extraSurface.add(Blocks.SNOW);
+		projection = proj;
 	}
 	
 	@Override
 	public void generate(World world, Random random, CubePos pos, Biome biome) {
-	    int treeCount = (int)(trees.estimateLocal(pos.getX()*16/100000.0, pos.getZ()*16/100000.0)*15.0);
+		
+		double[] projected = projection.toGeo(pos.getX()*16/100000.0, pos.getZ()*16/100000.0);
+		
+	    int treeCount = (int)(trees.estimateLocal(projected[0], projected[1])*15.0);
 
 	    ICubicWorld cworld = (ICubicWorld)world;
 	    		

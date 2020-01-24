@@ -16,6 +16,9 @@ import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.IBiomeBlockRe
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.IBiomeBlockReplacerProvider;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
+import io.github.terra121.projection.GeographicProjection;
+import io.github.terra121.projection.InvertedGeographic;
+import io.github.terra121.projection.MinecraftGeographic;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.util.math.BlockPos;
@@ -40,6 +43,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     HashMap<Biome, List<IBiomeBlockReplacer>> biomeBlockReplacers;
     BiomeProvider biomes;
     RoadGenerator roads;
+    GeographicProjection projection;
 
     public Set<IBlockState> unnaturals;
     private Set<ICubicPopulator> populators;
@@ -48,15 +52,16 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
     public EarthTerrainProcessor(World world) {
         super(world);
+        projection = new InvertedGeographic();
         heights = new Heights();
-        osm = new OpenStreetMaps();
-        roads = new RoadGenerator(osm, heights);
+        osm = new OpenStreetMaps(projection);
+        roads = new RoadGenerator(osm, heights, projection);
         biomes = world.getBiomeProvider();
         unnaturals = new HashSet<IBlockState>();
         unnaturals.add(Blocks.STONEBRICK.getDefaultState());
         
         populators = new HashSet<ICubicPopulator>();
-        populators.add(new EarthTreePopulator());
+        populators.add(new EarthTreePopulator(projection));
 
         biomeBlockReplacers = new HashMap<Biome, List<IBiomeBlockReplacer>>();
         BiomeBlockReplacerConfig conf = BiomeBlockReplacerConfig.defaults();
@@ -83,7 +88,9 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
         for(int x=0; x<16; x++) {
             for(int z=0; z<16; z++) {
-                double Y = heights.estimateLocal((cubeX*16 + x)/SCALE, (cubeZ*16 + z)/SCALE);
+            	double[] projected = projection.toGeo((cubeX*16 + x)/SCALE, (cubeZ*16 + z)/SCALE);
+            	
+                double Y = heights.estimateLocal(projected[0], projected[1]);
 
                 if(Coords.cubeToMinBlock(cubeY)<Y && Coords.cubeToMinBlock(cubeY)+16>Y) {
                     surface = true;
@@ -127,22 +134,22 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                         end = tmp;
                     }
 
-                    int sz = (int)Math.floor(SCALE*start) - cubeZ*16;
-                    int ez = (int)Math.floor(SCALE*end) - cubeZ*16;
+                    int sx = (int)Math.floor(SCALE*start) - cubeX*16;
+                    int ex = (int)Math.floor(SCALE*end) - cubeX*16;
 
-                    if(ez >= 16)ez = 16-1;
+                    if(ex >= 16)ex = 16-1;
 
-                    for(int z=sz>0?sz:0; z<=ez; z++) {
-                        double realz = (z+cubeZ*16)/SCALE;
-                        if(realz < start)
-                            realz = start;
+                    for(int x=sx>0?sx:0; x<=ex; x++) {
+                        double realx = (x+cubeX*16)/SCALE;
+                        if(realx < start)
+                            realx = start;
 
-                        double nextz = realz + (1/SCALE);
-                        if(nextz > end)
-                            nextz = end;
+                        double nextx = realx + (1/SCALE);
+                        if(nextx > end)
+                            nextx = end;
 
-                        int from = (int)Math.floor(SCALE*(e.slope*realz + e.offset)) - cubeX*16;
-                        int to = (int)Math.floor(SCALE*(e.slope*nextz + e.offset)) - cubeX*16;
+                        int from = (int)Math.floor(SCALE*(e.slope*realx + e.offset)) - cubeZ*16;
+                        int to = (int)Math.floor(SCALE*(e.slope*nextx + e.offset)) - cubeZ*16;
 
                         if(from > to) {
                             int tmp = from;
@@ -152,7 +159,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
                         if(to >= 16)to = 16-1;
 
-                        for(int x=from>0?from:0; x<=to; x++) {
+                        for(int z=from>0?from:0; z<=to; z++) {
                             int y = heightarr[x][z] - Coords.cubeToMinBlock(cubeY);
 
                             if(y >= 0 && y < 16)

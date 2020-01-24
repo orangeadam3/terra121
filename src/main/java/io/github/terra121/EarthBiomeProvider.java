@@ -7,6 +7,9 @@ import javax.annotation.Nullable;
 
 import io.github.terra121.dataset.Climate;
 import io.github.terra121.dataset.Soil;
+import io.github.terra121.projection.GeographicProjection;
+import io.github.terra121.projection.InvertedGeographic;
+import io.github.terra121.projection.MinecraftGeographic;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.init.Biomes;
 import net.minecraft.world.biome.BiomeProvider;
@@ -28,12 +31,14 @@ public class EarthBiomeProvider extends BiomeProvider {
 
     private Soil soil;
     private Climate climate;
+    private GeographicProjection projection;
 
     /** The biome generator object. */
     private final Biome defaultBiome;
 
     public EarthBiomeProvider(Biome biomeIn)
     {
+    	projection = new InvertedGeographic();
         this.defaultBiome = biomeIn;
         try {
             ResourceLocation loc = new ResourceLocation("terra121:data/suborder.img");
@@ -59,8 +64,10 @@ public class EarthBiomeProvider extends BiomeProvider {
      */
     public Biome getBiome(BlockPos pos)
     {
-        Climate.ClimateData clim = climate.getPoint(pos.getZ() / 100000.0, pos.getX() / 100000.0);
-        byte stype = soil.getPoint(pos.getZ() / 100000.0, pos.getX() / 100000.0);
+    	double[] projected = projection.toGeo(pos.getX() / 100000.0, pos.getZ() / 100000.0);
+    	
+        Climate.ClimateData clim = climate.getPoint(projected[0], projected[1]);
+        byte stype = soil.getPoint(projected[0], projected[1]);
         switch(stype) {
             case 0: //Ocean
                 if(clim.temp < -5)

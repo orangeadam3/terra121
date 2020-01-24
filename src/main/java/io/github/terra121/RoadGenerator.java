@@ -6,6 +6,7 @@ import io.github.opencubicchunks.cubicchunks.api.world.ICube;
 import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
+import io.github.terra121.projection.GeographicProjection;
 import io.github.opencubicchunks.cubicchunks.api.util.Coords;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
@@ -24,10 +25,12 @@ public class RoadGenerator {
 
     private OpenStreetMaps osm;
     private Heights heights;
+    private GeographicProjection projection;
 
-    public RoadGenerator(OpenStreetMaps osm, Heights heights) {
+    public RoadGenerator(OpenStreetMaps osm, Heights heights, GeographicProjection proj) {
         this.osm = osm;
         this.heights = heights;
+        projection = proj;
     }
 
     public void generateRoads(ICube cube, int cubeX, int cubeY, int cubeZ, World world, Random rand) {
@@ -44,10 +47,12 @@ public class RoadGenerator {
                     b = (e.slope < 0 ? -1 : 1) * x0 * (e.slope + 1.0 / e.slope);
                 }
 
-                double j = e.slon - (cubeZ*16)/SCALE;
-                double k = e.elon - (cubeZ*16)/SCALE;
-                double off = e.offset - (cubeX*16)/SCALE + e.slope*(cubeZ*16)/SCALE;
+                double j = e.slon - (cubeX*16)/SCALE;
+                double k = e.elon - (cubeX*16)/SCALE;
+                double off = e.offset - (cubeZ*16)/SCALE + e.slope*(cubeX*16)/SCALE;
 
+                //System.out.println(j + " " + k + " " + off + " " + e.slope);
+                
                 if(j>k) {
                     double t = j;
                     j = k;
@@ -60,8 +65,8 @@ public class RoadGenerator {
                 int is = (int)Math.floor((j-r)*SCALE);
                 int ie = (int)Math.floor((k+r)*SCALE);
 
-                for(int z=is; z<=ie; z++) {
-                    double X = z/SCALE;
+                for(int x=is; x<=ie; x++) {
+                    double X = x/SCALE;
                     double ul = bound(X, e.slope, j, k, r, x0, b, 1) + off; //TODO: save these repeated values
                     double ur = bound(X+1/SCALE, e.slope, j, k, r, x0, b, 1) + off;
                     double ll = bound(X, e.slope, j, k, r, x0, b, -1) + off;
@@ -69,7 +74,7 @@ public class RoadGenerator {
 
                     double from = Math.min(Math.min(ul,ur),Math.min(ll,lr));
                     double to = Math.max(Math.max(ul,ur),Math.max(ll,lr));
-
+                    
                     if(from==from) {
                         int ifrom = (int)Math.floor(from*SCALE);
                         int ito = (int)Math.floor(to*SCALE);
@@ -79,10 +84,9 @@ public class RoadGenerator {
                         if(ito >= 16*2)
                             ito = 16*2-1;
 
-                        for(int x=ifrom; x<=ito; x++) {
-
+                        for(int z=ifrom; z<=ito; z++) {
                             //get the part of the center line i am tangent to (i hate high school algebra!!!)
-                            double Z = x/SCALE;
+                            double Z = z/SCALE;
                             double mainX = X;
                             if(Math.abs(e.slope)>=0.000001)
                                 mainX = (Z + X/e.slope - off)/(e.slope + 1/e.slope);
@@ -92,7 +96,9 @@ public class RoadGenerator {
 
                             double mainZ = e.slope*mainX + off;
 
-                            int y = (int)Math.floor(heights.estimateLocal(mainZ + cubeX*(16/SCALE), mainX + cubeZ*(16/SCALE)) - cubeY*16);
+                            double[] geo = projection.toGeo(mainX + cubeX*(16/SCALE), mainZ + cubeZ*(16/SCALE));
+                            
+                            int y = (int)Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY*16);
 
                             if (y >= 0 && y < 16) { //if not in this range, someone else will handle it
                                 world.setBlockState(new BlockPos(x + cubeX * 16, y + cubeY * 16, z + cubeZ * 16), ASPHALT);

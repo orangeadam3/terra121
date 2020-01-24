@@ -13,6 +13,7 @@ import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
 import org.apache.commons.imaging.formats.tiff.TiffImageParser;
 
 import io.github.opencubicchunks.cubicchunks.cubicgen.CustomCubicMod;
+import io.github.terra121.projection.ImageProjection;
 
 public class Trees extends TiledDataset {
 	public static final String SERVER = "http://50.18.182.188:6080";
@@ -23,16 +24,8 @@ public class Trees extends TiledDataset {
 	public static final double REGION_SIZE = BLOCK_SIZE*256;
 	
 	public Trees() {
-		super(256, 256, 10);
+		super(256, 256, 10, new ImageProjection(), 1.0/BLOCK_SIZE, 1.0/BLOCK_SIZE);
 	}
-	
-    protected double lonToX(double lon) {
-        return (lon+180)/BLOCK_SIZE;
-    }
-
-    protected double latToY(double lat) {
-        return (90-lat)/BLOCK_SIZE;
-    }
 	
     /*private static final double TO_RADIANS = Math.PI/180.0;
     private static final double MAP_MULT = (2*Math.PI);

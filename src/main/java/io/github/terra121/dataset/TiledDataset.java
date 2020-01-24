@@ -3,10 +3,9 @@ package io.github.terra121.dataset;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
+import io.github.terra121.projection.GeographicProjection;
+
 public abstract class TiledDataset {
-	
-	protected abstract double latToY(double lat);
-	protected abstract double lonToX(double lon);
 	protected abstract double dataToDouble(int data);
 	protected abstract int[] request(Coord tile);
 	
@@ -15,23 +14,31 @@ public abstract class TiledDataset {
     protected int numcache;
     protected final int width;
     protected final int height;
+    
+    protected GeographicProjection projection;
+    protected double scaleX;
+    protected double scaleY;
 
-    public TiledDataset(int width, int height, int numcache) {
+    public TiledDataset(int width, int height, int numcache, GeographicProjection proj, double projScaleX, double projScaleY) {
         cache = new LinkedHashMap<Coord, int[]>();
         this.numcache = numcache;
         this.width = width;
         this.height = height;
+        this.projection = proj;
+        this.scaleX = projScaleX;
+        this.scaleY = projScaleY;
     }
 	
-    public double estimateLocal(double lat, double lon) {
+    public double estimateLocal(double lon, double lat) {
         //bound check
         if(lon > 180 || lon < -180 || lat > 85.6 || lat < -85.6) {
             return 0;
         }
 
         //project coords
-        double X = lonToX(lon);
-        double Y = latToY(lat);
+        double[] floatCoords = projection.fromGeo(lon, lat);
+        double X = floatCoords[0]*scaleX;
+        double Y = floatCoords[1]*scaleY;
 
         //get the corners surrounding this block
         Coord coord = new Coord((int)X, (int)Y);
@@ -58,12 +65,13 @@ public abstract class TiledDataset {
         }
 
         //project coords
-        double X = lonToX(lon);
-        double Y = latToY(lat);
+        double[] floatCoords = projection.fromGeo(lon, lat);
+        double X = floatCoords[0]*scaleX;
+        double Y = floatCoords[1]*scaleY;
 
         //get the corners surrounding this block
         Coord coord = new Coord((int)X, (int)Y);
-        
+
         double u = X-coord.x;
         double v = Y-coord.y;
         

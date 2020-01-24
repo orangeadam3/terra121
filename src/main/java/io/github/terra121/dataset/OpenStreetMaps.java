@@ -15,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import io.github.opencubicchunks.cubicchunks.cubicgen.CustomCubicMod;
+import io.github.terra121.projection.GeographicProjection;
+import io.github.terra121.projection.InvertedGeographic;
 
 public class OpenStreetMaps {
 
@@ -22,7 +24,6 @@ public class OpenStreetMaps {
     private static final double BLOCK_SIZE = 1/100000.0;
     private static final double CHUNK_SIZE = 16*BLOCK_SIZE;
     private static final double MAP_CHUNK_SIZE = CHUNK_SIZE*CHUNK_PER_MAP_CHUNK;//250*(360.0/40075000.0);
-    private static final double MAX_LINE_SQUARE = Math.pow(CHUNK_SIZE*2*Math.sqrt(2), 2);
     private static final double NOTHING = 0.1*BLOCK_SIZE;
     
     private static final String OVERPASS_INSTANCE = "overpass-api.de";
@@ -39,6 +40,8 @@ public class OpenStreetMaps {
 
     private Gson gson;
     
+    private GeographicProjection projection;
+    
     public static enum Type {
         IGNORE, MINOR, ROAD, MAJOR, HIGHWAY, RAIL //TODO, rail
     }
@@ -46,18 +49,41 @@ public class OpenStreetMaps {
     Type wayType;
     byte wayLanes;
 
-    public OpenStreetMaps () {
+    public OpenStreetMaps (GeographicProjection proj) {
     	gson = new GsonBuilder().create();
     	allNodes =  new HashMap<Long, Element>();
         chunks = new LinkedHashMap<Coord, Set<Edge>>();
         allEdges = new ArrayList<Edge>();
         regions = new LinkedHashSet<Coord>();
+        projection = proj;
     }
 
+    private Coord getRegion(double lon, double lat) {
+    	return new Coord((int)Math.floor(lon/(1024/100000.0)), (int)Math.floor(lat/(1024/100000.0)));
+    }
+    
     public Set<Edge> chunkStructures(int x, int z) {
-        Coord coord = new Coord(z,x); //TODO: uh oh, fliped the wrong way
-        Coord region = new Coord((z+1000000*CHUNK_PER_MAP_CHUNK)/CHUNK_PER_MAP_CHUNK - 1000000, (x+1000000*CHUNK_PER_MAP_CHUNK)/CHUNK_PER_MAP_CHUNK - 1000000);
-        if(!regions.contains(region)) {
+        Coord coord = new Coord(x,z);
+        
+        if(!regionCache(projection.toGeo(x*CHUNK_SIZE, z*CHUNK_SIZE)))
+        	return null;
+        
+        if(!regionCache(projection.toGeo((x+1)*CHUNK_SIZE, z*CHUNK_SIZE)))
+        	return null;
+        
+        if(!regionCache(projection.toGeo((x+1)*CHUNK_SIZE, (z+1)*CHUNK_SIZE)))
+        	return null;
+        
+        if(!regionCache(projection.toGeo(x*CHUNK_SIZE, (z+1)*CHUNK_SIZE)))
+        	return null;
+        
+        return chunks.get(coord);
+    }
+    
+    private boolean regionCache(double[] corner) {
+    	Coord region = getRegion(corner[0], corner[1]);
+    	
+    	if(!regions.contains(region)) {
             int i;
             for (i = 0; i < 5 && !regiondownload(region); i++);
             regions.add(region);
@@ -70,15 +96,17 @@ public class OpenStreetMaps {
 
             if(i==5) {
                 CustomCubicMod.LOGGER.error("OSM region" + region.x + " " + region.y + " failed to download several times, no structures will spawn");
-                return null;
+                return false;
             }
         }
-        return chunks.get(coord);
+    	return true;
     }
 
     public boolean regiondownload (Coord mchunk) {
         double X = mchunk.x*MAP_CHUNK_SIZE;
         double Y = mchunk.y*MAP_CHUNK_SIZE;
+        
+        System.out.println(mchunk);
 
         try {
             String urltext = URL_PREFACE + Y + "," + X + "," + (Y + MAP_CHUNK_SIZE) + "," + (X + MAP_CHUNK_SIZE) + URL_SUFFIX;
@@ -87,23 +115,35 @@ public class OpenStreetMaps {
             URL url = new URL(urltext);
             InputStream is = url.openStream();
 
-            doGson(is);
+            doGson(is, mchunk);
             
             is.close();
 
         } catch(Exception e) {
             System.out.println(e);
+            e.printStackTrace();
             return false;
         }
 
+        double[] ll = projection.fromGeo(X, Y);
+        double[] lr = projection.fromGeo(X + MAP_CHUNK_SIZE, Y);
+        double[] ur = projection.fromGeo(X + MAP_CHUNK_SIZE, Y + MAP_CHUNK_SIZE);
+        double[] ul = projection.fromGeo(X, Y + MAP_CHUNK_SIZE);
+        
+        //estimate bounds of region in terms of chunks
+        int lowX = (int)Math.floor(Math.min(Math.min(ll[0], ul[0]), Math.min(lr[0], ur[0]))/CHUNK_SIZE);
+        int highX = (int)Math.ceil(Math.max(Math.max(ll[0], ul[0]), Math.max(lr[0], ur[0]))/CHUNK_SIZE);
+        int lowZ = (int)Math.floor(Math.min(Math.min(ll[1], ul[1]), Math.min(lr[1], ur[1]))/CHUNK_SIZE);
+        int highZ = (int)Math.ceil(Math.max(Math.max(ll[1], ul[1]), Math.max(lr[1], ur[1]))/CHUNK_SIZE);
+        
         for(Edge e: allEdges)
-            relevantChunks(mchunk.x*CHUNK_PER_MAP_CHUNK, mchunk.y*CHUNK_PER_MAP_CHUNK, (mchunk.x+1)*CHUNK_PER_MAP_CHUNK, (mchunk.y+1)*CHUNK_PER_MAP_CHUNK, e);
+            relevantChunks(lowX, lowZ, highX, highZ, e);
         allEdges.clear();
 
         return true;
     }
     
-    private void doGson(InputStream is) throws IOException {
+    private void doGson(InputStream is, Coord region) throws IOException {
     	
     	StringWriter writer = new StringWriter();
     	IOUtils.copy(is, writer, StandardCharsets.UTF_8);
@@ -148,12 +188,15 @@ public class OpenStreetMaps {
                     	type = Type.MAJOR;
                     
 	    			Element lastNode = null;
+	    			double[] lastProj = null;
 	    			for(long id: elem.nodes) {
 	    				Element node = allNodes.get(id);
+	    				double[] proj = projection.fromGeo(node.lon, node.lat);
 	    				if(lastNode!=null) {
-	    					allEdges.add(new Edge(lastNode.lat, lastNode.lon, node.lat, node.lon, type, lanes));
+	    					allEdges.add(new Edge(lastProj[0], lastProj[1], proj[0], proj[1], type, lanes, region));
 	    				}
-	    				lastNode = allNodes.get(id);
+	    				lastProj = proj;
+	    				lastNode = node;
 	    			}
     			}
     		}
@@ -176,7 +219,7 @@ public class OpenStreetMaps {
             startx = endx;
             endx = edge.slon;
         }
-
+        
         highX = Math.min(highX, end.x+1);
         for(int x=Math.max(lowX, start.x); x<highX; x++) {
             double X = x*CHUNK_SIZE;
@@ -204,12 +247,32 @@ public class OpenStreetMaps {
         list.add(edge);
     }
 
+    //TODO: this algorithm is untested and may have some memory leak issues and also strait up copies code from earlier
     private void removeRegion(Coord mchunk) {
-        mchunk.x *= CHUNK_PER_MAP_CHUNK;
-        mchunk.y *= CHUNK_PER_MAP_CHUNK;
-        for(int x=mchunk.x; x<mchunk.x + CHUNK_PER_MAP_CHUNK; x++) {
-            for(int y=mchunk.y; y<mchunk.y + CHUNK_PER_MAP_CHUNK; y++) {
-                chunks.remove(new Coord(x,y));
+    	
+    	double X = mchunk.x*MAP_CHUNK_SIZE;
+        double Y = mchunk.y*MAP_CHUNK_SIZE;
+    	
+    	double[] ll = projection.fromGeo(X, Y);
+        double[] lr = projection.fromGeo(X + MAP_CHUNK_SIZE, Y);
+        double[] ur = projection.fromGeo(X + MAP_CHUNK_SIZE, Y + MAP_CHUNK_SIZE);
+        double[] ul = projection.fromGeo(X, Y + MAP_CHUNK_SIZE);
+        
+        //estimate bounds of region in terms of chunks
+        int lowX = (int)Math.floor(Math.min(Math.min(ll[0], ul[0]), Math.min(lr[0], ur[0]))/CHUNK_SIZE);
+        int highX = (int)Math.ceil(Math.max(Math.max(ll[0], ul[0]), Math.max(lr[0], ur[0]))/CHUNK_SIZE);
+        int lowZ = (int)Math.floor(Math.min(Math.min(ll[1], ul[1]), Math.min(lr[1], ur[1]))/CHUNK_SIZE);
+        int highZ = (int)Math.ceil(Math.max(Math.max(ll[1], ul[1]), Math.max(lr[1], ur[1]))/CHUNK_SIZE);
+        
+        for(int x=lowX; x<highX; x++) {
+            for(int z=lowZ; z<highZ; z++) {
+            	Set<Edge> edges = chunks.get(new Coord(x,z));
+            	if(edges!=null) {
+            		Iterator<Edge> it = edges.iterator();
+            		while(it.hasNext())
+            			if(it.next().region.equals(mchunk))
+            				it.remove();
+            	}
             }
         }
     }
@@ -249,6 +312,8 @@ public class OpenStreetMaps {
         public double offset;
 
         public byte lanes;
+        
+        Coord region;
 
         private double squareLength() {
             double dlat = elat-slat;
@@ -256,7 +321,7 @@ public class OpenStreetMaps {
             return dlat*dlat + dlon*dlon;
         }
 
-        private Edge(double slat, double slon, double elat, double elon, Type type, byte lanes) {
+        private Edge(double slon, double slat, double elon, double elat, Type type, byte lanes, Coord region) {
             //slope must not be infinity, slight inaccuracy shouldn't even be noticible unless you go looking for it
             double dif = elon-slon;
             if(-NOTHING <= dif && dif <= NOTHING) {
@@ -273,6 +338,7 @@ public class OpenStreetMaps {
             this.elon = elon;
             this.type = type;
             this.lanes = lanes;
+            this.region = region;
 
             slope = (elat-slat)/(elon-slon);
             offset = slat - slope*slon;
@@ -310,5 +376,8 @@ public class OpenStreetMaps {
     	String generator;
     	Map<String, String> osm3s;
     	List<Element> elements;
+    }
+    
+    public static void main(String[] args) {
     }
 }

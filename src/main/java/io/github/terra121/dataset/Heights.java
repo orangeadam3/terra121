@@ -1,6 +1,7 @@
 package io.github.terra121.dataset;
 
 import io.github.opencubicchunks.cubicchunks.cubicgen.CustomCubicMod;
+import io.github.terra121.projection.MapsProjection;
 
 import java.awt.image.BufferedImage;
 import java.net.URL;
@@ -18,7 +19,7 @@ public class Heights extends TiledDataset{
     private static final String URL_PREFIX = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/"+ZOOM+"/";
 
     public Heights() {
-    	super(256, 256, 10);
+    	super(256, 256, 10, new MapsProjection(), 1<<(ZOOM+8), 1<<(ZOOM+8));
     }
 
     private static final double TO_RADIANS = Math.PI/180.0;
