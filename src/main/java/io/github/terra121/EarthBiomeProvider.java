@@ -64,6 +64,9 @@ public class EarthBiomeProvider extends BiomeProvider {
      */
     public Biome getBiome(BlockPos pos)
     {
+    	if(pos.getX() < -1600 && pos.getX() < 1600 && pos.getX() < -1600 && pos.getZ() < 1600)
+    		return Biomes.MUSHROOM_ISLAND;
+    	
     	double[] projected = projection.toGeo(pos.getX() / 100000.0, pos.getZ() / 100000.0);
     	
         Climate.ClimateData clim = climate.getPoint(projected[0], projected[1]);

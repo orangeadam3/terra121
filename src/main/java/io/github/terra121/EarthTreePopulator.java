@@ -39,34 +39,38 @@ public class EarthTreePopulator implements ICubicPopulator {
 		extraSurface.add(Blocks.HARDENED_CLAY);
 		extraSurface.add(Blocks.SAND);
 		extraSurface.add(Blocks.SNOW);
+		extraSurface.add(Blocks.MYCELIUM);
 		projection = proj;
 	}
 	
 	@Override
 	public void generate(World world, Random random, CubePos pos, Biome biome) {
-		
+
 		double[] projected = projection.toGeo(pos.getX()*16/100000.0, pos.getZ()*16/100000.0);
 		
 	    int treeCount = (int)(trees.estimateLocal(projected[0], projected[1])*15.0);
 
+	    if(random.nextFloat()*5 < biome.decorator.extraTreeChance)
+	    	treeCount++;
+	    
 	    ICubicWorld cworld = (ICubicWorld)world;
 	    		
 	    if (CWGEventFactory.decorate(world, random, pos, DecorateBiomeEvent.Decorate.EventType.TREE)) {
 	        for (int i = 0; i < treeCount; ++i) {
-	            int xOffset1 = random.nextInt(ICube.SIZE) + ICube.SIZE / 2;
-	            int zOffset1 = random.nextInt(ICube.SIZE) + ICube.SIZE / 2;
+	            int xOffset = random.nextInt(ICube.SIZE) + ICube.SIZE / 2;
+	            int zOffset = random.nextInt(ICube.SIZE) + ICube.SIZE / 2;
 	            WorldGenAbstractTree treeGen = biome.getRandomTreeFeature(random);
 	            treeGen.setDecorationDefaults();
 	            
-	            int actualX = xOffset1 + pos.getMinBlockX();
-	            int actualZ = zOffset1 + pos.getMinBlockZ();
+	            int actualX = xOffset + pos.getMinBlockX();
+	            int actualZ = zOffset + pos.getMinBlockZ();
 	            BlockPos top1 = new BlockPos(actualX, quickElev(world, actualX, actualZ, pos.getMinBlockY()-1, pos.getMaxBlockY())+1, actualZ);
 	            
-	            if(top1!= null && pos.getMinBlockY() <= top1.getY() && top1.getY() <= pos.getMaxBlockY()) {
+	            if(top1!= null && pos.getMinBlockY() <= top1.getY() && top1.getY() <= pos.getMaxBlockY() && world.getBlockState(top1).getBlock() == Blocks.AIR) {
 	            	IBlockState topstate = world.getBlockState(top1.down());
 	            	boolean spawn = true;
 	            	
-	            	if(!topstate.getBlock().canSustainPlant(topstate, world, top1.down(), net.minecraft.util.EnumFacing.UP, (net.minecraft.block.BlockSapling)Blocks.SAPLING)) {
+	            	if(topstate.getBlock()!=Blocks.GRASS && topstate.getBlock()!=Blocks.DIRT) {
 		            	//plant a bit of dirt to make sure trees spawn when they are supposed to even in certain hostile environments
 		            	if(extraSurface.contains(topstate.getBlock()))
 		            		world.setBlockState(top1.down(), Blocks.GRASS.getDefaultState());

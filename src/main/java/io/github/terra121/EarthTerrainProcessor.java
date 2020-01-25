@@ -10,15 +10,19 @@ import io.github.opencubicchunks.cubicchunks.api.worldgen.ICubeGenerator;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.CubePopulatorEvent;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
 import io.github.opencubicchunks.cubicchunks.cubicgen.BasicCubeGenerator;
+import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.CustomGeneratorSettings;
+import  io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.populator.*;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.BiomeBlockReplacerConfig;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.CubicBiome;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.IBiomeBlockReplacer;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.IBiomeBlockReplacerProvider;
+import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.populator.DefaultDecorator;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
 import io.github.terra121.projection.GeographicProjection;
 import io.github.terra121.projection.InvertedGeographic;
 import io.github.terra121.projection.MinecraftGeographic;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.util.math.BlockPos;
@@ -31,6 +35,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Random;
@@ -43,11 +48,12 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     OpenStreetMaps osm;
     HashMap<Biome, List<IBiomeBlockReplacer>> biomeBlockReplacers;
     BiomeProvider biomes;
-    RoadGenerator roads;
     GeographicProjection projection;
 
-    public Set<IBlockState> unnaturals;
-    private Set<ICubicPopulator> populators;
+    public Set<Block> unnaturals;
+    private Set<ICubicPopulator> surfacePopulators;
+    private Set<ICubicPopulator> universalPopulators;
+    private Map<Biome, ICubicPopulator> biomePopulators;
 
     private static final double SCALE = 100000.0;
 
@@ -58,17 +64,33 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         heights = new Heights(13);
         depths = new Heights(10); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
         osm = new OpenStreetMaps(projection);
-        roads = new RoadGenerator(osm, heights, projection);
         biomes = world.getBiomeProvider();
-        unnaturals = new HashSet<IBlockState>();
-        unnaturals.add(Blocks.STONEBRICK.getDefaultState());
+        unnaturals = new HashSet<Block>();
+        unnaturals.add(Blocks.STONEBRICK);
+        unnaturals.add(Blocks.CONCRETE);
         
-        populators = new HashSet<ICubicPopulator>();
-        populators.add(new EarthTreePopulator(projection));
+        surfacePopulators = new HashSet<ICubicPopulator>();
+        surfacePopulators.add(new RoadGenerator(osm, heights, projection));
+        surfacePopulators.add(new EarthTreePopulator(projection));
+        
+        CustomGeneratorSettings cfg = new CustomGeneratorSettings();
+        cfg.waterLakes = false;
+        cfg.ravines = false;
+        
+        biomePopulators = new HashMap<Biome, ICubicPopulator>();
+        universalPopulators = new HashSet<ICubicPopulator>();
+        universalPopulators.add(new PrePopulator(cfg));
+        universalPopulators.add(new DefaultDecorator(cfg));
+        
+        for (Biome biome : ForgeRegistries.BIOMES) {
+            CubicBiome cubicBiome = CubicBiome.getCubic(biome);
+            biomePopulators.put(biome, cubicBiome.getDecorator(cfg));
+        }
 
         biomeBlockReplacers = new HashMap<Biome, List<IBiomeBlockReplacer>>();
-        BiomeBlockReplacerConfig conf = BiomeBlockReplacerConfig.defaults();
-
+        BiomeBlockReplacerConfig conf = cfg.replacerConfig;
+        CliffReplacer cliffs = new CliffReplacer();
+        
         for (Biome biome : ForgeRegistries.BIOMES) {
             CubicBiome cubicBiome = CubicBiome.getCubic(biome);
             Iterable<IBiomeBlockReplacerProvider> providers = cubicBiome.getReplacerProviders();
@@ -76,6 +98,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             for (IBiomeBlockReplacerProvider prov : providers) {
                 replacers.add(prov.create(world, cubicBiome, conf));
             }
+            replacers.add(cliffs);
 
             biomeBlockReplacers.put(biome, replacers);
         }
@@ -224,13 +247,23 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
          **/
         if (!MinecraftForge.EVENT_BUS.post(new CubePopulatorEvent(world, cube))) {
             Random rand = Coords.coordsSeedRandom(cube.getWorld().getSeed(), cube.getX(), cube.getY(), cube.getZ());
-
+            
+            Biome biome = cube.getBiome(Coords.getCubeCenter(cube));
+            
             if(isSurface(world, cube)) {
-                roads.generateRoads(cube, cube.getX(), cube.getY(), cube.getZ(), cube.getWorld(), rand);
-                
-                for(ICubicPopulator pop: populators)
-                	pop.generate(cube.getWorld(), rand, cube.getCoords(), cube.getBiome(Coords.getCubeCenter(cube)));
+                for(ICubicPopulator pop: surfacePopulators)
+                	pop.generate(cube.getWorld(), rand, cube.getCoords(), biome);
             }
+            
+            int oldTreesPerChunk = biome.decorator.treesPerChunk;
+            biome.decorator.treesPerChunk = -1;
+            
+            for(ICubicPopulator pop: universalPopulators)
+            	pop.generate(cube.getWorld(), rand, cube.getCoords(), biome);
+            
+            biomePopulators.get(biome).generate(cube.getWorld(), rand, cube.getCoords(), biome);
+            
+            biome.decorator.treesPerChunk = oldTreesPerChunk;
         }
     }
 
@@ -241,7 +274,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         for(int x=0; x<16; x++)
             for(int z=0; z<16; z++) {
                 if(world.getBlockState(new BlockPos(x + cube.getX()*16, 16 + cube.getY()*16, z + cube.getZ()*16)) == defState &&
-                		cube.getBlockState(x, 0, z) != defState && !unnaturals.contains(cube.getBlockState(x, 0, z)))
+                		cube.getBlockState(x, 0, z) != defState && !unnaturals.contains(cube.getBlockState(x, 0, z).getBlock()))
                     return true;
             }
         return false;

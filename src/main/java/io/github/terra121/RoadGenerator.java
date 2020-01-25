@@ -1,6 +1,8 @@
 package io.github.terra121;
 
 import java.util.Set;
+
+import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.world.ICube;
 import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
@@ -12,13 +14,14 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.block.BlockColored;
 import net.minecraft.block.BlockOldLog;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.state.IBlockState;
 import java.util.Random;
 
-public class RoadGenerator {
+public class RoadGenerator implements ICubicPopulator {
 
     private static final double SCALE = 100000.0;
     private static final IBlockState ASPHALT = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.GRAY);
@@ -33,7 +36,10 @@ public class RoadGenerator {
         projection = proj;
     }
 
-    public void generateRoads(ICube cube, int cubeX, int cubeY, int cubeZ, World world, Random rand) {
+    public void generate(World world, Random rand, CubePos pos, Biome biome) {
+    	
+    	int cubeX = pos.getX(), cubeY = pos.getY(), cubeZ = pos.getZ();
+    	
         Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeZ);
 
         if(edges!=null) for(OpenStreetMaps.Edge e: edges) {
