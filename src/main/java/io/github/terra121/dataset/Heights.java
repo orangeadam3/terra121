@@ -15,7 +15,7 @@ import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
 import org.apache.commons.imaging.formats.tiff.TiffImageParser;
 
 public class Heights extends TiledDataset{
-    private int zoom = 13;
+    private int zoom;
     private String url_prefix = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/";
 
     public Heights(int zoom) {

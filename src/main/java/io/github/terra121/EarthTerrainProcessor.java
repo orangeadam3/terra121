@@ -39,6 +39,7 @@ import net.minecraft.world.biome.BiomeProvider;
 public class EarthTerrainProcessor extends BasicCubeGenerator {
 
     Heights heights;
+    Heights depths;
     OpenStreetMaps osm;
     HashMap<Biome, List<IBiomeBlockReplacer>> biomeBlockReplacers;
     BiomeProvider biomes;
@@ -55,6 +56,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         System.out.println(world.getWorldInfo().getGeneratorOptions());
         projection = new InvertedGeographic();
         heights = new Heights(13);
+        depths = new Heights(10); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
         osm = new OpenStreetMaps(projection);
         roads = new RoadGenerator(osm, heights, projection);
         biomes = world.getBiomeProvider();
@@ -89,8 +91,13 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         
         for(int x=0; x<16; x++) {
             for(int z=0; z<16; z++) {
-            	double[] projected = projection.toGeo((cubeX*16 + x)/SCALE, (cubeZ*16 + z)/SCALE);
             	
+            	if(-5 < cubeX && cubeX < 5 && -5 < cubeZ && cubeZ < 5) {
+            		heightarr[x][z] = 1;
+            		continue;
+            	}
+            	
+            	double[] projected = projection.toGeo((cubeX*16 + x)/SCALE, (cubeZ*16 + z)/SCALE);
                 double Y = heights.estimateLocal(projected[0], projected[1]);
                 heightarr[x][z] = Y;
                 
@@ -103,6 +110,17 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         for(int x=0; x<16; x++) {
             for(int z=0; z<16; z++) {
             	double Y = heightarr[x][z];
+            	boolean ocean = false;
+            	
+            	//ocean?
+            	if(-0.001 < Y && Y < 0.001) {
+            		double[] projected = projection.toGeo((cubeX*16 + x)/SCALE, (cubeZ*16 + z)/SCALE);
+                    double depth = depths.estimateLocal(projected[0], projected[1]);
+                    
+                    if(depth < 0) {
+                    	Y = depth;
+                    }
+            	}
             	
                 for (int y = 0; y < 16 && y < Y - Coords.cubeToMinBlock(cubeY); y++) {
                 	
@@ -123,6 +141,13 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                     }
 
                     primer.setBlockState(x, y, z, block);
+                }
+                
+                if(Y<=0) {
+	                int y = (int)Math.floor(Y - Coords.cubeToMinBlock(cubeY));
+	            	for (y=y<0?0:y; y < 16 && y < 0 - Coords.cubeToMinBlock(cubeY); y++) {
+	            		primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
+	            	}
                 }
             }
         }
