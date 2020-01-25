@@ -26,17 +26,19 @@ Currently used APIs:
 
 [OpenStreetMap v0.6 API](https://wiki.openstreetmap.org/wiki/API_v0.6) is used for Rivers, and basic roads.
 
+[ArcGIS REST Services Tree Cover 2000 Dataset](https://gis-treecover.wri.org/arcgis/rest/services/TreeCover2000/ImageServer) (not exactly sure if it is actually from ArcGIS, but it is hosted on Amazon servers, its from a )
+
 ## Prerequisites
 
 - **REQUIRED**: Minecraft Forge for the corrective version of Minecraft of the mod (currently Minecraft 1.12.2)
 - **REQUIRED**: Standard CubicChunks for the corrective version of the mod.
   - [On GitHub](https://github.com/OpenCubicChunks/CubicChunks)
   - [On CurseForge](https://www.curseforge.com/minecraft/mc-mods/opencubicchunks)
-  - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE [CUBIC CHUNKS DISCORD](https://discord.gg/kMfWg9m) under the **#info-new-cc** channel
+  - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE [CUBIC CHUNKS DISCORD](https://discord.gg/kMfWg9m) under the **#info-new-cc** channel)
 - **REQUIRED**: Standard CubicWorldGen for the corrective version of the mod.
   - [On GitHub](https://github.com/OpenCubicChunks/CubicWorldGen/)
   - [On CurseForge](https://www.curseforge.com/minecraft/mc-mods/cubicworldgen) 
-  - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE [CUBIC CHUNKS DISCORD](https://discord.gg/kMfWg9m) under the **#info-new-cc** channel
+  - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE [CUBIC CHUNKS DISCORD](https://discord.gg/kMfWg9m) under the **#info-new-cc** channel)
 - Recomended: [Malisis Core](https://www.curseforge.com/minecraft/mc-mods/malisiscore):  (The Planet Earth generation at the current moment does not have any support for Malisis, but the original generation methods inside of CubicWorldGen do)
 
 **You must have all required mods installed for the Planet Earth generation to work!!!**
@@ -45,8 +47,8 @@ Currently used APIs:
 
 As of current, you must compile the mod yourself, luckily for pretty ol' you, here are the [building instructions](BUILD_INSTRUCTIONS.md)
 
-## Client Useage
-After completeing the [Build Instructions](BUILD_INSTRUCTIONS.md). When creating a new world, under the World Type, you will now have an option called "**Planet Earth**" which will allow you to generate a world using the new generation method.
+## Client Usage
+After completing the [Build Instructions](BUILD_INSTRUCTIONS.md). When creating a new world, under the World Type, you will now have an option called "**Planet Earth**" which will allow you to generate a world using the new generation method.
 
 Upon creation, You will spawn near or on (0,0,0) (a.k.a. 0°N, 0°E or [Null Island](https://www.youtube.com/watch?v=bjvIpI-1w84)), This region is currently glitched so you will need to [teleport away to see somewhere meaningful](COOL_LOCATIONS.md).
 

@@ -44,13 +44,13 @@ The mod is found inside the **CubicWorldGen** folder, under **its** build folder
 
 Meaning you should find the mod in this directory
 
+```bash
+\terra121\build\libs
 ```
-\terra-1-to-1\CubicWorldGen\build\libs\<files>
-```
 
 
 
-The correct file ends with ''**-all.jar**''. Move that file to your Minecraft Forge mod folder, and generate a new world with the 'Planet Earth' World type, and try out some of our [Cool Earth Locations](COOL_LOCATIONS.md) to check out in Minecraft.
+The correct file ends with ''**.jar**''. (Do not use the sources) Move that file to your Minecraft Forge mod folder, and generate a new world with the 'Planet Earth' World type, and try out some of our [Cool Earth Locations](COOL_LOCATIONS.md) to check out in Minecraft.
 
 
 
