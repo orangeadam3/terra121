@@ -17,6 +17,7 @@ public class EarthWorldType extends WorldType implements ICubicWorldType  {
     public static EarthWorldType create() { return new EarthWorldType(); }
 
     public ICubeGenerator createCubeGenerator(World world) {
+    	System.out.println(world.provider.isNether());
         return new EarthTerrainProcessor(world);
     }
 

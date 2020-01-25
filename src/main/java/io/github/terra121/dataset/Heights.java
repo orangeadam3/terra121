@@ -15,23 +15,13 @@ import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
 import org.apache.commons.imaging.formats.tiff.TiffImageParser;
 
 public class Heights extends TiledDataset{
-    private static final int ZOOM = 13;
-    private static final String URL_PREFIX = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/"+ZOOM+"/";
+    private int zoom = 13;
+    private String url_prefix = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/";
 
-    public Heights() {
-    	super(256, 256, 10, new MapsProjection(), 1<<(ZOOM+8), 1<<(ZOOM+8));
-    }
-
-    private static final double TO_RADIANS = Math.PI/180.0;
-    private static final double MAP_MULT = (1<<(ZOOM+8))/(2*Math.PI);
-
-    //latitude and longitude to EPSG:3857 tileing format
-    protected double lonToX(double lon) {
-        return MAP_MULT* (lon*TO_RADIANS + Math.PI);
-    }
-
-    protected double latToY(double lat) {
-        return MAP_MULT * (Math.PI - Math.log(Math.tan((Math.PI/2 + lat*TO_RADIANS)/2)));
+    public Heights(int zoom) {
+    	super(256, 256, 10, new MapsProjection(), 1<<(zoom+8), 1<<(zoom+8));
+    	this.zoom = zoom;
+    	url_prefix += zoom+"/";
     }
 
     //request a mapzen tile from amazon, this should only be needed evrey 2 thousand blocks or so if the cache is large enough
@@ -44,7 +34,7 @@ public class Heights extends TiledDataset{
             InputStream is = null;
 
             try {
-                String urlText = URL_PREFIX + place.x + "/" + place.y + ".png";
+                String urlText = url_prefix + place.x + "/" + place.y + ".png";
                 //CustomCubicMod.LOGGER.error(urlText);
                 URL url = new URL(urlText);
                 is = url.openStream();
@@ -63,6 +53,7 @@ public class Heights extends TiledDataset{
                     for (int y = 0; y < img.getHeight(); y++) {
                         int c = y * 256 + x;
                         out[c] = (out[c] & 0x00ffffff) - 8388608;
+                        if(zoom > 10 && out[c]<-1500*256) out[c] = 0; //terrain glitch (default to 0), comment this for fun dataset glitches
                     }
                 }
 
@@ -86,12 +77,4 @@ public class Heights extends TiledDataset{
 	protected double dataToDouble(int data) {
 		return data/256.0;
 	}
-
-    public static void main(String[] args) throws IOException, ImageReadException {
-    	Heights h = new Heights();
-    	double X = h.lonToX(-112.11720)/256;
-    	double Y = h.latToY(36.06600)/256;
-    	double[] arr = h.estimateWithSlope(36.070646, -112.110249);
-    	System.out.println(arr[0] + " " + arr[1] + " " + arr[2]);
-    }
 }

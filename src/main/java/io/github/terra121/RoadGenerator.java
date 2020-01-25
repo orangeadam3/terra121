@@ -59,11 +59,20 @@ public class RoadGenerator {
                     k = t;
                 }
 
-                if(j<=0) j=0;
-                if(k>=16/SCALE) k=16/SCALE;
+                double ij = j-r;
+                double ik = k+r;
+                
+                if(j<=0) {
+                	j=0;
+                	ij=0;
+                }
+                if(k>=16/SCALE) {
+                	k=16/SCALE;
+                	ik = 16/SCALE;
+                }
 
-                int is = (int)Math.floor((j-r)*SCALE);
-                int ie = (int)Math.floor((k+r)*SCALE);
+                int is = (int)Math.floor(ij*SCALE);
+                int ie = (int)Math.floor(ik*SCALE);
 
                 for(int x=is; x<=ie; x++) {
                     double X = x/SCALE;
@@ -114,26 +123,6 @@ public class RoadGenerator {
                 }
             }
         }
-    }
-
-    private int quickElev(ICube cube, int x, int z) {
-
-        if(x<0 || x>=16 || z<0 || z>=16)
-            return 16-1;
-
-        int low = 0;
-        int high = 16;
-
-        IBlockState defState = Blocks.AIR.getDefaultState();
-
-        while(low < high-1) {
-            int y = low + (high - low) / 2;
-            if(cube.getBlockState(new BlockPos(x, y, z))==defState)
-                high = y;
-            else low = y;
-        }
-
-        return low;
     }
 
     private static double bound(double x, double slope, double j, double k, double r, double x0, double b, double sign) {

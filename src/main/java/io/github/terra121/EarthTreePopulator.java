@@ -57,21 +57,44 @@ public class EarthTreePopulator implements ICubicPopulator {
 	            int zOffset1 = random.nextInt(ICube.SIZE) + ICube.SIZE / 2;
 	            WorldGenAbstractTree treeGen = biome.getRandomTreeFeature(random);
 	            treeGen.setDecorationDefaults();
-	            BlockPos top1 = cworld.getSurfaceForCube(pos, xOffset1, zOffset1, 0, ICubicWorld.SurfaceType.OPAQUE);
-	            if(top1!= null) {
+	            
+	            int actualX = xOffset1 + pos.getMinBlockX();
+	            int actualZ = zOffset1 + pos.getMinBlockZ();
+	            BlockPos top1 = new BlockPos(actualX, quickElev(world, actualX, actualZ, pos.getMinBlockY()-1, pos.getMaxBlockY())+1, actualZ);
+	            
+	            System.out.println(top1 + " " + xOffset1 + " " + zOffset1 + " " + pos + " " + (pos.getMinBlockY()-1) + " " + pos.getMaxBlockY());
+	            
+	            if(top1!= null && top1.getY() >= pos.getMinBlockY() && top1.getY() <= pos.getMinBlockY()) {
 	            	IBlockState topstate = world.getBlockState(top1.down());
 	            	
-	            	//plant a bit of dirt to make sure trees spawn when they are supposed to even in certain hostile environments
-	            	if(extraSurface.contains(topstate.getBlock()) && !topstate.getBlock().canSustainPlant(topstate, world, top1.down(), net.minecraft.util.EnumFacing.UP, (net.minecraft.block.BlockSapling)Blocks.SAPLING))
-	            		world.setBlockState(top1.down(), Blocks.GRASS.getDefaultState());
-		            
-	            	
-	            	if (treeGen.generate(world, random, top1)) {
-		                treeGen.generateSaplings(world, random, top1);
-		            }
+	            	if(!topstate.getBlock().canSustainPlant(topstate, world, top1.down(), net.minecraft.util.EnumFacing.UP, (net.minecraft.block.BlockSapling)Blocks.SAPLING)) {
+		            	//plant a bit of dirt to make sure trees spawn when they are supposed to even in certain hostile environments
+		            	if(extraSurface.contains(topstate.getBlock()))
+		            		world.setBlockState(top1.down(), Blocks.GRASS.getDefaultState());
+			            
+		            	
+		            	if (treeGen.generate(world, random, top1)) {
+			                treeGen.generateSaplings(world, random, top1);
+			            }
+	            	}
 	            }
 	        }
 	    }
 	}
+	
+    private int quickElev(World world, int x, int z, int low, int high) {
+    	high++;
+
+        IBlockState defState = Blocks.AIR.getDefaultState();
+
+        while(low < high-1) {
+            int y = low + (high - low) / 2;
+            if(world.getBlockState(new BlockPos(x, y, z))==defState)
+                high = y;
+            else low = y;
+        }
+
+        return low;
+    }
 
 }

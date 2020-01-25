@@ -272,6 +272,9 @@ public class OpenStreetMaps {
             		while(it.hasNext())
             			if(it.next().region.equals(mchunk))
             				it.remove();
+            		
+            		if(edges.size() <= 0)
+            			chunks.remove(new Coord(x,z));
             	}
             }
         }

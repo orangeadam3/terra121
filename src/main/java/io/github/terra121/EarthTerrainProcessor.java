@@ -52,8 +52,9 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
     public EarthTerrainProcessor(World world) {
         super(world);
+        System.out.println(world.getWorldInfo().getGeneratorOptions());
         projection = new InvertedGeographic();
-        heights = new Heights();
+        heights = new Heights(13);
         osm = new OpenStreetMaps(projection);
         roads = new RoadGenerator(osm, heights, projection);
         biomes = world.getBiomeProvider();
@@ -79,29 +80,46 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
     }
 
-    //TODO: more efficent
+    //TODO: more efficient
     public CubePrimer generateCube(int cubeX, int cubeY, int cubeZ) {
         CubePrimer primer = new CubePrimer();
 
-        int heightarr[][] = new int[16][16];
+        double heightarr[][] = new double[16][16];
         boolean surface = false;
-
+        
         for(int x=0; x<16; x++) {
             for(int z=0; z<16; z++) {
             	double[] projected = projection.toGeo((cubeX*16 + x)/SCALE, (cubeZ*16 + z)/SCALE);
             	
                 double Y = heights.estimateLocal(projected[0], projected[1]);
-
+                heightarr[x][z] = Y;
+                
                 if(Coords.cubeToMinBlock(cubeY)<Y && Coords.cubeToMinBlock(cubeY)+16>Y) {
                     surface = true;
-                    heightarr[x][z] = (int)Y;
                 }
+            }
+        }
 
+        for(int x=0; x<16; x++) {
+            for(int z=0; z<16; z++) {
+            	double Y = heightarr[x][z];
+            	
                 for (int y = 0; y < 16 && y < Y - Coords.cubeToMinBlock(cubeY); y++) {
+                	
+                	//estimate slopes
+                	double dx, dz;
+                	if(x == 16-1)
+                		dx = heightarr[x][z]-heightarr[x-1][z];
+                	else dx = heightarr[x+1][z]-heightarr[x][z];
+                	
+                	if(z == 16-1)
+                		dz = heightarr[x][z]-heightarr[x][z-1];
+                	else dz = heightarr[x][z+1]-heightarr[x][z];
+                	
                     List<IBiomeBlockReplacer> reps = biomeBlockReplacers.get(biomes.getBiome(new BlockPos(cubeX*16 + x, 0, cubeZ*16 + z)));
                     IBlockState block = Blocks.STONE.getDefaultState();
                     for(IBiomeBlockReplacer rep : reps) {
-                        block = rep.getReplacedBlock(block, cubeX*16 + x, cubeY*16 + y + 63, cubeZ*16 + z, 0, -1,0,Y - (cubeY*16 + y));
+                        block = rep.getReplacedBlock(block, cubeX*16 + x, cubeY*16 + y + 63, cubeZ*16 + z, dx, -1, dz, Y - (cubeY*16 + y));
                     }
 
                     primer.setBlockState(x, y, z, block);
@@ -160,7 +178,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                         if(to >= 16)to = 16-1;
 
                         for(int z=from>0?from:0; z<=to; z++) {
-                            int y = heightarr[x][z] - Coords.cubeToMinBlock(cubeY);
+                            int y = (int)Math.floor(heightarr[x][z]) - Coords.cubeToMinBlock(cubeY);
 
                             if(y >= 0 && y < 16)
                                 primer.setBlockState(x, y, z, ( e.type == OpenStreetMaps.Type.ROAD ? Blocks.GRASS_PATH : Blocks.STONEBRICK).getDefaultState());
@@ -174,7 +192,6 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     }
 
 
-    //TODO: idek what populate does
     @Override
     public void populate(ICube cube) {
         /**
@@ -192,7 +209,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         }
     }
 
-    //TODO: so inefficent but it's the best i could think of, short of cachheing this state by coords
+    //TODO: so inefficient but it's the best i could think of, short of caching this state by coords
     //TODO: factor in if air right above solid cube
     private boolean isSurface(World world, ICube cube) {
         IBlockState defState = Blocks.AIR.getDefaultState();

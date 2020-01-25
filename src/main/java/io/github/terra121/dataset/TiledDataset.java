@@ -31,7 +31,7 @@ public abstract class TiledDataset {
 	
     public double estimateLocal(double lon, double lat) {
         //bound check
-        if(lon > 180 || lon < -180 || lat > 85.6 || lat < -85.6) {
+        if(lon > 180 || lon < -180 || lat > 85 || lat < -85) {
             return 0;
         }
 
@@ -56,47 +56,6 @@ public abstract class TiledDataset {
 
         //get perlin style interpolation on this block
         return (1-v)*(ll*(1-u) + lr*u) + (ul*(1-u) + ur*u)*v;
-    }
-    
-    public double[] estimateWithSlope(double lat, double lon) {
-        //bound check
-        if(lon > 180 || lon < -180 || lat > 85.6 || lat < -85.6) {
-            return new double[] {0,0,0};
-        }
-
-        //project coords
-        double[] floatCoords = projection.fromGeo(lon, lat);
-        double X = floatCoords[0]*scaleX;
-        double Y = floatCoords[1]*scaleY;
-
-        //get the corners surrounding this block
-        Coord coord = new Coord((int)X, (int)Y);
-
-        double u = X-coord.x;
-        double v = Y-coord.y;
-        
-        double ll = getOfficialHeight(coord);
-        coord.x++;
-        double lr = getOfficialHeight(coord);
-        coord.y++;
-        double ur = getOfficialHeight(coord);
-        coord.x--;
-        double ul = getOfficialHeight(coord);
-        
-        double dxl = lr-ll;
-        double dxu = ur-ul;
-        
-        double dyl = ul-ll;
-        double dyr = ur-lr;
-        
-        //outputs
-        double[] out = new double[] {
-        	(1-v) *(ll*(1-u) + lr*u) + (ul*(1-u) + ur*u)*v,
-        	dxl*(1-v) + dxu*v,
-        	dyl*(1-u) + dyr*u
-        };
-
-        return out;
     }
 
 	private double getOfficialHeight(Coord coord) {
