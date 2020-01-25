@@ -64,17 +64,18 @@ public class EarthTreePopulator implements ICubicPopulator {
 	            
 	            if(top1!= null && pos.getMinBlockY() <= top1.getY() && top1.getY() <= pos.getMaxBlockY()) {
 	            	IBlockState topstate = world.getBlockState(top1.down());
+	            	boolean spawn = true;
 	            	
 	            	if(!topstate.getBlock().canSustainPlant(topstate, world, top1.down(), net.minecraft.util.EnumFacing.UP, (net.minecraft.block.BlockSapling)Blocks.SAPLING)) {
 		            	//plant a bit of dirt to make sure trees spawn when they are supposed to even in certain hostile environments
 		            	if(extraSurface.contains(topstate.getBlock()))
 		            		world.setBlockState(top1.down(), Blocks.GRASS.getDefaultState());
-			            
-		            	
-		            	if (treeGen.generate(world, random, top1)) {
-			                treeGen.generateSaplings(world, random, top1);
-			            }
+		            	else spawn = false;
 	            	}
+	            	
+	            	if (spawn && treeGen.generate(world, random, top1)) {
+		                treeGen.generateSaplings(world, random, top1);
+		            }
 	            }
 	        }
 	    }
