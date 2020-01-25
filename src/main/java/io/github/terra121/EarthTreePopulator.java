@@ -62,11 +62,7 @@ public class EarthTreePopulator implements ICubicPopulator {
 	            int actualZ = zOffset1 + pos.getMinBlockZ();
 	            BlockPos top1 = new BlockPos(actualX, quickElev(world, actualX, actualZ, pos.getMinBlockY()-1, pos.getMaxBlockY())+1, actualZ);
 	            
-<<<<<<< HEAD
 	            if(top1!= null && pos.getMinBlockY() <= top1.getY() && top1.getY() <= pos.getMaxBlockY()) {
-=======
-	            if(top1!= null && top1.getY() >= pos.getMinBlockY() && top1.getY() <= pos.getMinBlockY()) {
->>>>>>> 5f3bdcb3191f90315fced59d1fb57eb0882329c3
 	            	IBlockState topstate = world.getBlockState(top1.down());
 	            	
 	            	if(!topstate.getBlock().canSustainPlant(topstate, world, top1.down(), net.minecraft.util.EnumFacing.UP, (net.minecraft.block.BlockSapling)Blocks.SAPLING)) {
