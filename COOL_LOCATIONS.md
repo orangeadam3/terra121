@@ -3,7 +3,7 @@
 
 
 *Half Dome, California, US*
-(Significant degrade in the American continent, Slightly away from the ridge)
+(Significant degrade in the North American continent, Slightly away from the ridge)
 
 ```
 /tp 3774590.26 2700 -11953321.08

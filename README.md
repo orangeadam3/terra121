@@ -28,16 +28,18 @@ Currently used APIs:
 
 ## Prerequisites
 
-- Minecraft Forge for the corrective version of Minecraft of the mod (currently Minecraft 1.12.2)
-- Standard CubicChunks for the corrective version of the mod.
+- **REQUIRED**: Minecraft Forge for the corrective version of Minecraft of the mod (currently Minecraft 1.12.2)
+- **REQUIRED**: Standard CubicChunks for the corrective version of the mod.
   - [On GitHub](https://github.com/OpenCubicChunks/CubicChunks)
-  - [On Curse Forge](https://www.curseforge.com/minecraft/mc-mods/opencubicchunks)
+  - [On CurseForge](https://www.curseforge.com/minecraft/mc-mods/opencubicchunks)
+  - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE [CUBIC CHUNKS DISCORD](https://discord.gg/kMfWg9m) under the **#info-new-cc** channel
+- **REQUIRED**: Standard CubicWorldGen for the corrective version of the mod.
+  - [On GitHub](https://github.com/OpenCubicChunks/CubicWorldGen/)
+  - [On CurseForge](https://www.curseforge.com/minecraft/mc-mods/cubicworldgen) 
   - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE [CUBIC CHUNKS DISCORD](https://discord.gg/kMfWg9m) under the **#info-new-cc** channel
 - Recomended: [Malisis Core](https://www.curseforge.com/minecraft/mc-mods/malisiscore):  (The Planet Earth generation at the current moment does not have any support for Malisis, but the original generation methods inside of CubicWorldGen do)
 
-It is currently not compatable with the pre-existing "Cubic World Generation" Mod as this is a fork, do not have that installed
-
-**DO NOT HAVE THE ORIGINAL CUBICWORLDGEN MOD IN YOUR FORGE MODS DIRECTORY, IT WILL BREAK MANY THINGS ALL OVER THE PLACE**
+**You must have all required mods installed for the Planet Earth generation to work!!!**
 
 ## Obtaining
 
@@ -45,6 +47,7 @@ As of current, you must compile the mod yourself, luckily for pretty ol' you, he
 
 ## Client Useage
 After completeing the [Build Instructions](BUILD_INSTRUCTIONS.md). When creating a new world, under the World Type, you will now have an option called "**Planet Earth**" which will allow you to generate a world using the new generation method.
+
 Upon creation, You will spawn near or on (0,0,0) (a.k.a. 0°N, 0°E or [Null Island](https://www.youtube.com/watch?v=bjvIpI-1w84)), This region is currently glitched so you will need to [teleport away to see somewhere meaningful](COOL_LOCATIONS.md).
 
 ### Using you own coordinates/calculating your own coordinates
@@ -59,7 +62,12 @@ The block coordinates in Minecraft are calcuated by (X, Y, Z). This mod will con
 
 **Also remember that the longitude and latitude must be in decimal form (36.0660, -112.1172) and not degrees (36°03'57.6"N, 112°07'01.9"W).**
 
-Example: Yavapai Point, Grand Canyon, Arizona, USA [OpenStreetMap](https://www.openstreetmap.org/#map=16/36.0660/-112.1172) [Google Maps](https://www.google.com/maps/place/Yavapai+Point/@36.0660043,-112.1193887,17z)
+Example: **Yavapai Point, Grand Canyon, Arizona, USA**
+
+[OpenStreetMap](https://www.openstreetmap.org/#map=16/36.0660/-112.1172) 
+
+[Google Maps](https://www.google.com/maps/place/Yavapai+Point/@36.0660043,-112.1193887,17z)
+
 has decimal coordinates of (36.0660, -112.1172) with an elevation just under 2200 meters, multiplying the latitude and longitude by 10^5 and setting Y to 2200  gives the (X,Y,Z) coordinates of:
 **(3606600, 2200, -11211720) **
 

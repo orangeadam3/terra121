@@ -1,13 +1,12 @@
 Although this mod is meant to be opened and manipulated inside of IntelliJ, you can still compile the mod using the command line.
 
 ## First, you must get this code onto your machine
-Using [Git](https://git-scm.com/) installed on your computer, open your Terminal/Command Line, chose a folder you want the code to go to,clone this repository with the *--recursive* parameter.
+Using [Git](https://git-scm.com/) installed on your computer, open your Terminal/Command Line, chose a folder you want the code to go to, and clone this repository .
 ```
-git clone --recursive https://gitlab.com/TheAtomBomb92/terra-1-to-1
+git clone https://github.com/orangeadam3/terra121.git
 ```
-Ensure that there are things inside of the *BuildSrc* folder, if not then the recursive part did not work
 ## Second, build the mod 
-Make sure you are inside of the '*terra-1-to-1*' folder, start the building process, and watch the beautiful technical jazz fly across your console.
+Make sure you are inside of the '*terra121*' folder, start the building process, and watch the beautiful technical jazz fly across your console.
 
 If you are on Windows:
 ```
