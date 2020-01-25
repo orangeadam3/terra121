@@ -2,6 +2,7 @@ package io.github.terra121;
 
 import io.github.opencubicchunks.cubicchunks.api.util.Box;
 import io.github.opencubicchunks.cubicchunks.api.util.Coords;
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.world.ICube;
 import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.CubeGeneratorsRegistry;
@@ -17,6 +18,7 @@ import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.CubicBiome;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.IBiomeBlockReplacer;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.IBiomeBlockReplacerProvider;
 import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.populator.DefaultDecorator;
+import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.structure.CubicCaveGenerator;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
 import io.github.terra121.projection.GeographicProjection;
@@ -31,6 +33,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+//import io.github.opencubicchunks.cubicchunks.api.worldgen.structure.event.InitCubicStructureGeneratorEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +57,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     private Set<ICubicPopulator> surfacePopulators;
     private Set<ICubicPopulator> universalPopulators;
     private Map<Biome, ICubicPopulator> biomePopulators;
+    private CubicCaveGenerator caveGenerator;
 
     private static final double SCALE = 100000.0;
 
@@ -76,6 +80,9 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         CustomGeneratorSettings cfg = new CustomGeneratorSettings();
         cfg.waterLakes = false;
         cfg.ravines = false;
+        
+        //InitCubicStructureGeneratorEvent caveEvent = new InitCubicStructureGeneratorEvent(EventType.CAVE, new CubicCaveGenerator());
+        caveGenerator = new CubicCaveGenerator();
         
         biomePopulators = new HashMap<Biome, ICubicPopulator>();
         universalPopulators = new HashSet<ICubicPopulator>();
@@ -174,6 +181,8 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                 }
             }
         }
+        
+        caveGenerator.generate(world, primer, new CubePos(cubeX, cubeY, cubeZ));
 
         //spawn roads
         if(surface) {
@@ -261,7 +270,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             for(ICubicPopulator pop: universalPopulators)
             	pop.generate(cube.getWorld(), rand, cube.getCoords(), biome);
             
-            biomePopulators.get(biome).generate(cube.getWorld(), rand, cube.getCoords(), biome);
+            biomePopulators.get(biome);
             
             biome.decorator.treesPerChunk = oldTreesPerChunk;
         }

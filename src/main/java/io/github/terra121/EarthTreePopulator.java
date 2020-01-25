@@ -49,6 +49,9 @@ public class EarthTreePopulator implements ICubicPopulator {
 		double[] projected = projection.toGeo(pos.getX()*16/100000.0, pos.getZ()*16/100000.0);
 		
 	    int treeCount = (int)(trees.estimateLocal(projected[0], projected[1])*15.0);
+	    
+	    if(pos.getX()==0 && pos.getZ()==0)
+	    	treeCount = 10;
 
 	    if(random.nextFloat()*5 < biome.decorator.extraTreeChance)
 	    	treeCount++;
@@ -57,8 +60,8 @@ public class EarthTreePopulator implements ICubicPopulator {
 	    		
 	    if (CWGEventFactory.decorate(world, random, pos, DecorateBiomeEvent.Decorate.EventType.TREE)) {
 	        for (int i = 0; i < treeCount; ++i) {
-	            int xOffset = random.nextInt(ICube.SIZE) + ICube.SIZE / 2;
-	            int zOffset = random.nextInt(ICube.SIZE) + ICube.SIZE / 2;
+	            int xOffset = random.nextInt(ICube.SIZE);
+	            int zOffset = random.nextInt(ICube.SIZE);
 	            WorldGenAbstractTree treeGen = biome.getRandomTreeFeature(random);
 	            treeGen.setDecorationDefaults();
 	            

@@ -64,8 +64,11 @@ public class EarthBiomeProvider extends BiomeProvider {
      */
     public Biome getBiome(BlockPos pos)
     {
-    	if(pos.getX() < -1600 && pos.getX() < 1600 && pos.getX() < -1600 && pos.getZ() < 1600)
+    	if(-1600 < pos.getX() && pos.getX() < 1600 && -1600 < pos.getZ() && pos.getZ() < 1600) {
+    		if(-16 < pos.getX() && pos.getX() < 16 && -16 < pos.getZ() && pos.getZ() < 16)
+    			return Biomes.FOREST;
     		return Biomes.MUSHROOM_ISLAND;
+    	}
     	
     	double[] projected = projection.toGeo(pos.getX() / 100000.0, pos.getZ() / 100000.0);
     	
