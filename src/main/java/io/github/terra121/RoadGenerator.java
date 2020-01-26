@@ -70,11 +70,11 @@ public class RoadGenerator implements ICubicPopulator {
                 
                 if(j<=0) {
                 	j=0;
-                	ij=0;
+                	//ij=0;
                 }
                 if(k>=16/SCALE) {
                 	k=16/SCALE;
-                	ik = 16/SCALE;
+                	//ik = 16/SCALE;
                 }
 
                 int is = (int)Math.floor(ij*SCALE);
@@ -106,8 +106,8 @@ public class RoadGenerator implements ICubicPopulator {
                             if(Math.abs(e.slope)>=0.000001)
                                 mainX = (Z + X/e.slope - off)/(e.slope + 1/e.slope);
 
-                            if(mainX<j) mainX = j;
-                            else if(mainX>k) mainX = k;
+                            /*if(mainX<j) mainX = j;
+                            else if(mainX>k) mainX = k;*/
 
                             double mainZ = e.slope*mainX + off;
 

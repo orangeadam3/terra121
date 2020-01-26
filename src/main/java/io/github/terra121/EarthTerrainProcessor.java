@@ -77,8 +77,9 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         surfacePopulators.add(new RoadGenerator(osm, heights, projection));
         surfacePopulators.add(new EarthTreePopulator(projection));
         
-        CustomGeneratorSettings cfg = new CustomGeneratorSettings();
+        CustomGeneratorSettings cfg = CustomGeneratorSettings.defaults();
         cfg.waterLakes = false;
+        cfg.periodicGaussianOres.get(0);
         cfg.ravines = false;
         
         //InitCubicStructureGeneratorEvent caveEvent = new InitCubicStructureGeneratorEvent(EventType.CAVE, new CubicCaveGenerator());
@@ -87,6 +88,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         biomePopulators = new HashMap<Biome, ICubicPopulator>();
         universalPopulators = new HashSet<ICubicPopulator>();
         universalPopulators.add(new PrePopulator(cfg));
+        universalPopulators.add(new DefaultDecorator.Ores(cfg));
         universalPopulators.add(new DefaultDecorator(cfg));
         
         for (Biome biome : ForgeRegistries.BIOMES) {
