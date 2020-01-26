@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 //import io.github.Kms;
 
-@Mod(modid = TerraMod.MODID, name = TerraMod.NAME, version = TerraMod.VERSION, dependencies = "required-after:cubicchunks; required-after:cubicgen")
+@Mod(modid = TerraMod.MODID, name = TerraMod.NAME, version = TerraMod.VERSION, dependencies = "required-after:cubicchunks; required-after:cubicgen", acceptableRemoteVersions="*")
 public class TerraMod
 {
     public static final String MODID = "terra121";
