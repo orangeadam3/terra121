@@ -15,8 +15,6 @@ import net.minecraft.init.Biomes;
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.biome.Biome;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.client.Minecraft;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -41,8 +39,7 @@ public class EarthBiomeProvider extends BiomeProvider {
     	projection = new InvertedGeographic();
         this.defaultBiome = biomeIn;
         try {
-            ResourceLocation loc = new ResourceLocation("terra121:data/suborder.img");
-            InputStream is = Minecraft.getMinecraft().getResourceManager().getResource(loc).getInputStream();
+            InputStream is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/suborder.img");
             soil = new Soil(is);
             is.close();
         } catch(IOException ioe) {
@@ -50,8 +47,7 @@ public class EarthBiomeProvider extends BiomeProvider {
         }
 
         try {
-            ResourceLocation loc = new ResourceLocation("terra121:data/climate.dat");
-            InputStream is = Minecraft.getMinecraft().getResourceManager().getResource(loc).getInputStream();
+        	InputStream is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/climate.dat");
             climate = new Climate(is);
             is.close();
         } catch(IOException ioe) {
