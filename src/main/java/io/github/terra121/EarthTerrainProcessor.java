@@ -26,6 +26,7 @@ import io.github.terra121.projection.InvertedGeographic;
 import io.github.terra121.projection.MinecraftGeographic;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.init.Biomes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -54,6 +55,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     GeographicProjection projection;
 
     public Set<Block> unnaturals;
+    private CustomGeneratorSettings cfg;
     private Set<ICubicPopulator> surfacePopulators;
     private Set<ICubicPopulator> universalPopulators;
     private Map<Biome, ICubicPopulator> biomePopulators;
@@ -63,6 +65,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
     public EarthTerrainProcessor(World world) {
         super(world);
+        Entity e;
         System.out.println(world.getWorldInfo().getGeneratorOptions());
         projection = new InvertedGeographic();
         heights = new Heights(13);
@@ -72,24 +75,21 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         unnaturals = new HashSet<Block>();
         unnaturals.add(Blocks.STONEBRICK);
         unnaturals.add(Blocks.CONCRETE);
-        
+
         surfacePopulators = new HashSet<ICubicPopulator>();
         surfacePopulators.add(new RoadGenerator(osm, heights, projection));
         surfacePopulators.add(new EarthTreePopulator(projection));
         
-        CustomGeneratorSettings cfg = CustomGeneratorSettings.defaults();
-        cfg.waterLakes = false;
-        cfg.periodicGaussianOres.get(0);
+        cfg = CustomGeneratorSettings.defaults();
         cfg.ravines = false;
+        cfg.dungeonCount = 3; //there are way too many of these by default
+        cfg.waterLakeRarity = 10;
         
         //InitCubicStructureGeneratorEvent caveEvent = new InitCubicStructureGeneratorEvent(EventType.CAVE, new CubicCaveGenerator());
         caveGenerator = new CubicCaveGenerator();
         
         biomePopulators = new HashMap<Biome, ICubicPopulator>();
         universalPopulators = new HashSet<ICubicPopulator>();
-        universalPopulators.add(new PrePopulator(cfg));
-        universalPopulators.add(new DefaultDecorator.Ores(cfg));
-        universalPopulators.add(new DefaultDecorator(cfg));
         
         for (Biome biome : ForgeRegistries.BIOMES) {
             CubicBiome cubicBiome = CubicBiome.getCubic(biome);
@@ -261,34 +261,38 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             
             Biome biome = cube.getBiome(Coords.getCubeCenter(cube));
             
-            if(isSurface(world, cube)) {
+            int surf = isSurface(world, cube);
+            if(surf == 0) {
                 for(ICubicPopulator pop: surfacePopulators)
                 	pop.generate(cube.getWorld(), rand, cube.getCoords(), biome);
+                
+                cfg.waterLakes = true; //we have will our own version of this on the surface
+            } else if(surf == 1) {
+            	cfg.waterLakes = true;
+            } else {
+            	cfg.waterLakes = false; //(but who am I to inhibit sub-surface)
             }
-            
-            int oldTreesPerChunk = biome.decorator.treesPerChunk;
-            biome.decorator.treesPerChunk = -1;
             
             for(ICubicPopulator pop: universalPopulators)
             	pop.generate(cube.getWorld(), rand, cube.getCoords(), biome);
             
-            biomePopulators.get(biome);
-            
-            biome.decorator.treesPerChunk = oldTreesPerChunk;
+            biomePopulators.get(biome).generate(cube.getWorld(), rand, cube.getCoords(), biome);
         }
     }
 
     //TODO: so inefficient but it's the best i could think of, short of caching this state by coords
     //TODO: factor in if air right above solid cube
-    private boolean isSurface(World world, ICube cube) {
+    private int isSurface(World world, ICube cube) {
         IBlockState defState = Blocks.AIR.getDefaultState();
+        IBlockState type = null;
         for(int x=0; x<16; x++)
             for(int z=0; z<16; z++) {
-                if(world.getBlockState(new BlockPos(x + cube.getX()*16, 16 + cube.getY()*16, z + cube.getZ()*16)) == defState &&
+            	type = world.getBlockState(new BlockPos(x + cube.getX()*16, 16 + cube.getY()*16, z + cube.getZ()*16));
+                if(type == defState &&
                 		cube.getBlockState(x, 0, z) != defState && !unnaturals.contains(cube.getBlockState(x, 0, z).getBlock()))
-                    return true;
+                    return 0;
             }
-        return false;
+        return type==defState?1:-1;
     }
 
     @Override

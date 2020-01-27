@@ -25,8 +25,8 @@ shadowJar {
 
 	dependencies {
 		include(dependency(files("lib/commons-imaging-1.0-alpha1.jar")))
-		//exclude(dependency(files("lib/CubicChunks-1.12.2-0.0.970.0-SNAPSHOT-all.jar")))
-		//exclude(dependency(files("lib/CubicWorldGen-1.12.2-0.0.39.1-SNAPSHOT-all.jar")))
+		//exclude(dependency(files("lib/CubicChunks.jar")))
+		//exclude(dependency(files("lib/CubicWorldGen.jar")))
 	}
 }
 
@@ -72,8 +72,8 @@ dependencies {
     // except that these dependencies get remapped to your current MCP mappings
     //deobfCompile 'com.mod-buildcraft:buildcraft:6.0.8:dev'
     //deobfProvided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-	provided files("lib/CubicChunks-1.12.2-0.0.970.0-SNAPSHOT-all.jar")
-	provided files("lib/CubicWorldGen-1.12.2-0.0.39.1-SNAPSHOT-all.jar")
+	provided files("lib/CubicChunks.jar")
+	provided files("lib/CubicWorldGen.jar")
 	compile files("lib/commons-imaging-1.0-alpha1.jar")
 
     // for more info...

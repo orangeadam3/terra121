@@ -31,11 +31,21 @@ public class EarthWorldType extends WorldType implements ICubicWorldType  {
     }
 
     @Override public boolean hasCubicGeneratorForWorld(World w) {
-        return w.provider.getClass() == WorldProviderSurface.class; // a more general way to check if it's overworld
+    	System.out.println(w.provider.getClass().getName());
+        return w.provider instanceof WorldProviderSurface; // an even more general way to check if it's overworld (need custom providers)
     }
 
     //TODO: Custom Settings
     public boolean isCustomizable() {
         return false;
+    }
+    
+    public float getCloudHeight()
+    {
+        return 5000;
+    }
+    
+    public double voidFadeMagnitude() {
+    	return 0;
     }
 }

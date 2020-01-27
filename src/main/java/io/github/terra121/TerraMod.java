@@ -1,17 +1,28 @@
 package io.github.terra121;
 
+import net.minecraft.world.DimensionType;
+import net.minecraft.world.WorldProviderSurface;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 
 import org.apache.logging.log4j.Logger;
 
-//import io.github.Kms;
+import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.event.PopulateCubeEvent;
+import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.event.PopulateCubeEvent.Populate;
+import io.github.terra121.provider.EarthWorldProvider;
+import io.github.terra121.provider.GenerationEventDenier;
+import io.github.terra121.provider.ProviderWorkarounds;
 
 @Mod(modid = TerraMod.MODID, name = TerraMod.NAME, version = TerraMod.VERSION, dependencies = "required-after:cubicchunks; required-after:cubicgen", acceptableRemoteVersions="*")
 public class TerraMod
@@ -19,6 +30,8 @@ public class TerraMod
     public static final String MODID = "terra121";
     public static final String NAME = "Terra 1 to 1";
     public static final String VERSION = "0.1";
+    
+    public static final boolean CUSTOM_PROVIDER = true;
 
     private static Logger logger;
 
@@ -27,10 +40,21 @@ public class TerraMod
     {
         logger = event.getModLog();
         EarthWorldType.create();
+        
+        if(CUSTOM_PROVIDER) {
+	        ProviderWorkarounds.setupProvider();
+	        ProviderWorkarounds.replaceOthers();
+        }
     }
 
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
+    	MinecraftForge.TERRAIN_GEN_BUS.register(GenerationEventDenier.class);
+    }
+    
+    @EventHandler
+    public void postInit(FMLPostInitializationEvent event) {    	
+    	
     }
 }

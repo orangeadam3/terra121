@@ -57,8 +57,10 @@ public class EarthTreePopulator implements ICubicPopulator {
 	    	treeCount++;
 	    
 	    ICubicWorld cworld = (ICubicWorld)world;
-	    		
-	    if (CWGEventFactory.decorate(world, random, pos, DecorateBiomeEvent.Decorate.EventType.TREE)) {
+	    
+	    //we are special
+	    //CWGEventFactory.decorate(world, random, pos, DecorateBiomeEvent.Decorate.EventType.TREE);
+	    
 	        for (int i = 0; i < treeCount; ++i) {
 	            int xOffset = random.nextInt(ICube.SIZE);
 	            int zOffset = random.nextInt(ICube.SIZE);
@@ -85,7 +87,6 @@ public class EarthTreePopulator implements ICubicPopulator {
 		            }
 	            }
 	        }
-	    }
 	}
 	
     private int quickElev(World world, int x, int z, int low, int high) {
