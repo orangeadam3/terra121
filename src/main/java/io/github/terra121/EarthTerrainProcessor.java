@@ -47,12 +47,12 @@ import net.minecraft.world.biome.BiomeProvider;
 
 public class EarthTerrainProcessor extends BasicCubeGenerator {
 
-    Heights heights;
-    Heights depths;
-    OpenStreetMaps osm;
-    HashMap<Biome, List<IBiomeBlockReplacer>> biomeBlockReplacers;
-    BiomeProvider biomes;
-    GeographicProjection projection;
+    public Heights heights;
+    public Heights depths;
+    public OpenStreetMaps osm;
+    public HashMap<Biome, List<IBiomeBlockReplacer>> biomeBlockReplacers;
+    public EarthBiomeProvider biomes;
+    public GeographicProjection projection;
 
     public Set<Block> unnaturals;
     private CustomGeneratorSettings cfg;
@@ -66,19 +66,21 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     public EarthTerrainProcessor(World world) {
         super(world);
         Entity e;
-        System.out.println(world.getWorldInfo().getGeneratorOptions());
-        projection = new InvertedGeographic();
+        
+        biomes = (EarthBiomeProvider)world.getBiomeProvider();
+        projection = biomes.projection;
         heights = new Heights(13);
         depths = new Heights(10); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
         osm = new OpenStreetMaps(projection);
-        biomes = world.getBiomeProvider();
+        
         unnaturals = new HashSet<Block>();
         unnaturals.add(Blocks.STONEBRICK);
         unnaturals.add(Blocks.CONCRETE);
-
+        
         surfacePopulators = new HashSet<ICubicPopulator>();
         surfacePopulators.add(new RoadGenerator(osm, heights, projection));
         surfacePopulators.add(new EarthTreePopulator(projection));
+        surfacePopulators.add(new SnowPopulator());
         
         cfg = CustomGeneratorSettings.defaults();
         cfg.ravines = false;

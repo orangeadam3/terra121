@@ -49,6 +49,10 @@ public class Climate {
                 (1-v)*(ll.precip*(1-u) + lr.precip*u) + (ul.precip*(1-u) + ur.precip*u)*v);
     }
 
+    public boolean isSnow(double x, double y, double alt) {
+		return alt>5000 || getPoint(x,y).temp<10;
+	}
+    
     public static class ClimateData {
         public double temp;
         public double precip;
@@ -56,6 +60,10 @@ public class Climate {
         public ClimateData (double temp, double precip) {
             this.temp = temp;
             this.precip = precip;
+        }
+        
+        public String toString() {
+        	return temp + " " + precip;
         }
     }
 }

@@ -21,9 +21,6 @@ public class GenerationEventDenier {
     
     @SubscribeEvent
     public static void decorateCatcher(DecorateCubeBiomeEvent.Decorate event) {
-    	//if(event.getGenerator() instanceof EarthWorldType);
-    	//event.setCanceled(true);
-
     	if(event.getType()==DecorateBiomeEvent.Decorate.EventType.TREE && event.getWorld().getBiomeProvider() instanceof EarthBiomeProvider) {
     		event.setResult(PopulateCubeEvent.Populate.Result.DENY);
     	}

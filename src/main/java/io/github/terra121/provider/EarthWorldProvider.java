@@ -1,6 +1,7 @@
 package io.github.terra121.provider;
 
 import io.github.terra121.EarthWorldType;
+import io.github.terra121.SnowPopulator;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldProvider;
@@ -19,6 +20,6 @@ public class EarthWorldProvider extends WorldProviderSurface {
 		if(!isEarth)
 			return super.canSnowAt(pos, checkLight);
 		
-		return false;
+		return SnowPopulator.canSnow(pos, world, false);
 	}
 }

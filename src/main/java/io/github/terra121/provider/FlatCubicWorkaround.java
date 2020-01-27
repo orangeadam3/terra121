@@ -11,7 +11,6 @@ public class FlatCubicWorkaround extends FlatCubicWorldType {
 	
 	// an even more general way to check if it's overworld (need custom surface providers)
 	@Override public boolean hasCubicGeneratorForWorld(World w) {
-    	System.out.println(w.provider.getClass().getName());
         return w.provider instanceof WorldProviderSurface;
     }
 	

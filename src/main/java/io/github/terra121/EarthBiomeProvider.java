@@ -27,9 +27,9 @@ public class EarthBiomeProvider extends BiomeProvider {
         return Biomes.DESERT;
     }*/
 
-    private Soil soil;
-    private Climate climate;
-    private GeographicProjection projection;
+    public Soil soil;
+    public Climate climate;
+    public GeographicProjection projection;
 
     /** The biome generator object. */
     private final Biome defaultBiome;
