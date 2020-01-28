@@ -36,6 +36,7 @@ public class EarthBiomeProvider extends BiomeProvider {
 
     public EarthBiomeProvider(Biome biomeIn)
     {
+    	//load soil and climate data from assets
     	projection = new InvertedGeographic();
         this.defaultBiome = biomeIn;
         try {
@@ -56,10 +57,11 @@ public class EarthBiomeProvider extends BiomeProvider {
     }
 
     /**
-     * Returns the biome generator
+     * Returns the biome generator based on soil and climate (mostly soil)
      */
     public Biome getBiome(BlockPos pos)
     {
+    	//null island
     	if(-80 < pos.getX() && pos.getX() < 80 && -80 < pos.getZ() && pos.getZ() < 80) {
     		if(-16 < pos.getX() && pos.getX() < 16 && -16 < pos.getZ() && pos.getZ() < 16)
     			return Biomes.FOREST;

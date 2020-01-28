@@ -15,6 +15,8 @@ public class Soil {
             bytes[x] = (byte) x;
         }
 
+        //save in a random access run lenth to save ram at the slight cost of efficiency
+        //this works because one soil type tends to stretch more than 4km
         data = new RandomAccessRunlength<Byte>();
 
         BufferedInputStream is = new BufferedInputStream(input);
@@ -28,8 +30,6 @@ public class Soil {
         if(data.size() != COLS*ROWS) {
             throw new IOException("Soil data invalid, " + data.size());
         }
-
-        System.out.println(data.size());
     }
 
     public byte getOfficial(int x, int y) {

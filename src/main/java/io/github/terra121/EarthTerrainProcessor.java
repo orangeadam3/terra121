@@ -57,9 +57,9 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     public Set<Block> unnaturals;
     private CustomGeneratorSettings cfg;
     private Set<ICubicPopulator> surfacePopulators;
-    private Set<ICubicPopulator> universalPopulators;
     private Map<Biome, ICubicPopulator> biomePopulators;
     private CubicCaveGenerator caveGenerator;
+    private SnowPopulator snow;
 
     private static final double SCALE = 100000.0;
 
@@ -80,18 +80,17 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         surfacePopulators = new HashSet<ICubicPopulator>();
         surfacePopulators.add(new RoadGenerator(osm, heights, projection));
         surfacePopulators.add(new EarthTreePopulator(projection));
-        surfacePopulators.add(new SnowPopulator());
+        snow = new SnowPopulator(); //this will go after the rest
         
         cfg = CustomGeneratorSettings.defaults();
         cfg.ravines = false;
-        cfg.dungeonCount = 3; //there are way too many of these by default
+        cfg.dungeonCount = 3; //there are way too many of these by default (in my humble opinion)
         cfg.waterLakeRarity = 10;
         
         //InitCubicStructureGeneratorEvent caveEvent = new InitCubicStructureGeneratorEvent(EventType.CAVE, new CubicCaveGenerator());
         caveGenerator = new CubicCaveGenerator();
         
         biomePopulators = new HashMap<Biome, ICubicPopulator>();
-        universalPopulators = new HashSet<ICubicPopulator>();
         
         for (Biome biome : ForgeRegistries.BIOMES) {
             CubicBiome cubicBiome = CubicBiome.getCubic(biome);
@@ -123,24 +122,29 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         double heightarr[][] = new double[16][16];
         boolean surface = false;
         
-        for(int x=0; x<16; x++) {
-            for(int z=0; z<16; z++) {
-            	
-            	if(-5 < cubeX && cubeX < 5 && -5 < cubeZ && cubeZ < 5) {
-            		heightarr[x][z] = 1;
-            		continue;
-            	}
-            	
-            	double[] projected = projection.toGeo((cubeX*16 + x)/SCALE, (cubeZ*16 + z)/SCALE);
-                double Y = heights.estimateLocal(projected[0], projected[1]);
-                heightarr[x][z] = Y;
-                
-                if(Coords.cubeToMinBlock(cubeY)<Y && Coords.cubeToMinBlock(cubeY)+16>Y) {
-                    surface = true;
-                }
-            }
-        }
+       //null island
+    	if(-5 < cubeX && cubeX < 5 && -5 < cubeZ && cubeZ < 5) {
+    		for(int x=0; x<16; x++)
+                for(int z=0; z<16; z++)
+                	heightarr[x][z] = 1;
+    	} else {
+        
+	        //get heights before hand
+	        for(int x=0; x<16; x++) {
+	            for(int z=0; z<16; z++) {
+	            	
+	            	double[] projected = projection.toGeo((cubeX*16 + x)/SCALE, (cubeZ*16 + z)/SCALE);
+	                double Y = heights.estimateLocal(projected[0], projected[1]);
+	                heightarr[x][z] = Y;
+	                
+	                if(Coords.cubeToMinBlock(cubeY)<Y && Coords.cubeToMinBlock(cubeY)+16>Y) {
+	                    surface = true;
+	                }
+	            }
+	        }
+    	}
 
+    	//fill in the world
         for(int x=0; x<16; x++) {
             for(int z=0; z<16; z++) {
             	double Y = heightarr[x][z];
@@ -177,6 +181,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                     primer.setBlockState(x, y, z, block);
                 }
                 
+                //ocean water //TODO: better system when osm water becomes available
                 if(Y<=0) {
 	                int y = (int)Math.floor(Y - Coords.cubeToMinBlock(cubeY));
 	            	for (y=y<0?0:y; y < 16 && y < 0 - Coords.cubeToMinBlock(cubeY); y++) {
@@ -268,17 +273,17 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                 for(ICubicPopulator pop: surfacePopulators)
                 	pop.generate(cube.getWorld(), rand, cube.getCoords(), biome);
                 
-                cfg.waterLakes = true; //we have will our own version of this on the surface
+                cfg.waterLakes = true; //we have will our own version of this on the surface, TODO: make this work
             } else if(surf == 1) {
             	cfg.waterLakes = true;
             } else {
             	cfg.waterLakes = false; //(but who am I to inhibit sub-surface)
             }
             
-            for(ICubicPopulator pop: universalPopulators)
-            	pop.generate(cube.getWorld(), rand, cube.getCoords(), biome);
-            
             biomePopulators.get(biome).generate(cube.getWorld(), rand, cube.getCoords(), biome);
+            
+            if(surf==1)
+            	snow.generate(cube.getWorld(), rand, cube.getCoords(), biome);
         }
     }
 

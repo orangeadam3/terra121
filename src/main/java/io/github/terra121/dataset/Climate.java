@@ -49,6 +49,7 @@ public class Climate {
                 (1-v)*(ll.precip*(1-u) + lr.precip*u) + (ul.precip*(1-u) + ur.precip*u)*v);
     }
 
+    //rough estimate of snow cover
     public boolean isSnow(double x, double y, double alt) {
 		return alt>5000 || getPoint(x,y).temp<10;
 	}

@@ -10,6 +10,7 @@ import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
 
+//deny default tree and snow event because we have some of those already
 public class GenerationEventDenier {
     @SubscribeEvent
     public static void populateCatcher(PopulateCubeEvent.Populate event) {

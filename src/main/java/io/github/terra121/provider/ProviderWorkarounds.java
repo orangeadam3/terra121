@@ -4,6 +4,9 @@ import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldType;
 import net.minecraftforge.common.DimensionManager;
 
+//provider workaround to gain access to our own provider
+//these are optional as they break cwg's custom cubic atm and may break other generators (will prly break other generator mods)
+//if customcubic's constuctor was private or used instanceof instead of getClass when checking providers this would not be necessary
 public class ProviderWorkarounds {
 	
 	public static void setupProvider() {

@@ -43,13 +43,23 @@ public class EarthTreePopulator implements ICubicPopulator {
 		projection = proj;
 	}
 	
+	private double atanh(double x) {
+		return (Math.log(1+x) - Math.log(1-x))/2;
+	}
+	
 	@Override
 	public void generate(World world, Random random, CubePos pos, Biome biome) {
 
 		double[] projected = projection.toGeo(pos.getX()*16/100000.0, pos.getZ()*16/100000.0);
 		
-	    int treeCount = (int)(trees.estimateLocal(projected[0], projected[1])*15.0);
+	    double canopy = trees.estimateLocal(projected[0], projected[1]);
 	    
+	    //got this fun formula messing around with data on desmos, estimate of tree cover -> number
+	    int treeCount = 30; //max so it doesn't go to infinity (which would technically be required to guarantee full coverage, but no)
+	    if(canopy < 0.95)
+	    	treeCount = (int) (20*atanh(Math.pow(canopy,1.5)));
+	    
+	    //null island
 	    if(pos.getX()==0 && pos.getZ()==0)
 	    	treeCount = 10;
 
@@ -58,7 +68,7 @@ public class EarthTreePopulator implements ICubicPopulator {
 	    
 	    ICubicWorld cworld = (ICubicWorld)world;
 	    
-	    //we are special
+	    //we are special, and this event is being canceled to control the default populators
 	    //CWGEventFactory.decorate(world, random, pos, DecorateBiomeEvent.Decorate.EventType.TREE);
 	    
 	        for (int i = 0; i < treeCount; ++i) {
