@@ -5,8 +5,6 @@
 
 
 
-
-
 ## What is the difference between the other earth models in Minecraft?
 Rather than being on a percentage scale of the actual world, such as 1:2000 the scale, this generator generates the world on a 1:1 scale (actually 1:1.11 to make the block coordinates match longitude and latitude ). Every block is 1 meter of the real world in every dimension. 
 

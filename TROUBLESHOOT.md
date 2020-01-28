@@ -55,3 +55,17 @@ will drastically change the amount of RAM that the JVM can use.
 *-Xmx8G* is 8 gigabytes
 *-Xmx16G* is 16 gigabytes
 ......and so on.
+
+### java.lang.NoSuchFieldError for a func number or a missing biome
+This error seems to originate with an uncompleted reference build, although Gradle will finish Building and the build will be successful, when it comes to run the mod, it builds with placeholder locations for references to other neccessary code, such as the code for Minecraft itself (like Biome information).
+
+A good work around is to setup the Decompiliation cache on your system for Minecraft Forge Gradle, which decompiles Minecraft, Forge, and any extra libraries (the stuff in the lib folder). Normally just building should not need this step, unless you are intending to change the 
+
+If you are on Windows:
+```
+gradlew.bat setupDecompWorkspace
+```
+If you are on macOS or Linux:
+```
+./gradlew setupDecompWorkspace
+```
