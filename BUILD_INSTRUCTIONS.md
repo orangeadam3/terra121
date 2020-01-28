@@ -5,8 +5,11 @@ Using [Git](https://git-scm.com/) installed on your computer, open your Terminal
 ```
 git clone https://github.com/orangeadam3/terra121.git
 ```
+### REMEMBER TO HAVE MINECRAFT SETUP WITH THE CORRECT PREREQUISITES FROM THE [README](README.md)!!!!!
+
 ## Second, build the mod 
-Make sure you are inside of the '*terra121*' folder, start the building process, and watch the beautiful technical jazz fly across your console.
+Make sure you are inside of the '*terra121*' folder, start the building process, and watch the beautiful technical jazz fly across your console. 
+
 
 If you are on Windows:
 ```

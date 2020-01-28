@@ -5,8 +5,6 @@
 
 
 
-
-
 ## What is the difference between the other earth models in Minecraft?
 Rather than being on a percentage scale of the actual world, such as 1:2000 the scale, this generator generates the world on a 1:1 scale (actually 1:1.11 to make the block coordinates match longitude and latitude ). Every block is 1 meter of the real world in every dimension. 
 
@@ -26,7 +24,7 @@ Currently used APIs:
 
 [OpenStreetMap v0.6 API](https://wiki.openstreetmap.org/wiki/API_v0.6) is used for Rivers, and basic roads.
 
-[ArcGIS REST Services Tree Cover 2000 Dataset](https://gis-treecover.wri.org/arcgis/rest/services/TreeCover2000/ImageServer) (not exactly sure if it is actually from ArcGIS, but it is hosted on Amazon servers, its from a )
+[ArcGIS REST Services Tree Cover 2000 Dataset](https://gis-treecover.wri.org/arcgis/rest/services/TreeCover2000/ImageServer) (not exactly sure if it is actually from ArcGIS, but it is hosted on Amazon servers, so thats helpful)
 
 ## Prerequisites
 
@@ -50,7 +48,7 @@ As of current, you must compile the mod yourself, luckily for pretty ol' you, he
 ## Client Usage
 After completing the [Build Instructions](BUILD_INSTRUCTIONS.md). When creating a new world, under the World Type, you will now have an option called "**Planet Earth**" which will allow you to generate a world using the new generation method.
 
-Upon creation, You will spawn near or on (0,0,0) (a.k.a. 0°N, 0°E or [Null Island](https://www.youtube.com/watch?v=bjvIpI-1w84)), This region is currently glitched so you will need to [teleport away to see somewhere meaningful](COOL_LOCATIONS.md).
+Upon creation, You will spawn near or on (0,0,0) (a.k.a. 0°N, 0°E or [Null Island](https://www.youtube.com/watch?v=bjvIpI-1w84)), This region is placeholder, meant to be a type of testing zone and also to not spawn under the ocean. You would need to [teleport away to see somewhere meaningful](COOL_LOCATIONS.md).
 
 ### Using you own coordinates/calculating your own coordinates
 The block coordinates in Minecraft are calcuated by (X, Y, Z). This mod will convert these values to coordinates on a world projection:
@@ -62,19 +60,17 @@ The block coordinates in Minecraft are calcuated by (X, Y, Z). This mod will con
 
 **Remember that multiplying by 10^5 is the same as moving the decimal place 5 points to the right.**
 
-**Also remember that the longitude and latitude must be in decimal form (36.0660, -112.1172) and not degrees (36°03'57.6"N, 112°07'01.9"W).**
+#### Also remember that the longitude and latitude must be in decimal form (36.0660, -112.1172) and not degrees (36°03'57.6"N, 112°07'01.9"W)!!!
 
-Example: **Yavapai Point, Grand Canyon, Arizona, USA**
 
-[OpenStreetMap](https://www.openstreetmap.org/#map=16/36.0660/-112.1172) 
 
-[Google Maps](https://www.google.com/maps/place/Yavapai+Point/@36.0660043,-112.1193887,17z)
+Example: **Yavapai Point, Grand Canyon, Arizona, USA** ([OpenStreetMap](https://www.openstreetmap.org/#map=16/36.0660/-112.1172), [Google Maps](https://www.google.com/maps/place/Yavapai+Point/@36.0660043,-112.1193887,17z))
 
-has decimal coordinates of (36.0660, -112.1172) with an elevation just under 2200 meters, multiplying the latitude and longitude by 10^5 and setting Y to 2200  gives the (X,Y,Z) coordinates of:
+has decimal coordinates of (36.0660, -112.1172) with an elevation just under 2200 meters, multiplying the latitude and longitude by 10^5 and setting Y to 2200 (the meters from sea level) gives the (X,Y,Z) coordinates of:
 **(3606600, 2200, -11211720) **
 
 or in tp command form: 
-```
+```java
 /tp 3606600 2200 -11211720
 ```
 
