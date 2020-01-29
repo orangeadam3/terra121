@@ -46,7 +46,7 @@ Inside of Minecraft's Launcher, go to the Installations tab, find your installat
 
 Select **"More Options"**, and find the **"JVM Arguments"** section:
 
-![Editing JVM](Pictures\EditJVMArgs.png)
+![Editing JVM](Pictures/EditJVMArgs.png)
 
 Adding or changing the following value:
 
@@ -65,6 +65,7 @@ However,
 **-Xmx1g** is 1 gigabit (125 Megabytes)
 **-Xmx8g** is 8 gigabit (1 Gigabyte)
 **-Xmx16g** is 16 gigabit (2 Gigabytes, default Minecraft memory)
+......and so on.
 
 ### "java.lang.NoSuchFieldError" for a func number or a missing biome
 This error seems to originate with an uncompleted reference build, although Gradle will finish Building and the build will be successful, when it comes to run the mod, it builds with placeholder locations for references to other neccessary code, such as the code for Minecraft itself (like Biome information).
