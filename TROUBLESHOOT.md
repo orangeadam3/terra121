@@ -55,16 +55,16 @@ Adding or changing the following value:
 ```
 will change the amount of RAM that the JVM can use. **(Remember using a capital letter as the suffix is different from using a lowercase letter)**:
 
-*-Xmx1**G*** is 1 gigabyte
-*-Xmx8**G*** is 8 gigabytes
-*-Xmx16**G*** is 16 gigabytes
+**-Xmx1G** is 1 gigabyte
+**-Xmx8G** is 8 gigabytes
+**-Xmx16G** is 16 gigabytes
 ......and so on.
 
 However,
 
-*-Xmx1**g*** is 1 gigabit (125 Megabytes)
-*-Xmx8**g*** is 8 gigabit (1 Gigabyte)
-*-Xmx16**g*** is 16 gigabit (2 Gigabytes, default Minecraft memory)
+**-Xmx1g** is 1 gigabit (125 Megabytes)
+**-Xmx8g** is 8 gigabit (1 Gigabyte)
+**-Xmx16g** is 16 gigabit (2 Gigabytes, default Minecraft memory)
 
 ### "java.lang.NoSuchFieldError" for a func number or a missing biome
 This error seems to originate with an uncompleted reference build, although Gradle will finish Building and the build will be successful, when it comes to run the mod, it builds with placeholder locations for references to other neccessary code, such as the code for Minecraft itself (like Biome information).
