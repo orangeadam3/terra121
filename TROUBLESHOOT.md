@@ -1,9 +1,4 @@
 # Building Troubleshooting
-### BuildSrc is empty
-Like we said in the [Build instructions](BUILD_INSTRUCTIONS.md), you must use Git installed on your machine and run recursively, using the simple Download .zip option does not work.
-
-If you did do that, and it still did not work, you can bypass recursively grabbing all the files at once, and manually downloading a ZIP or git cloning all of the contents of [CubicGradle](https://github.com/OpenCubicChunks/CubicGradle), into the *BuildSrc* folder, if the folder doesn't exist then manually create it.
-
 ### If you do not reach BUILD SUCCESSFUL during the building process
 Most likely the Workspace was not created properly, or the build cache is on automatic garbage collection mode. You can try building the DecompWorkspace with an external cache (the workspace to allow code modification with referneces to outside libraries, and seeing if that allows the mod to compile by doing:
 
@@ -56,14 +51,19 @@ Adding or changing the following value:
 will change the amount of RAM that the JVM can use. **(Remember using a capital letter as the suffix is different from using a lowercase letter)**:
 
 **-Xmx1G** is 1 gigabyte
+
 **-Xmx8G** is 8 gigabytes
+
 **-Xmx16G** is 16 gigabytes
+
 ......and so on.
 
 However,
 
 **-Xmx1g** is 1 gigabit (125 Megabytes)
+
 **-Xmx8g** is 8 gigabit (1 Gigabyte)
+
 **-Xmx16g** is 16 gigabit (2 Gigabytes, default Minecraft memory)
 ......and so on.
 

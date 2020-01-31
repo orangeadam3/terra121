@@ -1,14 +1,33 @@
 # Terra 1 to 1 Minecraft World Project
 ### Developed by TheAtomBomb92
 ### Co-Developed by shejan0
-### Based on [CubicChunk's Cubic World Generator](https://github.com/OpenCubicChunks/CubicWorldGen/), utilizing the [CubicChunks](https://github.com/OpenCubicChunks/CubicChunks) mod
+### Submod of [CubicChunks](https://github.com/OpenCubicChunks/CubicChunks) and [CubicWorldGen](https://github.com/OpenCubicChunks/CubicWorldGen/) from the [OpenCubicChunks](https://github.com/OpenCubicChunks) project. 
+
+
+
+## Currently used APIs:
+Data used for elevations is from [AWS Terrain Tiles](https://registry.opendata.aws/terrain-tiles/).
+
+Data for the tree cover is from the [ARCGIS REST TreeCover2000 Image Server hosted by the World Resources Institute](https://gis-treecover.wri.org/arcgis/rest/services/TreeCover2000/ImageServer), originally from [Landsat 7 ETM+](http://glad.geog.umd.edu/).
+
+Road (and soon, water) data is acquired from [OpenStreetMaps](https://www.openstreetmap.org/), downloaded in real-time using the public [Overpass API](http://overpass-api.de/) instance. (© OpenStreetMap contributors)
+
+Climate (rain & temperature) data is from [The University of Delaware Center for Climatic Research's Climate Data Archive](http://climate.geog.udel.edu/~climate/html_pages/archive.html) (built into the mod)
+
+Soil suborder data is from the [USDA Natural Resources Conservation Service's Global Soil Region Map](https://www.nrcs.usda.gov/wps/portal/nrcs/detail/soils/use/?cid=nrcs142p2_054013) (built into the mod)
 
 
 
 ## What is the difference between the other earth models in Minecraft?
-Rather than being on a percentage scale of the actual world, such as 1:2000 the scale, this generator generates the world on a 1:1 scale (Approximately, actual scale varies based on latitude  ). Every block is 1 meter of the real world in every dimension. 
+Rather than being on a percentage scale of the actual world, such as 1:2000 the scale, this generator generates the world on a 1:1 scale (Approximately, actual scale varies based on latitude ). Every block is 1 meter of the real world in every dimension. 
 
-The heights of Mount Everest never felt so virtually high before.
+**The heights of Mount Everest never felt so virtually high before.**
+
+
+
+### THIS MOD DOWNLOADS DATA IN REALTIME FROM THE INTERNET!!!!! IT WILL NEED A DECENT INTERNET CONNECTION, AND WILL NOT WORK OFFLINE!!! DO NOT USE WITH MOBILE DATA CONNECTIONS!!!!
+
+
 
 ## How is it done?
 **CubicChunks**, first of all, adds a 3rd dimensionality to the already existing Minecraft chunk system, allowing much more accessibility when it comes to vertical height. 
@@ -17,12 +36,7 @@ The heights of Mount Everest never felt so virtually high before.
 
 This modification of CubicWorldGen generates the world using information from datasets regarding terrain, biome, and human structures with 3 dimensional chunks.
 
-Currently used APIs:
-[AWS Terrain Tiles](https://registry.opendata.aws/terrain-tiles/) is used for elevations.
 
-[OpenStreetMap v0.6 API](https://wiki.openstreetmap.org/wiki/API_v0.6) is used for Rivers, and basic roads.
-
-[ArcGIS REST Services Tree Cover 2000 Dataset](https://gis-treecover.wri.org/arcgis/rest/services/TreeCover2000/ImageServer) (not exactly sure if it is actually from ArcGIS, but it is hosted on Amazon servers, so thats helpful)
 
 ## Prerequisites
 
@@ -39,9 +53,13 @@ Currently used APIs:
 
 **You must have all required mods installed for the Planet Earth generation to work!!!**
 
+
+
 ## Obtaining
 
 As of current, you must compile the mod yourself, luckily for pretty ol' you, here are the [building instructions](BUILD_INSTRUCTIONS.md)
+
+
 
 ## Client Usage
 After completing the [Build Instructions](BUILD_INSTRUCTIONS.md). When creating a new world, under the World Type, you will now have an option called "**Planet Earth**" which will allow you to generate a world using the new generation method.
@@ -49,7 +67,7 @@ After completing the [Build Instructions](BUILD_INSTRUCTIONS.md). When creating 
 Upon creation, You will spawn near or on (0,0,0) (a.k.a. 0°N, 0°E or [Null Island](https://www.youtube.com/watch?v=bjvIpI-1w84)), This region is placeholder, meant to be a type of testing zone and also to not spawn under the ocean. You would need to [teleport away to see somewhere meaningful](COOL_LOCATIONS.md).
 
 ### Using you own coordinates/calculating your own coordinates
-The block coordinates in Minecraft are calcuated by (X, Y, Z). This mod will convert these values to coordinates on a world projection:
+The block coordinates in Minecraft are calculated by (X, Y, Z). This mod will convert these values to coordinates on a world projection:
 - X values are *(longitude × 10^5)*
 
 - Y values is *the elevation in meters above the sea level*
