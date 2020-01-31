@@ -2,13 +2,13 @@
 {
   "modid": "terra121",
   "name": "Terra 1 - 1",
-  "description": "...",
+  "description": "This modification of CubicWorldGen generates the world using information from datasets regarding terrain, biome, and human structures with 3 dimensional chunks.\n\nSources:\n\nElevations data is downloaded in real time from AWS Terrain Tiles.\n\nTree cover data is downloaded in real time from the ARCGIS REST TreeCover2000 Image Server hosted by the World Resources Institute, originally from Landsat 7 ETM+.\n\nRoad (and soon, water) data is acquired from OpenStreetMap under the Open Database License. It is downloaded in real-time using a public Overpass API instance. (© OpenStreetMap contributors)\n\nClimate (rain & temperature) data is from The University of Delaware Center for Climatic Research's Climate Data Archive (built into the mod)\n\nSoil suborder data is from the USDA Natural Resources Conservation Service's Global Soil Region Map (built into the mod)",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
   "authorList": ["orangeadam3", "shejan0"],
-  "credits": "",
+  "credits": "Cubics Chunks discord and all source providers specified below, especially OpenStreetMap (© OpenStreetMap contributors)",
   "logoFile": "",
   "screenshots": [],
   "dependencies": ["org.apache.commons.imaging"]

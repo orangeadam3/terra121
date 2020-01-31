@@ -16,7 +16,7 @@ import io.github.opencubicchunks.cubicchunks.cubicgen.CustomCubicMod;
 import io.github.terra121.projection.ImageProjection;
 
 public class Trees extends TiledDataset {
-	public static final String SERVER = "http://50.18.182.188:6080";
+	public static final String SERVER = "https://gis-treecover.wri.org";//"http://50.18.182.188:6080";
 	public static final String URL_PREFIX = SERVER + "/arcgis/rest/services/TreeCover2000/ImageServer/exportImage?f=image&bbox=";
 	public static final String URL_SUFFIX = "&imageSR=4152&bboxSR=4152&format=tiff&adjustAspectRatio=false&&interpolation=RSP_CubicConvolution&size=256,256";
 	
@@ -26,16 +26,6 @@ public class Trees extends TiledDataset {
 	public Trees() {
 		super(256, 256, 10, new ImageProjection(), 1.0/BLOCK_SIZE, 1.0/BLOCK_SIZE);
 	}
-	
-    /*private static final double TO_RADIANS = Math.PI/180.0;
-    private static final double MAP_MULT = (2*Math.PI);
-    protected double lonToX(double lon) {
-        return MAP_MULT* (lon*TO_RADIANS + Math.PI);
-    }
-
-    protected double latToY(double lat) {
-        return MAP_MULT * (Math.PI - Math.log(Math.tan((Math.PI/2 + lat*TO_RADIANS)/2)));
-    }*/
 
 	protected double dataToDouble(int data) {
 		return data/100.0;

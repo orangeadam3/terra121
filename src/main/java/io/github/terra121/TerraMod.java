@@ -31,7 +31,7 @@ public class TerraMod
     public static final String NAME = "Terra 1 to 1";
     public static final String VERSION = "0.1";
     
-    public static final boolean CUSTOM_PROVIDER = true;
+    public static final boolean CUSTOM_PROVIDER = false; //interferes with other mods (specifically CWG), turning off for now
 
     private static Logger logger;
 
