@@ -114,6 +114,6 @@ A custom set of commands to help you navigate the world by doing things such as:
  * Converting Latitude and Longitude to Minecraft coordinates (and vice versa)(especially if custom projections were added)
  * Tell you things about the surronding area such as street names and addresses
 
-An organic way to dealing with connecting both sides of the [antimeridian] (https://en.wikipedia.org/wiki/180th_meridian) (mabye by teleporting the player from one side to the other)
+An organic way to dealing with connecting both sides of the [antimeridian](https://en.wikipedia.org/wiki/180th_meridian) (mabye by teleporting the player from one side to the other)
 
 A nether where 1 block in the nether = 1000 blocks (1km) in the overworld. This would make legitimate globe spanning survival practical as traveling to the other side of the earth would only be 20,000 blocks (not exactly a short trip but better than the 20,000,000 blocks (2/3s the way to the World Border) that it would take in the overworld)
