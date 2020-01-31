@@ -6,11 +6,9 @@
 
 
 ## What is the difference between the other earth models in Minecraft?
-Rather than being on a percentage scale of the actual world, such as 1:2000 the scale, this generator generates the world on a 1:1 scale (actually 1:1.11 to make the block coordinates match longitude and latitude ). Every block is 1 meter of the real world in every dimension. 
+Rather than being on a percentage scale of the actual world, such as 1:2000 the scale, this generator generates the world on a 1:1 scale (Approximately, actual scale varies based on latitude  ). Every block is 1 meter of the real world in every dimension. 
 
 The heights of Mount Everest never felt so virtually high before.
-
-
 
 ## How is it done?
 **CubicChunks**, first of all, adds a 3rd dimensionality to the already existing Minecraft chunk system, allowing much more accessibility when it comes to vertical height. 
