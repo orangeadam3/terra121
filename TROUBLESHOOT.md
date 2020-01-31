@@ -5,11 +5,11 @@ Most likely the Workspace was not created properly, or the build cache is on aut
 On Windows:
 
 ```bash
-gradlew.bat setupDecompWorkspace -g TEST_CACHE
+gradlew.bat setupDecompWorkspace 
 ```
 On macOS/Linux
 ```bash
-./gradlew setupDecompWorkspace -g TEST_CACHE
+./gradlew setupDecompWorkspace
 ```
 and try rebuilding by using:
 
@@ -33,7 +33,9 @@ As of current, when you spawn you will not be anywhere near any real-world posit
 You can use some of our [Cool locations](COOL_LOCATIONS.md) to find somewhere interesting to teleport to.
 
 ### " java.lang.OutOfMemoryError: GC overhead limit exceeded", what is that, how do I fix?
-You exceeded the amount of memory that the JVM (Minecraft's running environment) has to use, there are a lot of chunks in the cubic space, and a lot of blocks in those chunks. Especially considering that you will most likely be moving great lengths to get anywhere, you will a lot of memory available to the game to run properly.
+You exceeded the amount of memory that the JVM (Minecraft's running environment) has to use, there are a lot of chunks in the cubic space, and a lot of blocks in those chunks. Especially considering that you will most likely be moving great lengths to get anywhere, you will a lot of memory available to the game to run properly. You can edit the JVM's memory allocation by changing the JVM arguments when it starts:
+
+### JVM Arguments For the Client
 
 Inside of Minecraft's Launcher, go to the Installations tab, find your installation of Forge, and select Edit:
 
@@ -42,6 +44,18 @@ Inside of Minecraft's Launcher, go to the Installations tab, find your installat
 Select **"More Options"**, and find the **"JVM Arguments"** section:
 
 ![Editing JVM](Pictures/EditJVMArgs.png)
+
+### JVM arguments For the Server
+
+You will need change the launch command when opening your server, as listed in our [Server Run Instructions](USING_SERVER.md), an easy way is to create a "**.bat**" file in Windows, a "**.command**" file in Mac, or a "**.sh**" file in Linux in the same directory as the Forge Server and add this line:
+
+```bash
+<JAVA_HOME>/bin/java -Xmx####(suffix) -jar forge-<MCVERSION>-<FORGEVERSION>.jar
+```
+
+
+
+### -Xmx nomenclature for JVM arguments
 
 Adding or changing the following value:
 
@@ -68,9 +82,9 @@ However,
 ......and so on.
 
 ### "java.lang.NoSuchFieldError" for a func number or a missing biome
-This error seems to originate with an uncompleted reference build, although Gradle will finish Building and the build will be successful, when it comes to run the mod, it builds with placeholder locations for references to other neccessary code, such as the code for Minecraft itself (like Biome information).
+This error seems to originate with an uncompleted reference build, although Gradle will finish Building and the build will be successful, when it comes to run the mod, it Gradle builds with placeholder locations for references to other neccessary code, such as the code for Minecraft itself (like Biome information).
 
-A good work around is to setup the Decompiliation cache on your system for Minecraft Forge Gradle, which decompiles Minecraft, Forge, and any extra libraries (the stuff in the lib folder). Normally just building should not need this step, unless you are intending to change the code of the mod.
+A good work around is to setup the Decompiliation cache on your system for Minecraft Forge Gradle, which decompiles Minecraft, Forge, and any extra libraries (the stuff in the lib folder). Normally just building should not need this step, unless you are intending to change the code of the mod, but it is a common workaround to this issue:
 
 If you are on Windows:
 ```bash

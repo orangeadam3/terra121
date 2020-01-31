@@ -67,7 +67,7 @@ After completing the [Build Instructions](BUILD_INSTRUCTIONS.md). When creating 
 Upon creation, You will spawn near or on (0,0,0) (a.k.a. 0°N, 0°E or [Null Island](https://www.youtube.com/watch?v=bjvIpI-1w84)), This region is placeholder, meant to be a type of testing zone and also to not spawn under the ocean. You would need to [teleport away to see somewhere meaningful](COOL_LOCATIONS.md).
 
 ## Server Usage
-Instructions on how to use this mod in a Minecraft Forge Server can be found in our [Server run Instructions](USING_SERVER.md)
+Instructions on how to use this mod in a Minecraft Forge Server can be found in our [Server Run Instructions](USING_SERVER.md)
 
 ### Using you own coordinates/calculating your own coordinates
 The block coordinates in Minecraft are calculated by (X, Y, Z). This mod will convert these values to coordinates on a world projection:

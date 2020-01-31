@@ -1,5 +1,7 @@
 
 
+# Server Run Instructions
+
 After completing the [Build Instructions](BUILD_INSTRUCTIONS.md). Using a Forge server (can be installed through [standard Forge installer](http://files.minecraftforge.net/)), run the server once completely (enable the EULA, and generate a new world), move CubicChunks, CubicWorldGen, and the Terra 1-to-1 jar to the server's mod folder.
 
 - Inside of the server.properties file change:

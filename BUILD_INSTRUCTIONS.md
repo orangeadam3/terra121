@@ -1,3 +1,5 @@
+# Build Instructions
+
 Although this mod is meant to be opened and manipulated inside of IntelliJ, you can still compile the mod using the command line.
 
 ## First, you must get this code onto your machine
@@ -54,6 +56,8 @@ Meaning you should find the mod in this directory
 
 
 The correct file ends with ''**.jar**''. (Do not use the sources.jar) Move that file to your Minecraft Forge (server and/or client) mod folder, and generate a new world with the 'Planet Earth' World type, and try out some of our [Cool Earth Locations](COOL_LOCATIONS.md) to check out in Minecraft.
+
+**Instructions to properly load the mod on a Minecraft Forge server can be found in the [Server Run instructions](USING_SERVER.md)**
 
 **Instructions to properly load the mod on a Minecraft Forge server can be found in the [Server Run instructions](USING_SERVER.md)**
 
