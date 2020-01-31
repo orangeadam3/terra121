@@ -100,16 +100,20 @@ This mod is in very early stages, and based on another mod that is also in early
 ## Future Plans
 
 Smarter ore genereration that varies based on surface altitude, so that you don't have to dig 5000+ blocks down to find basic ores if you setup a base in the Himalayas.
+
 Water based on actual river/lake/coastline locations from OpenStreetMap
+
 Malisis GUI for world customisaiton and bonus features such as:
- - Changing the [projection](https://en.wikipedia.org/wiki/Map_projection) from Mercator to something else (such as [Sinusoidal](https://en.wikipedia.org/wiki/Sinusoidal_projection))
- - Changing the scale of the world (both vertical and horizontal)
- - Disabling Roads and other features
- - Enabling esoteric features that might not be appreciated by evreyone (ex. Road signs with names at evrey intersection)
- - Normal generation options like cave/ore frequency etc.
+ * Changing the [projection](https://en.wikipedia.org/wiki/Map_projection) from Mercator to something else (such as [Sinusoidal](https://en.wikipedia.org/wiki/Sinusoidal_projection))
+ * Changing the scale of the world (both vertical and horizontal)
+ * Disabling Roads and other features
+ * Enabling esoteric features that might not be appreciated by evreyone (ex. Road signs with names at evrey intersection)
+ * Normal generation options like cave/ore frequency etc.
+
 A custom set of commands to help you navigate the world by doing things such as:
- - Converting Latitude and Longitude to Minecraft coordinates (and vice versa)(especially if custom projections were added)
- - Tell you things about the surronding area such as street names and addresses
+ * Converting Latitude and Longitude to Minecraft coordinates (and vice versa)(especially if custom projections were added)
+ * Tell you things about the surronding area such as street names and addresses
+
 An organic way to dealing with connecting both sides of the [antimeridian] (https://en.wikipedia.org/wiki/180th_meridian) (mabye by teleporting the player from one side to the other)
-A nether where 1 block in the nether = 1000 blocks (1km) in the overworld
- - This would make legitimate globe spanning survival practical as traveling to the other side of the earth would only be 20,000 blocks (not exactly a short trip but better than the 20,000,000 blocks (2/3s the way to the World Border) that it would take in the overworld)
+
+A nether where 1 block in the nether = 1000 blocks (1km) in the overworld. This would make legitimate globe spanning survival practical as traveling to the other side of the earth would only be 20,000 blocks (not exactly a short trip but better than the 20,000,000 blocks (2/3s the way to the World Border) that it would take in the overworld)
