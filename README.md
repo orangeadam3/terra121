@@ -106,6 +106,8 @@ Smarter ore generation that varies based on surface altitude, so that you don't 
 
 Water based on actual river/lake/coastline locations from OpenStreetMap
 
+Update forest data from 2000 to 2012
+
 Malisis GUI for world customization and bonus features such as:
  * Changing the [projection](https://en.wikipedia.org/wiki/Map_projection) from Mercator to something else (such as [Sinusoidal](https://en.wikipedia.org/wiki/Sinusoidal_projection))
  * Changing the scale of the world (both vertical and horizontal)
