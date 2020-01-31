@@ -25,7 +25,7 @@ Rather than being on a percentage scale of the actual world, such as 1:2000 the 
 
 
 
-### THIS MOD DOWNLOADS DATA IN REALTIME FROM THE INTERNET!!!!! IT WILL NEED A DECENT INTERNET CONNECTION, AND WILL NOT WORK OFFLINE!!! DO NOT USE WITH MOBILE DATA CONNECTIONS!!!!
+### THIS MOD DOWNLOADS DATA IN REALTIME FROM THE INTERNET!!!!! IT WILL NEED A DECENT INTERNET CONNECTION, AND WILL NOT WORK OFFLINE!!! DO NOT USE WITH MOBILE DATA CONNECTIONS, UNLESS YOU HAVE UNLIMITED DATA!!!!
 
 
 
@@ -65,6 +65,9 @@ As of current, you must compile the mod yourself, luckily for pretty ol' you, he
 After completing the [Build Instructions](BUILD_INSTRUCTIONS.md). When creating a new world, under the World Type, you will now have an option called "**Planet Earth**" which will allow you to generate a world using the new generation method.
 
 Upon creation, You will spawn near or on (0,0,0) (a.k.a. 0°N, 0°E or [Null Island](https://www.youtube.com/watch?v=bjvIpI-1w84)), This region is placeholder, meant to be a type of testing zone and also to not spawn under the ocean. You would need to [teleport away to see somewhere meaningful](COOL_LOCATIONS.md).
+
+## Server Usage
+Instructions on how to use this mod in a Minecraft Forge Server can be found in our [Server run Instructions](USING_SERVER.md)
 
 ### Using you own coordinates/calculating your own coordinates
 The block coordinates in Minecraft are calculated by (X, Y, Z). This mod will convert these values to coordinates on a world projection:

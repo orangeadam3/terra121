@@ -53,9 +53,11 @@ Meaning you should find the mod in this directory
 
 
 
-The correct file ends with ''**.jar**''. (Do not use the sources) Move that file to your Minecraft Forge mod folder, and generate a new world with the 'Planet Earth' World type, and try out some of our [Cool Earth Locations](COOL_LOCATIONS.md) to check out in Minecraft.
+The correct file ends with ''**.jar**''. (Do not use the sources.jar) Move that file to your Minecraft Forge (server and/or client) mod folder, and generate a new world with the 'Planet Earth' World type, and try out some of our [Cool Earth Locations](COOL_LOCATIONS.md) to check out in Minecraft.
+
+**Instructions to properly load the mod on a Minecraft Forge server can be found in the [Server Run instructions](USING_SERVER.md)**
 
 
 
-**FRIENDLY REMINDER THAT WHEN YOU CREATE THE WORLD TO ENABLE CHEATS OR HAVE OPERATOR POWER ON YOUR SERVER, YOU WILL NEED IT!!!** (You do not spawn near any real-world location)
+**FRIENDLY REMINDER THAT WHEN YOU CREATE THE WORLD TO ENABLE CHEATS OR HAVE OPERATOR POWER ON YOUR SERVER, YOU WILL NEED IT!!!** (You do not spawn near any [real-world location](https://www.youtube.com/watch?v=bjvIpI-1w84))
 
