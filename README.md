@@ -24,7 +24,7 @@ Soil suborder data is from the [USDA Natural Resources Conservation Service's Gl
 
 ### THIS MOD DOWNLOADS DATA IN REAL-TIME FROM THE INTERNET!!!!! IT WILL NEED A DECENT INTERNET CONNECTION, AND WILL NOT WORK OFFLINE!!! DO NOT USE WITH MOBILE DATA CONNECTIONS, UNLESS YOU HAVE UNLIMITED DATA!!!!
 
-
+## Use cwg85 (CubicWorldGen 85) or above to prevent any possible compatibility issues with other generators
 
 ## What is the difference between the other earth models in Minecraft?
 Rather than being on a percentage scale of the actual world, such as 1:2000 the scale, this generator generates the world on a 1:1 scale (Approximately, actual scale varies based on latitude ). Every block is 1 meter of the real world in every dimension. 
