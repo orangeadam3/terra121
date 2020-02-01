@@ -3,7 +3,7 @@
 # Terra 1 to 1 Minecraft Earth Project
 
 ### Developed by TheAtomBomb92
-### Co-Developed and screenshots by shejan0 
+### Co-Developed and images by shejan0 
 ### Submod of [CubicChunks](https://github.com/OpenCubicChunks/CubicChunks) and [CubicWorldGen](https://github.com/OpenCubicChunks/CubicWorldGen/) from the [OpenCubicChunks](https://github.com/OpenCubicChunks) project. 
 
 ![Copper Canyon](Pictures/CopperCanyonMex.png)
