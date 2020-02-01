@@ -60,7 +60,13 @@ This modification of CubicWorldGen generates the world using information from da
 
 ## Obtaining
 
-As of current, you must compile the mod yourself, luckily for pretty ol' you, here are the [building instructions](BUILD_INSTRUCTIONS.md)
+We have compiled binaries both on our [releases page](https://github.com/orangeadam3/terra121/releases), and on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/terra-1-to-1-minecraft-world-project). 
+
+
+
+However, some of you are little itchy peepers, and want the most recent version of the code, fresh with all the testing and beta stuffs. 
+
+Luckily for pretty ol' you, here are the [building instructions](BUILD_INSTRUCTIONS.md)
 
 
 
