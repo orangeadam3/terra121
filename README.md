@@ -2,7 +2,7 @@
 
 # Terra 1 to 1 Minecraft Earth Project
 
-### Developed by TheAtomBomb92
+### Developed by orangeadam3
 ### Co-Developed and images by shejan0 
 ### Submod of [CubicChunks](https://github.com/OpenCubicChunks/CubicChunks) and [CubicWorldGen](https://github.com/OpenCubicChunks/CubicWorldGen/) from the [OpenCubicChunks](https://github.com/OpenCubicChunks) project. 
 
@@ -110,6 +110,8 @@ or in tp command form:
 ## Having issues?
 
 This mod is in very early stages, and based on another mod that is also in early stages, so the possibility of issues is EXTREMELY high. However, we have some [Troubleshooting Tips](TROUBLESHOOT.md) that may help you in your endeavors to walk the earth in Minecraft.
+
+However, if you find issues with the mod that are not resolved by doing things in the Troubleshooting page, then feel free to drop an [issue request](https://github.com/orangeadam3/terra121/issues).
 
 
 
