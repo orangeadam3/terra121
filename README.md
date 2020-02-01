@@ -1,4 +1,7 @@
-# Terra 1 to 1 Minecraft World Project
+![Logo](Pictures/Icon1280.png)
+
+# Terra 1 to 1 Minecraft Earth Project
+
 ### Developed by TheAtomBomb92
 ### Co-Developed and screenshots by shejan0 
 ### Submod of [CubicChunks](https://github.com/OpenCubicChunks/CubicChunks) and [CubicWorldGen](https://github.com/OpenCubicChunks/CubicWorldGen/) from the [OpenCubicChunks](https://github.com/OpenCubicChunks) project. 
@@ -60,7 +63,13 @@ This modification of CubicWorldGen generates the world using information from da
 
 ## Obtaining
 
-As of current, you must compile the mod yourself, luckily for pretty ol' you, here are the [building instructions](BUILD_INSTRUCTIONS.md)
+We have compiled binaries both on our [releases page](https://github.com/orangeadam3/terra121/releases), and on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/terra-1-to-1-minecraft-world-project). 
+
+
+
+However, some of you are little itchy peepers, and want the most recent version of the code, fresh with all the testing and beta stuffs. 
+
+Luckily for pretty ol' you, here are the [building instructions](BUILD_INSTRUCTIONS.md)
 
 
 
@@ -111,7 +120,7 @@ This mod is in very early stages, and based on another mod that is also in early
 
 - Water based on actual river/lake/coastline locations from OpenStreetMap
 
-- Update forest data from 2000 to 2012
+- Update forest data from 2000 to 2012 (we found a newer one wooooo)
 
 - [Malisis Core](https://www.curseforge.com/minecraft/mc-mods/malisiscore) GUI for world customization and bonus features such as:
 - Changing the [projection](https://en.wikipedia.org/wiki/Map_projection) from Mercator to something else (such as [Sinusoidal](https://en.wikipedia.org/wiki/Sinusoidal_projection))
