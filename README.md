@@ -113,6 +113,10 @@ This mod is in very early stages, and based on another mod that is also in early
 
 However, if you find issues with the mod that are not resolved by doing things in the Troubleshooting page, then feel free to drop an [issue request](https://github.com/orangeadam3/terra121/issues).
 
+## Known problems
+
+This mod is still in development, and we are still resolving problems that we have found, and are being found, but here is a small list of some of the issues we know exist with this mod:
+
 
 
 
