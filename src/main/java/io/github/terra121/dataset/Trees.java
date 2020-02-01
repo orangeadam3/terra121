@@ -11,9 +11,8 @@ import javax.imageio.ImageIO;
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
 import org.apache.commons.imaging.formats.tiff.TiffImageParser;
-
-import io.github.opencubicchunks.cubicchunks.cubicgen.CustomCubicMod;
 import io.github.terra121.projection.ImageProjection;
+import io.github.terra121.TerraMod;
 
 public class Trees extends TiledDataset {
 	public static final String SERVER = "https://gis-treecover.wri.org";//"http://50.18.182.188:6080";
@@ -40,7 +39,7 @@ public class Trees extends TiledDataset {
 
             try {
                 String urlText = URL_PREFIX + (place.x*REGION_SIZE - 180) + "," + (90-place.y*REGION_SIZE) + "," + ((place.x+1)*REGION_SIZE - 180) + "," + (90 - (place.y+1)*REGION_SIZE) +URL_SUFFIX;
-                System.out.println(urlText);
+                TerraMod.LOGGER.info(urlText);
                 URL url = new URL(urlText);
                 is = url.openStream();
                 ByteSourceInputStream by = new ByteSourceInputStream(is, "shits and giggles");
@@ -72,11 +71,11 @@ public class Trees extends TiledDataset {
                     } catch (IOException e) {}
                 }
 
-                CustomCubicMod.LOGGER.error("Failed to get tree cover data " + place.x + " " + place.y + " : " + ioe);
+                TerraMod.LOGGER.error("Failed to get tree cover data " + place.x + " " + place.y + " : " + ioe);
             }
         }
 
-        CustomCubicMod.LOGGER.error("Failed too many times, trees will not spawn");
+        TerraMod.LOGGER.error("Failed too many times, trees will not spawn");
         return out;
 	}
 

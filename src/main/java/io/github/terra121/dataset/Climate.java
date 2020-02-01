@@ -9,7 +9,7 @@ public class Climate {
 
     private ClimateData[] data;
 
-    public Climate(InputStream input) {
+    public Climate(InputStream input) throws IOException {
         try {
             DataInputStream out = new DataInputStream(new BufferedInputStream(input));
 
@@ -21,7 +21,7 @@ public class Climate {
                 data[x] = new ClimateData(out.readFloat(), out.readFloat());
             }
         } catch (IOException ioe) {
-            System.err.println("Failed to load climate data: "+ioe);
+            throw new IOException("Failed to load climate data: "+ioe);
         }
     }
 

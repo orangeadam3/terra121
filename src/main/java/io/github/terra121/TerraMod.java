@@ -33,12 +33,12 @@ public class TerraMod
     
     public static final boolean CUSTOM_PROVIDER = false; //interferes with other mods (specifically CWG), turning off for now
 
-    private static Logger logger;
+    public static Logger LOGGER;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        logger = event.getModLog();
+        LOGGER = event.getModLog();
         EarthWorldType.create();
         
         if(CUSTOM_PROVIDER) {
