@@ -117,8 +117,16 @@ However, if you find issues with the mod that are not resolved by doing things i
 
 This mod is still in development, and we are still resolving problems that we have found, and are being found, but here is a small list of some of the issues we know exist with this mod:
 
-
-
+- As a rule, if it involves water it is probably broken, most of these problems should be fixed when the new water system is added (see Future Plans):
+  - Areas on land but below sea level (ex. parts of The Netherlands, Caspian Sea Depression, Dead Sea region, Imperial Valley, etc.) are covered in water as if they were below sea level.
+  - Coastlines are very broken/blockly, no non-accidental beaches
+  - There are no above sea level rivers or lakes except for the standard procedural minecraft sources
+  - Parts of the ocean make odd shapes or appear as land (ex. the prime meridian ridge near null island) (this may never be fully fixed as it is fundamentally caused by glitches in the terrain tile's barometry data, but it's severity can be reduced)
+- The shape of biomes usually comes in 4-km blocks and the boundries are strait lines (this could be fixed with some smart interpolation and/or perlin noise)
+- Biomes are classified incorrectly in some places, this could be improved by more thorough classification)
+- The terrain looks very linear in some places (also could be fixed by minor perlin noise)
+- Seed and Flower item drops will sometimes appear on roads (I honestly don't fully understand this one)
+- Most ores only spawn in or below their default locations (around 0-63 Y), this will hopefully be fixed with a new ore system (see Future Plans)
 
 ## Future Plans
 
@@ -139,6 +147,6 @@ This mod is still in development, and we are still resolving problems that we ha
   - Converting Latitude and Longitude to Minecraft coordinates (and vice versa, especially if custom projections were added)
   - Tell you things about the surrounding area such as street names and addresses
 
-- An organic way to dealing with connecting both sides of the [antimeridian](https://en.wikipedia.org/wiki/180th_meridian) (maybe by teleporting the player from one side to the other)
+- An organic way to dealing with connecting both sides of the [antimeridian](https://en.wikipedia.org/wiki/180th_meridian) (maybe by simply teleporting the player from one side to the other?)
 
 - A nether where 1 block in the nether = 1000 blocks (1km) in the overworld, instead of the vanilla 1:8 ratio. This would make legitimate globe spanning survival practical as traveling to the other side of the earth would only be 20,000 blocks in the nether (not exactly a short trip but better than the 20,000,000 blocks (2/3s the way to the World Border) that it would take in the overworld)
