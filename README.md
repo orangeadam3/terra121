@@ -1,11 +1,14 @@
 # Terra 1 to 1 Minecraft World Project
 ### Developed by TheAtomBomb92
-### Co-Developed by shejan0
+### Co-Developed and screenshots by shejan0 
 ### Submod of [CubicChunks](https://github.com/OpenCubicChunks/CubicChunks) and [CubicWorldGen](https://github.com/OpenCubicChunks/CubicWorldGen/) from the [OpenCubicChunks](https://github.com/OpenCubicChunks) project. 
 
+![Editing JVM](Pictures/CopperCanyonMex.png)
 
+Barranca del Cobre (Copper Canyon), Chihuahua, Mexico 
 
 ## Currently used APIs:
+
 Elevations data is downloaded in real time from [AWS Terrain Tiles](https://registry.opendata.aws/terrain-tiles/). (© [Mapzen](https://www.mapzen.com/rights), [OpenStreetMap](https://openstreetmap.org/copyright), and [others](https://mapzen.com/rights/#services-and-data-sources))
 
 Tree cover data is downloaded in real time from the [ARCGIS REST TreeCover2000 Image Server hosted by the World Resources Institute](https://gis-treecover.wri.org/arcgis/rest/services/TreeCover2000/ImageServer), originally from [Landsat 7 ETM+](http://glad.geog.umd.edu/) (Originally [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/))
@@ -16,18 +19,18 @@ Climate (rain & temperature) data is from [The University of Delaware Center for
 
 Soil suborder data is from the [USDA Natural Resources Conservation Service's Global Soil Region Map](https://www.nrcs.usda.gov/wps/portal/nrcs/detail/soils/use/?cid=nrcs142p2_054013) (built into the mod)
 
+### THIS MOD DOWNLOADS DATA IN REALTIME FROM THE INTERNET!!!!! IT WILL NEED A DECENT INTERNET CONNECTION, AND WILL NOT WORK OFFLINE!!! DO NOT USE WITH MOBILE DATA CONNECTIONS, UNLESS YOU HAVE UNLIMITED DATA!!!!
+
 
 
 ## What is the difference between the other earth models in Minecraft?
 Rather than being on a percentage scale of the actual world, such as 1:2000 the scale, this generator generates the world on a 1:1 scale (Approximately, actual scale varies based on latitude ). Every block is 1 meter of the real world in every dimension. 
 
+![Mount Everest](Pictures/MountEverestNepal.png)
+
 **The heights of Mount Everest never felt so virtually high before.**
 
-
-
-### THIS MOD DOWNLOADS DATA IN REALTIME FROM THE INTERNET!!!!! IT WILL NEED A DECENT INTERNET CONNECTION, AND WILL NOT WORK OFFLINE!!! DO NOT USE WITH MOBILE DATA CONNECTIONS, UNLESS YOU HAVE UNLIMITED DATA!!!!
-
-
+You can take a sneak peak with our [Screenshot Showcase](PICTURES.md)
 
 ## How is it done?
 **CubicChunks**, first of all, adds a 3rd dimensionality to the already existing Minecraft chunk system, allowing much more accessibility when it comes to vertical height. 
@@ -81,9 +84,9 @@ The block coordinates in Minecraft are calculated by (X, Y, Z). This mod will co
 
 #### Also remember that the longitude and latitude must be in decimal form (36.0660, -112.1172) and not degrees (36°03'57.6"N, 112°07'01.9"W)!!!
 
-
-
 Example: **Yavapai Point, Grand Canyon, Arizona, USA** ([OpenStreetMap](https://www.openstreetmap.org/#map=16/36.0660/-112.1172), [Google Maps](https://www.google.com/maps/place/Yavapai+Point/@36.0660043,-112.1193887,17z))
+
+![Yavapai Point](Pictures/YavapaiPointGrandCanyonUS1.png)
 
 has decimal coordinates of (36.0660, -112.1172) with an elevation just under 2200 meters, multiplying the latitude and longitude by 10^5 and setting Y to 2200 (the meters from sea level) gives the (X,Y,Z) coordinates of:
 **(3606600, 2200, -11211720) **
@@ -108,7 +111,8 @@ Water based on actual river/lake/coastline locations from OpenStreetMap
 
 Update forest data from 2000 to 2012
 
-Malisis GUI for world customization and bonus features such as:
+[Malisis Core](https://www.curseforge.com/minecraft/mc-mods/malisiscore) GUI for world customization and bonus features such as:
+
  * Changing the [projection](https://en.wikipedia.org/wiki/Map_projection) from Mercator to something else (such as [Sinusoidal](https://en.wikipedia.org/wiki/Sinusoidal_projection))
  * Changing the scale of the world (both vertical and horizontal)
  * Disabling Roads and other features
@@ -116,7 +120,7 @@ Malisis GUI for world customization and bonus features such as:
  * Normal generation options like cave/ore frequency etc.
 
 A custom set of commands to help you navigate the world by doing things such as:
- * Converting Latitude and Longitude to Minecraft coordinates (and vice versa)(especially if custom projections were added)
+ * Converting Latitude and Longitude to Minecraft coordinates (and vice versa, especially if custom projections were added)
  * Tell you things about the surrounding area such as street names and addresses
 
 An organic way to dealing with connecting both sides of the [antimeridian](https://en.wikipedia.org/wiki/180th_meridian) (maybe by teleporting the player from one side to the other)
