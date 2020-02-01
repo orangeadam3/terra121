@@ -38,7 +38,9 @@ You can take a sneak peak with our [Screenshot Showcase](PICTURES.md)
 ## How is it done?
 **CubicChunks**, first of all, adds a 3rd dimensionality to the already existing Minecraft chunk system, allowing much more accessibility when it comes to vertical height. 
 
-**CubicWorldGen** is an extension mod to *CubicChunks* to allow generation of worlds with 3 dimensions of chunks rather than the 2 dimensional generation of standard Minecraft.
+**CubicWorldGen 85** is an extension mod to *CubicChunks* to allow generation of worlds with 3 dimensions of chunks rather than the 2 dimensional generation of standard Minecraft.
+
+**Use cwg85 (CubicWorldGen 85) or above to prevent any possible compatibility issues with other generators**
 
 This modification of CubicWorldGen generates the world using information from datasets regarding terrain, biome, and human structures with 3 dimensional chunks.
 
