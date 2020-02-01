@@ -85,19 +85,4 @@ public class RandomAccessRunlength<E> {
             index = idx;
         }
     }
-
-    public static void main(String[] args) {
-        try {
-            InputStream is = new BufferedInputStream(new FileInputStream("SUBORDER.IMG"));
-            RandomAccessRunlength<Byte> list = new RandomAccessRunlength<Byte>();
-            int i;
-            while((i=is.read()) >= 0)
-                list.add((byte)i);
-
-            System.out.println(list.data.size());
-            is.close();
-        } catch (IOException e) {
-            System.err.println(e);
-        }
-    }
 }

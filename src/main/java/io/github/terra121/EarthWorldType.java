@@ -17,7 +17,6 @@ public class EarthWorldType extends WorldType implements ICubicWorldType  {
     public static EarthWorldType create() { return new EarthWorldType(); }
 
     public ICubeGenerator createCubeGenerator(World world) {
-    	System.out.println(world.provider.isNether());
         return new EarthTerrainProcessor(world);
     }
 
@@ -31,7 +30,6 @@ public class EarthWorldType extends WorldType implements ICubicWorldType  {
     }
 
     @Override public boolean hasCubicGeneratorForWorld(World w) {
-    	System.out.println(w.provider.getClass().getName());
         return w.provider instanceof WorldProviderSurface; // an even more general way to check if it's overworld (need custom providers)
     }
 

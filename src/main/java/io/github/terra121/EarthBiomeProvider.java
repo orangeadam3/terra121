@@ -23,7 +23,6 @@ public class EarthBiomeProvider extends BiomeProvider {
     /*public Biome getBiome(BlockPos pos, Biome defaultBiome) {
         int x = pos.getX();
         int z = pos.getZ();
-        System.out.println(Biomes.DESERT);
         return Biomes.DESERT;
     }*/
 
@@ -43,16 +42,12 @@ public class EarthBiomeProvider extends BiomeProvider {
             InputStream is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/suborder.img");
             soil = new Soil(is);
             is.close();
-        } catch(IOException ioe) {
-            System.err.println("Failed to load soil " + ioe);
-        }
-
-        try {
-        	InputStream is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/climate.dat");
+			
+        	is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/climate.dat");
             climate = new Climate(is);
             is.close();
         } catch(IOException ioe) {
-            System.err.println("Failed to load climate " + ioe);
+            TerraMod.LOGGER.error("Failed to load biome data: " + ioe);
         }
     }
 

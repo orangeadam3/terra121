@@ -1,6 +1,6 @@
 package io.github.terra121.dataset;
 
-import io.github.opencubicchunks.cubicchunks.cubicgen.CustomCubicMod;
+import io.github.terra121.TerraMod;
 import io.github.terra121.projection.MapsProjection;
 
 import java.awt.image.BufferedImage;
@@ -35,7 +35,7 @@ public class Heights extends TiledDataset{
 
             try {
                 String urlText = url_prefix + place.x + "/" + place.y + ".png";
-                //CustomCubicMod.LOGGER.error(urlText);
+                TerraMod.LOGGER.info(urlText);
                 URL url = new URL(urlText);
                 is = url.openStream();
                 BufferedImage img = ImageIO.read(is);
@@ -66,11 +66,11 @@ public class Heights extends TiledDataset{
                     } catch (IOException e) {}
                 }
 
-                CustomCubicMod.LOGGER.error("Failed to get elevation " + place.x + " " + place.y + " : " + ioe);
+                TerraMod.LOGGER.error("Failed to get elevation " + place.x + " " + place.y + " : " + ioe);
             }
         }
 
-        CustomCubicMod.LOGGER.error("Failed too many times chunks will be set to 0");
+        TerraMod.LOGGER.error("Failed too many times chunks will be set to 0");
         return out;
     }
 

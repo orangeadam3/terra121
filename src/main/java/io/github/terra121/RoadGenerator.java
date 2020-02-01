@@ -56,8 +56,6 @@ public class RoadGenerator implements ICubicPopulator {
                 double j = e.slon - (cubeX*16)/SCALE;
                 double k = e.elon - (cubeX*16)/SCALE;
                 double off = e.offset - (cubeZ*16)/SCALE + e.slope*(cubeX*16)/SCALE;
-
-                //System.out.println(j + " " + k + " " + off + " " + e.slope);
                 
                 if(j>k) {
                     double t = j;

@@ -18,13 +18,4 @@ public class MapsProjection extends GeographicProjection {
 				(Math.PI - Math.log( Math.tan((Math.PI/2 + lat*TO_RADIANS)/2) ) ) / TAU
 			};
 	}
-	
-	public static void main(String args[]) {
-		MapsProjection mp = new MapsProjection();
-		double[] out = mp.fromGeo(0, -30);
-		System.out.println((out[0]*1024) + " " + (out[1]*1024));
-		
-		double[] reout = mp.toGeo(out[0], out[1]);
-		System.out.println(reout[0] + " " + reout[1]);
-	}
 }

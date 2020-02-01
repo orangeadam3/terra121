@@ -33,7 +33,7 @@ public class SnowPopulator implements ICubicPopulator {
 		
 		/*EarthBiomeProvider ebp = (EarthBiomeProvider) world.getBiomeProvider();
 		double[] proj = ebp.projection.toGeo(pos.getX()/100000.0, pos.getY()/100000.0);
-		System.out.println(ebp.climate.getPoint(proj[0], proj[1]).temp);*/
+		*/
 		
 		if(canSnow(new BlockPos(baseX+8, baseZ+8, baseY+16-1), world, true)) {
 			IBlockState snow = Blocks.SNOW_LAYER.getDefaultState();

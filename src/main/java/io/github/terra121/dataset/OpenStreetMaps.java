@@ -14,9 +14,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import io.github.opencubicchunks.cubicchunks.cubicgen.CustomCubicMod;
 import io.github.terra121.projection.GeographicProjection;
 import io.github.terra121.projection.InvertedGeographic;
+import io.github.terra121.TerraMod;
 
 public class OpenStreetMaps {
 
@@ -95,7 +95,7 @@ public class OpenStreetMaps {
             }
 
             if(i==5) {
-                CustomCubicMod.LOGGER.error("OSM region" + region.x + " " + region.y + " failed to download several times, no structures will spawn");
+                TerraMod.LOGGER.error("OSM region" + region.x + " " + region.y + " failed to download several times, no structures will spawn");
                 return false;
             }
         }
@@ -105,12 +105,10 @@ public class OpenStreetMaps {
     public boolean regiondownload (Coord mchunk) {
         double X = mchunk.x*MAP_CHUNK_SIZE;
         double Y = mchunk.y*MAP_CHUNK_SIZE;
-        
-        System.out.println(mchunk);
 
         try {
             String urltext = URL_PREFACE + Y + "," + X + "," + (Y + MAP_CHUNK_SIZE) + "," + (X + MAP_CHUNK_SIZE) + URL_SUFFIX;
-            System.out.println(urltext);
+            TerraMod.LOGGER.info(urltext);
 
             URL url = new URL(urltext);
             InputStream is = url.openStream();
@@ -120,7 +118,7 @@ public class OpenStreetMaps {
             is.close();
 
         } catch(Exception e) {
-            System.out.println(e);
+            TerraMod.LOGGER.error("Osm region download failed, no osm features will spawn, "+e);
             e.printStackTrace();
             return false;
         }
