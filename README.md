@@ -40,11 +40,9 @@ You can take a sneak peak with our [Screenshot Showcase](PICTURES.md)
 
 **CubicWorldGen 85** is an extension mod to *CubicChunks* to allow generation of worlds with 3 dimensions of chunks rather than the 2 dimensional generation of standard Minecraft.
 
-**Use cwg85 (CubicWorldGen 85) or above to prevent any possible compatibility issues with other generators**
-
 This modification of CubicWorldGen generates the world using information from datasets regarding terrain, biome, and human structures with 3 dimensional chunks.
 
-
+## Use cwg85 (CubicWorldGen 85) or above to prevent any possible compatibility issues with other generators
 
 ## Prerequisites
 
@@ -53,14 +51,14 @@ This modification of CubicWorldGen generates the world using information from da
   - [On GitHub](https://github.com/OpenCubicChunks/CubicChunks)
   - [On CurseForge](https://www.curseforge.com/minecraft/mc-mods/opencubicchunks)
   - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE [CUBIC CHUNKS DISCORD](https://discord.gg/kMfWg9m) under the **#info-new-cc** channel)
-- **REQUIRED**: Standard CubicWorldGen for the corrective version of the mod.
+- **REQUIRED**: Standard CubicWorldGen version 85 or above
   - [On GitHub](https://github.com/OpenCubicChunks/CubicWorldGen/)
   - [On CurseForge](https://www.curseforge.com/minecraft/mc-mods/cubicworldgen) 
   - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE [CUBIC CHUNKS DISCORD](https://discord.gg/kMfWg9m) under the **#info-new-cc** channel)
 - Recommended: [Malisis Core](https://www.curseforge.com/minecraft/mc-mods/malisiscore):  (The Planet Earth generation at the current moment does not have any support for Malisis, and is a future plan, but the original generation methods inside of CubicWorldGen do support Malisis)
 
 **You must have all required mods installed for the Planet Earth generation to work!!!**
-
+**Use cwg85 (CubicWorldGen 85) or above to prevent any possible compatibility issues with other generators**
 
 
 ## Obtaining
