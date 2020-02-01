@@ -123,7 +123,7 @@ This mod is still in development, and we are still resolving problems that we ha
   - There are no above sea level rivers or lakes except for the standard procedural minecraft sources
   - Parts of the ocean make odd shapes or appear as land (ex. the prime meridian ridge near null island) (this may never be fully fixed as it is fundamentally caused by glitches in the terrain tile's barometry data, but it's severity can be reduced)
 - The shape of biomes usually comes in 4-km blocks and the boundries are strait lines (this could be fixed with some smart interpolation and/or perlin noise)
-- Biomes are classified incorrectly in some places, this could be improved by more thorough classification)
+- Biomes are classified incorrectly in some places (this could be improved by more thorough classification)
 - The terrain looks very linear in some places (also could be fixed by minor perlin noise)
 - Seed and Flower item drops will sometimes appear on roads (I honestly don't fully understand this one)
 - Most ores only spawn in or below their default locations (around 0-63 Y), this will hopefully be fixed with a new ore system (see Future Plans)
@@ -137,10 +137,11 @@ This mod is still in development, and we are still resolving problems that we ha
 - Update forest data from 2000 to 2012 (we found a newer one wooooo)
 
 - [Malisis Core](https://www.curseforge.com/minecraft/mc-mods/malisiscore) GUI for world customization and bonus features such as:
-- Changing the [projection](https://en.wikipedia.org/wiki/Map_projection) from Mercator to something else (such as [Sinusoidal](https://en.wikipedia.org/wiki/Sinusoidal_projection))
+  - Changing the [projection](https://en.wikipedia.org/wiki/Map_projection) from Mercator to something else (such as [Sinusoidal](https://en.wikipedia.org/wiki/Sinusoidal_projection))
   - Changing the scale of the world (both vertical and horizontal)
   - Disabling Roads and other features
   - Enabling esoteric features that might not be appreciated by everyone (ex. Road signs with names at evrey intersection).
+  - Custom spawnpoint
   - Normal generation options like cave/ore frequency, etc.
   
 - A custom set of commands to help you navigate the world by doing things such as:
