@@ -42,7 +42,7 @@ You can take a sneak peak with our [Screenshot Showcase](PICTURES.md)
 
 This modification of CubicWorldGen generates the world using information from datasets regarding terrain, biome, and human structures with 3 dimensional chunks.
 
-## Use cwg85 (CubicWorldGen 85) or above to prevent any possible compatibility issues with other generators
+## Use [cwg85](http://www.mediafire.com/file/57ki07oq2cw86bj/CubicWorldGen-1.12.2-0.0.85.0-SNAPSHOT-all.jar/file) (CubicWorldGen 85) or above to prevent any possible compatibility issues with other generators
 
 ## Prerequisites
 
@@ -58,7 +58,7 @@ This modification of CubicWorldGen generates the world using information from da
 - Recommended: [Malisis Core](https://www.curseforge.com/minecraft/mc-mods/malisiscore):  (The Planet Earth generation at the current moment does not have any support for Malisis, and is a future plan, but the original generation methods inside of CubicWorldGen do support Malisis)
 
 **You must have all required mods installed for the Planet Earth generation to work!!!**
-**Use cwg85 (CubicWorldGen 85) or above to prevent any possible compatibility issues with other generators**
+**Use [cwg85](http://www.mediafire.com/file/57ki07oq2cw86bj/CubicWorldGen-1.12.2-0.0.85.0-SNAPSHOT-all.jar/file) (CubicWorldGen 85) or above to prevent any possible compatibility issues with other generators**
 
 
 ## Obtaining
