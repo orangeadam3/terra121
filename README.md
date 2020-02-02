@@ -1,4 +1,4 @@
-![Logo](Pictures/Icon1280.png)
+![Logo](Pictures/TerraTextIconnocompress.png)
 
 # Terra 1 to 1 Minecraft Earth Project
 
