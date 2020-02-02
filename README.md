@@ -24,7 +24,7 @@ Soil suborder data is from the [USDA Natural Resources Conservation Service's Gl
 
 ### THIS MOD DOWNLOADS DATA IN REAL-TIME FROM THE INTERNET!!!!! IT WILL NEED A DECENT INTERNET CONNECTION, AND WILL NOT WORK OFFLINE!!! DO NOT USE WITH MOBILE DATA CONNECTIONS, UNLESS YOU HAVE UNLIMITED DATA!!!!
 
-
+## Use cwg85 (CubicWorldGen 85) or above to prevent any possible compatibility issues with other generators
 
 ## What is the difference between the other earth models in Minecraft?
 Rather than being on a percentage scale of the actual world, such as 1:2000 the scale, this generator generates the world on a 1:1 scale (Approximately, actual scale varies based on latitude ). Every block is 1 meter of the real world in every dimension. 
@@ -38,11 +38,11 @@ You can take a sneak peak with our [Screenshot Showcase](PICTURES.md)
 ## How is it done?
 **CubicChunks**, first of all, adds a 3rd dimensionality to the already existing Minecraft chunk system, allowing much more accessibility when it comes to vertical height. 
 
-**CubicWorldGen** is an extension mod to *CubicChunks* to allow generation of worlds with 3 dimensions of chunks rather than the 2 dimensional generation of standard Minecraft.
+**CubicWorldGen 85** is an extension mod to *CubicChunks* to allow generation of worlds with 3 dimensions of chunks rather than the 2 dimensional generation of standard Minecraft.
 
 This modification of CubicWorldGen generates the world using information from datasets regarding terrain, biome, and human structures with 3 dimensional chunks.
 
-
+## Use [cwg85](http://www.mediafire.com/file/57ki07oq2cw86bj/CubicWorldGen-1.12.2-0.0.85.0-SNAPSHOT-all.jar/file) (CubicWorldGen 85) or above to prevent any possible compatibility issues with other generators
 
 ## Prerequisites
 
@@ -51,14 +51,14 @@ This modification of CubicWorldGen generates the world using information from da
   - [On GitHub](https://github.com/OpenCubicChunks/CubicChunks)
   - [On CurseForge](https://www.curseforge.com/minecraft/mc-mods/opencubicchunks)
   - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE [CUBIC CHUNKS DISCORD](https://discord.gg/kMfWg9m) under the **#info-new-cc** channel)
-- **REQUIRED**: Standard CubicWorldGen for the corrective version of the mod.
+- **REQUIRED**: Standard CubicWorldGen version 85 or above
   - [On GitHub](https://github.com/OpenCubicChunks/CubicWorldGen/)
   - [On CurseForge](https://www.curseforge.com/minecraft/mc-mods/cubicworldgen) 
   - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE [CUBIC CHUNKS DISCORD](https://discord.gg/kMfWg9m) under the **#info-new-cc** channel)
 - Recommended: [Malisis Core](https://www.curseforge.com/minecraft/mc-mods/malisiscore):  (The Planet Earth generation at the current moment does not have any support for Malisis, and is a future plan, but the original generation methods inside of CubicWorldGen do support Malisis)
 
 **You must have all required mods installed for the Planet Earth generation to work!!!**
-
+**Use [cwg85](http://www.mediafire.com/file/57ki07oq2cw86bj/CubicWorldGen-1.12.2-0.0.85.0-SNAPSHOT-all.jar/file) (CubicWorldGen 85) or above to prevent any possible compatibility issues with other generators**
 
 
 ## Obtaining
@@ -123,7 +123,7 @@ This mod is still in development, and we are still resolving problems that we ha
   - There are no above sea level rivers or lakes except for the standard procedural minecraft sources
   - Parts of the ocean make odd shapes or appear as land (ex. the prime meridian ridge near null island) (this may never be fully fixed as it is fundamentally caused by glitches in the terrain tile's barometry data, but it's severity can be reduced)
 - The shape of biomes usually comes in 4-km blocks and the boundries are strait lines (this could be fixed with some smart interpolation and/or perlin noise)
-- Biomes are classified incorrectly in some places, this could be improved by more thorough classification)
+- Biomes are classified incorrectly in some places (this could be improved by more thorough classification)
 - The terrain looks very linear in some places (also could be fixed by minor perlin noise)
 - Seed and Flower item drops will sometimes appear on roads (I honestly don't fully understand this one)
 - Most ores only spawn in or below their default locations (around 0-63 Y), this will hopefully be fixed with a new ore system (see Future Plans)
@@ -137,10 +137,11 @@ This mod is still in development, and we are still resolving problems that we ha
 - Update forest data from 2000 to 2012 (we found a newer one wooooo)
 
 - [Malisis Core](https://www.curseforge.com/minecraft/mc-mods/malisiscore) GUI for world customization and bonus features such as:
-- Changing the [projection](https://en.wikipedia.org/wiki/Map_projection) from Mercator to something else (such as [Sinusoidal](https://en.wikipedia.org/wiki/Sinusoidal_projection))
+  - Changing the [projection](https://en.wikipedia.org/wiki/Map_projection) from Mercator to something else (such as [Sinusoidal](https://en.wikipedia.org/wiki/Sinusoidal_projection))
   - Changing the scale of the world (both vertical and horizontal)
   - Disabling Roads and other features
   - Enabling esoteric features that might not be appreciated by everyone (ex. Road signs with names at evrey intersection).
+  - Custom spawnpoint
   - Normal generation options like cave/ore frequency, etc.
   
 - A custom set of commands to help you navigate the world by doing things such as:

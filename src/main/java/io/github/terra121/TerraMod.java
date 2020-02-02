@@ -22,7 +22,6 @@ import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.event.Popula
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.event.PopulateCubeEvent.Populate;
 import io.github.terra121.provider.EarthWorldProvider;
 import io.github.terra121.provider.GenerationEventDenier;
-import io.github.terra121.provider.ProviderWorkarounds;
 
 @Mod(modid = TerraMod.MODID, name = TerraMod.NAME, version = TerraMod.VERSION, dependencies = "required-after:cubicchunks; required-after:cubicgen", acceptableRemoteVersions="*")
 public class TerraMod
@@ -31,7 +30,7 @@ public class TerraMod
     public static final String NAME = "Terra 1 to 1";
     public static final String VERSION = "0.1";
     
-    public static final boolean CUSTOM_PROVIDER = false; //interferes with other mods (specifically CWG), turning off for now
+    public static final boolean CUSTOM_PROVIDER = false; //could potentially interfere with other mods and is relatively untested, leaving off for now
 
     public static Logger LOGGER;
 
@@ -42,8 +41,7 @@ public class TerraMod
         EarthWorldType.create();
         
         if(CUSTOM_PROVIDER) {
-	        ProviderWorkarounds.setupProvider();
-	        ProviderWorkarounds.replaceOthers();
+	        setupProvider();
         }
     }
 
@@ -57,4 +55,12 @@ public class TerraMod
     public void postInit(FMLPostInitializationEvent event) {    	
     	
     }
+    
+    //set custom provider
+    private static void setupProvider() {
+		DimensionType type = DimensionType.register("earth", "_earth", 0, EarthWorldProvider.class, true);
+        DimensionManager.init();
+        DimensionManager.unregisterDimension(0);
+        DimensionManager.registerDimension(0, type);
+	}
 }
