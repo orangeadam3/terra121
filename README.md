@@ -38,27 +38,31 @@ You can take a sneak peak with our [Screenshot Showcase](PICTURES.md)
 ## How is it done?
 **CubicChunks**, first of all, adds a 3rd dimensionality to the already existing Minecraft chunk system, allowing much more accessibility when it comes to vertical height. 
 
-**CubicWorldGen 85** is an extension mod to *CubicChunks* to allow generation of worlds with 3 dimensions of chunks rather than the 2 dimensional generation of standard Minecraft.
+**CubicWorldGen** is an extension mod to *CubicChunks* to allow generation of worlds with 3 dimensions of chunks rather than the 2 dimensional generation of standard Minecraft.
 
 This modification of CubicWorldGen generates the world using information from datasets regarding terrain, biome, and human structures with 3 dimensional chunks.
-
-## Use [cwg85](http://www.mediafire.com/file/57ki07oq2cw86bj/CubicWorldGen-1.12.2-0.0.85.0-SNAPSHOT-all.jar/file) (CubicWorldGen 85) or above to prevent any possible compatibility issues with other generators
 
 ## Prerequisites
 
 - **REQUIRED**: Minecraft Forge for the corrective version of Minecraft of the mod (currently Minecraft 1.12.2)
-- **REQUIRED**: Standard CubicChunks for the corrective version of the mod.
+- **REQUIRED**: Standard CubicChunks for the corrective Minecraft version of the mod.
   - [On GitHub](https://github.com/OpenCubicChunks/CubicChunks)
   - [On CurseForge](https://www.curseforge.com/minecraft/mc-mods/opencubicchunks)
   - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE [CUBIC CHUNKS DISCORD](https://discord.gg/kMfWg9m) under the **#info-new-cc** channel)
-- **REQUIRED**: Standard CubicWorldGen version 85 or above
-  - [On GitHub](https://github.com/OpenCubicChunks/CubicWorldGen/)
-  - [On CurseForge](https://www.curseforge.com/minecraft/mc-mods/cubicworldgen) 
+- **REQUIRED**: Standard CubicWorldGen for the corrective Minecraft version of the mod **VERSION 0.0.85.0 OR HIGHER IS HIGHLY RECOMMENDED**
+  - [On GitHub](https://github.com/OpenCubicChunks/CubicWorldGen/) (releases may be out of date, but can be compiled)
+  - [On CurseForge](https://www.curseforge.com/minecraft/mc-mods/cubicworldgen) (may be out of date)
   - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE [CUBIC CHUNKS DISCORD](https://discord.gg/kMfWg9m) under the **#info-new-cc** channel)
+  - CubicWorldGen 0.0.85.0 [download direct from the developers](http://www.mediafire.com/file/57ki07oq2cw86bj/CubicWorldGen-1.12.2-0.0.85.0-SNAPSHOT-all.jar/file) if you are unsure about which service to use (still recommended to check the [Cubic Chunks Discord](https://discord.gg/kMfWg9m) channel if there is any newer versions)
 - Recommended: [Malisis Core](https://www.curseforge.com/minecraft/mc-mods/malisiscore):  (The Planet Earth generation at the current moment does not have any support for Malisis, and is a future plan, but the original generation methods inside of CubicWorldGen do support Malisis)
 
 **You must have all required mods installed for the Planet Earth generation to work!!!**
-**Use [cwg85](http://www.mediafire.com/file/57ki07oq2cw86bj/CubicWorldGen-1.12.2-0.0.85.0-SNAPSHOT-all.jar/file) (CubicWorldGen 85) or above to prevent any possible compatibility issues with other generators**
+
+### CubicWorldGen 0.0.85.0 or later is HIGHLY recommended, as it has changes made that no longer causes conflicts with CubicWorldGen's default "Custom Cubic" generator, with the Terra 1-to-1 Planet Earth generator. 
+
+### (Users who have standard Custom Cubic worlds with earlier CubicWorldGen versions and load Terra 1-to-1, might have broken generation on new chunks)!!!!
+
+
 
 
 ## Obtaining
