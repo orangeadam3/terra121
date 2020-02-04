@@ -10,6 +10,12 @@
 
 Barranca del Cobre (Copper Canyon), Chihuahua, Mexico 
 
+Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UClbmNgZmGahCDKcs8_aMN0A), Administrator and Moderator on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), and has been interested in the development of our mod since the beginning.
+
+[![Wozat Showcase](https://img.youtube.com/vi/XJG1XXOdJcc/0.jpg)](https://www.youtube.com/watch?v=XJG1XXOdJcc)
+
+-*Much love from orangeadam3 and shejan0* 😫😤😘
+
 ## Currently used APIs:
 
 Elevations data is downloaded in real time from [AWS Terrain Tiles](https://registry.opendata.aws/terrain-tiles/). (© [Mapzen](https://www.mapzen.com/rights), [OpenStreetMap](https://openstreetmap.org/copyright), and [others](https://mapzen.com/rights/#services-and-data-sources))
