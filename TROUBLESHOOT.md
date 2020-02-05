@@ -111,6 +111,10 @@ If you are on macOS or Linux:
 
 This is an issue with older Java versions that do not have the proper SSL certificates to access the [Overpass API](http://overpass-api.de/) used to load the OpenStreetMap data. You will most likely need to have a newer version of the JVM downloaded elsewhere and link it to the Java environment that Minecraft runs in (or you can change which Java Executable Minecraft uses to another JVM installation).
 
+Follow the instructions below to find external JVMs, and find the neccessary certificates, if you fail at any step, we recommend tracing back and making sure you didn't mess up, or just installing this [Java download](https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html) for your system's operating system and hardware, and restarting the steps to get the certificates file
+
+
+
 ### Finding other JVMs on Windows
 
 On Windows (vista or later), you can tell if you have other JVMs installed if you search "java" using the Windows search and if anything comes up at all:
@@ -123,17 +127,89 @@ If you select the "Configure Java" options this will open your system-wide Java 
 
 ![Windows](Pictures/WindowsDifferentJVMs.png)
 
-You will see every major JVM you have installed to your machine. You only need up to the "**\bin**" part. (If you have multiple choose the newest under the 1.8 jurisdiction).
+You will see every major JVM you have installed to your machine. Copy the path up to the "**\bin**" part (don't include the bin). (If you have multiple choose the newest under the 1.8 jurisdiction).
+
+Then use WINDOWS+R and paste the path you copied, you should now arrive at that folder in Windows Explorer (skip to switching JVM)
 
 ### Finding JVMs on Mac
 
-It is the same instructions as on Windows, but instead of searching for JVM 
+It is the same instructions as on Windows, but instead of searching for "java", in your Windows search, instead look for "Java" in your "System Preferences" application:
 
-### Finding JVMs on Linux
+![Mac](Pictures/MacSystemPreferences.png)
+
+Clicking on that, will open a seperate java application window, similar to that on Windows, under the "Java" tab, click view:
+
+![Mac](Pictures/MacJavaView.png)
+
+![Mac](Pictures/MacDifferentJVMs.png)
+
+**Make sure you copy the Path up to the /bin part (don't include the bin), it is way too long to be located through normal means, and is hidden in the system files, so it must be copied in**
+
+Open your finder and use the COMMAND+SHIFT+G shortcut, and paste the path into the box and go the the folder.
+
+### Switching JVM certifications on Windows and Mac
+
+Travel to the folder you copied, inside of that folder, find the ""**lib**" folder, then "**security**", inside of that should exist a file called "**cacerts**", if it doesn't exist try installing another JVM (like the one we have above), or using another one installed to your machine (if you have more than one).
+
+Once you have confirmed that **cacerts** is existent. You need to justify to Minecraft's JVM to use that cacerts:
+
+Inside your Minecraft Launcher, go to the "Installations" tab, find your Forge installation, and select "Edit":
+
+![Editing JVM](Pictures/InstallationsEdit.png)
+
+Select **"More Options"**, and find the **"JVM Arguments"** section:
+
+![Editing JVM](Pictures/EditJVMArgs.png)
+
+Inside the JVM Arguments add the following line (ensure there is a space before and after):
+
+On Windows:
+
+```bash
+-Djavax.net.ssl.trustStore="<JVMwithoutBin>\lib\security\cacerts"
+```
+
+On Mac:
+
+```bash
+-Djavax.net.ssl.trustStore=<JVMwithoutBin>/lib/security/cacerts
+```
+
+Replace the *<JVMwithoutBin>* area with your copied Path, then click save.
+
+Re-open Minecraft, then create a new world with the Planet Earth generator, you should now have roads.
+
+### Finding and switching JVMs on Linux
+
+Minecraft by default on Linux does not actually install its own version of JVM like Windows and Mac, it utilizes whatever your **JAVA_HOME** is set to to run Minecraft, you might need to change it to another edition if it doesn't seem to be working.
+
+**The following instructions are written for Ubuntu, however these instructions should work to some degree on all Linux environments**
+
+Running the following command will give you all of your Java installation directories as recognized by the Ubuntu lib installations
+
+```bash
+sudo update-alternatives --list java
+```
+
+Find a version called java-8, if you do not have it, use the Java Download from above, or run the command in Ubuntu:
+
+```bash
+sudo apt-get install openjdk-8-jre-headless
+```
+
+then test if you now have a java-8 installation.
+
+After having a java-8 installation, run this command:
+
+```bash
+sudo update-alternatives --config java
+```
+
+and select the "selection number" associated with the java-8 installation.
+
+Your **JAVA_HOME** should move to that version, and should utilize that one's certificates.
 
 
 
-Travel to that folder, inside of that folder, find the ""**lib**" folder, then "**security**", inside of that should exist a file called "**cacerts**", if it doesn't exist try installing another JVM (like the one we have below), or using another one installed to your machine (if you have more than one)
-
-If you do not have any other JVMs installed, we recommend this [Java download](https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html), install the corrective version for your operating system and hardware. 
+Re-open Minecraft, then create a new world with the Planet Earth generator, you should now have roads. 
 
