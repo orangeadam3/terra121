@@ -8,7 +8,7 @@
 ```java
 /tp 3774590.26 2700 -11953321.08
 ```
-*Katy Freeway, Houston, US*
+*Katy Freeway, Texas, US*
 
 ```java
 /tp 2978485 100 -9568513
@@ -40,13 +40,13 @@
 *San Juanito, Meta Department, Colombia*
 (small village next to Guadalupe River valley)
 ```java
-/tp 445843.9 5000 -7367715.13
+/tp 445843.9 2000 -7367715.13
 ```
 *Ozero Komsomol'skoye, Chukotka, Russia*
 (a lake right on the left hand side of the earth projection, good place to easily get to a solid cliff down to 0 if you go to -18000000)
 
 ```java
-/tp 6694791.83 5000 -17966500.7
+/tp 6694791.83 170 -17966500.7
 ```
 
 There are many more to choose from, and you can also pre-calculate them yourself using the [instructions in the Readme](README.md)
