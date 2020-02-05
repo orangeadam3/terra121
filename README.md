@@ -10,6 +10,24 @@
 
 Barranca del Cobre (Copper Canyon), Chihuahua, Mexico 
 
+## Public Server
+
+### We now have a public server that you can test the mod without ever having to install it!!!! 
+
+The server is hosted by FyreBurns from the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), you will need **AT LEAST** Forge and CubicChunks installed on your machine to join (download information can be found in the Prerequisites below)!
+
+Either Direct Connect or Add a new server with the following IP:
+
+### ert.g.akliz.net:40838
+
+This is also another work in progress, so permissions and things may change according to FyreBurns, we greatly appreciate the resources that FyreBurns is placing to run this server for the public.
+
+**If you cannot join, then most likely it is off, do not spam message FyreBurns or us, check back at another time.**
+
+*Thank you FyreBurns for your efforts, much appreciated*
+
+*- shejan0 and orangeadam3* 😘
+
 ## Creation showcase
 
 Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UClbmNgZmGahCDKcs8_aMN0A), Administrator and Moderator on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), and has been interested in the development of our mod since the beginning.
