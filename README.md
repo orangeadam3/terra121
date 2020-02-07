@@ -72,10 +72,10 @@ This modification of CubicWorldGen generates the world using information from da
 
 ## Prerequisites
 
-- **REQUIRED**: Minecraft Forge for the corrective version of Minecraft of the mod (currently Minecraft 1.12.2)
+- **REQUIRED**: [Minecraft Forge](https://files.minecraftforge.net/) for the corrective version of Minecraft of the mod (currently Minecraft 1.12.2, this mod is tested using 2847 and 2768)
 - **REQUIRED**: Standard CubicChunks for the corrective Minecraft version of the mod.
-  - [On GitHub](https://github.com/OpenCubicChunks/CubicChunks)
-  - [On CurseForge](https://www.curseforge.com/minecraft/mc-mods/opencubicchunks)
+  - [On GitHub](https://github.com/OpenCubicChunks/CubicWorldGen/) (releases may be out of date, but can be compiled)
+  - [On CurseForge](https://www.curseforge.com/minecraft/mc-mods/cubicworldgen) (may be out of date)
   - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE [CUBIC CHUNKS DISCORD](https://discord.gg/kMfWg9m) under the **#info-new-cc** channel)
 - **REQUIRED**: Standard CubicWorldGen for the corrective Minecraft version of the mod **VERSION 0.0.85.0 OR HIGHER IS HIGHLY RECOMMENDED**
   - [On GitHub](https://github.com/OpenCubicChunks/CubicWorldGen/) (releases may be out of date, but can be compiled)

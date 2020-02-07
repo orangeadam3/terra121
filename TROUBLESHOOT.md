@@ -27,8 +27,25 @@ On macOS/Linux:
 
 # In-game/running Troubleshooting
 
+When running the mod, we always recommend to keep your game's log open at all times during game operation, many times an issue is occuring extremely early, but you won't actually see it in game until the game crashes, or things start to break. Most issues are caught in an Exception, and get printed to the game's log. By default the new CEFClient-based Launcher (the older Java-based launcher did not) that Minecraft now uses disables the log when running by default (also it closes itself, when you click play, also unhelpful when problems occur).
+
+To enable the game log:
+
+Find the Launcher settings:
+
+![Launcher Settings](Pictures/LauncherSettings.png)
+
+Enable the option "Open output log when games start":
+
+![Launcher Settings](Pictures/LauncherOptionChoices.png)
+
+Keeping the Launcher open is also extremely helpful at times, and we recommend you enable that too, although its not neccessary
+
+**Remember to scroll down to see the most recent output, by default the log doesn't auto-scroll, and will auto-scroll when the log is scrolled to the bottom manually**
+
 ## Where on earth am I?
-As of current, when you spawn you will not be anywhere near any real-world position, also called Null Island. You will need to first teleport yourself to a world location, here are some example locations that might be of interest:
+
+As of current, when you spawn you will not be anywhere near any real-world position, also called Null Island. You will need to first teleport yourself to a world location.
 
 You can use some of our [Cool locations](COOL_LOCATIONS.md) to find somewhere interesting to teleport to.
 
