@@ -182,7 +182,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                 }
                 
             	double[] projected = projection.toGeo((cubeX*16 + x)/SCALE, (cubeZ*16 + z)/SCALE);
-            	if(osm.water.getState(projected[0], projected[1])!=0) {
+            	if(osm.water.estimateLocal(projected[0], projected[1])>0.4) {
             		int y = (int)Math.floor(heightarr[x][z]) - Coords.cubeToMinBlock(cubeY);
 
                     if(y >= 0 && y < 16) primer.setBlockState(x, y, z, Blocks.LAPIS_BLOCK.getDefaultState());

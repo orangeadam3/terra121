@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import io.github.terra121.TerraMod;
+import io.github.terra121.dataset.TiledDataset.Coord;
 import io.github.terra121.projection.GeographicProjection;
 
 public class Water {
@@ -44,6 +45,35 @@ public class Water {
 		//TODO: range check
 		int idx = region.getStateIdx((short)lon, (short)lat);
 
-		return region.states[(int)lon][idx];
+		return (byte) (region.states[(int)lon][idx]==0?0:1);
+	}
+	
+	//TODO: more efficient
+	public float estimateLocal(double lon, double lat) {
+		//bound check
+        if(lon > 180 || lon < -180 || lat > 85 || lat < -85) {
+            return 0;
+        }
+
+        double oshift = osm.TILE_SIZE / hres;
+        double ashift = osm.TILE_SIZE / hres;
+        
+        //rounding errors fixed by recalculating values from scratch (wonder if this glitch also causes the oddly strait terrain that sometimes appears)
+        double Ob = Math.floor(lon/oshift)*oshift;
+        double Ab = Math.floor(lat/ashift)*ashift;
+        
+        double Ot = Math.ceil(lon/oshift)*oshift;
+        double At = Math.ceil(lat/ashift)*ashift;
+        
+        float u = (float) ((lon-Ob)/oshift);
+        float v = (float) ((lat-Ab)/ashift);
+        
+        float ll = getState(Ob, Ab);
+        float lr = getState(Ot, Ab);
+        float ur = getState(Ot, At);
+        float ul = getState(Ob, At);
+        
+        //get perlin style interpolation on this block
+        return (1-v)*(ll*(1-u) + lr*u) + (ul*(1-u) + ur*u)*v;
 	}
 }

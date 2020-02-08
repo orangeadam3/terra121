@@ -57,7 +57,7 @@ public class OpenStreetMaps {
         regions = new LinkedHashMap<Coord, Region>();
         projection = proj;
         try {
-			water = new Water(this, 160);
+			water = new Water(this, 256);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
