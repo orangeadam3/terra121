@@ -181,13 +181,12 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                     primer.setBlockState(x, y, z, block);
                 }
                 
-                //ocean water //TODO: better system when osm water becomes available
-                if(Y<=0) {
-	                int y = (int)Math.floor(Y - Coords.cubeToMinBlock(cubeY));
-	            	for (y=y<0?0:y; y < 16 && y < 0 - Coords.cubeToMinBlock(cubeY); y++) {
-	            		primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
-	            	}
-                }
+            	double[] projected = projection.toGeo((cubeX*16 + x)/SCALE, (cubeZ*16 + z)/SCALE);
+            	if(osm.water.getState(projected[0], projected[1])!=0) {
+            		int y = (int)Math.floor(heightarr[x][z]) - Coords.cubeToMinBlock(cubeY);
+
+                    if(y >= 0 && y < 16) primer.setBlockState(x, y, z, Blocks.LAPIS_BLOCK.getDefaultState());
+            	}
             }
         }
         
@@ -195,6 +194,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
         //spawn roads
         if(surface) {
+        	
             Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeZ);
 
             if(edges != null) {

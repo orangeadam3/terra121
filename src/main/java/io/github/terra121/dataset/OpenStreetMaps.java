@@ -20,22 +20,23 @@ import io.github.terra121.TerraMod;
 
 public class OpenStreetMaps {
 
-    private static final int CHUNK_PER_MAP_CHUNK = 64;
     private static final double BLOCK_SIZE = 1/100000.0;
     private static final double CHUNK_SIZE = 16*BLOCK_SIZE;
-    private static final double MAP_CHUNK_SIZE = CHUNK_SIZE*CHUNK_PER_MAP_CHUNK;//250*(360.0/40075000.0);
+    public static final double TILE_SIZE = 1/60.0;//250*(360.0/40075000.0);
     private static final double NOTHING = 0.1*BLOCK_SIZE;
     
-    private static final String OVERPASS_INSTANCE = "overpass-api.de";
-    private static final String URL_PREFACE = "https://"+OVERPASS_INSTANCE+"/api/interpreter?data=[out:json];way(";
-    private static final String URL_SUFFIX = ")[%22highway%22];(._;%3E;);out%20body;";
+    private static final String OVERPASS_INSTANCE = "https://overpass-api.de";//"https://overpass.kumi.systems";
+    private static final String URL_PREFACE = OVERPASS_INSTANCE+"/api/interpreter?data=[out:json];way(";
+    private static final String URL_A = ")[!\"building\"];out%20geom(";
+    private static final String URL_B = ")%20tags%20qt;(._<;);out%20body%20qt;is_in(";
+    private static final String URL_SUFFIX = ");area._[\"natural\"=\"water\"];out%20ids;";
 
     private HashMap<Coord, Set<Edge>> chunks;
-    private LinkedHashSet<Coord> regions;
+    public LinkedHashMap<Coord, Region> regions;
+    public Water water;
 
     private int numcache = 1000000;
 
-    private Map<Long, Element> allNodes;
     private ArrayList<Edge> allEdges;
 
     private Gson gson;
@@ -51,69 +52,80 @@ public class OpenStreetMaps {
 
     public OpenStreetMaps (GeographicProjection proj) {
     	gson = new GsonBuilder().create();
-    	allNodes =  new HashMap<Long, Element>();
         chunks = new LinkedHashMap<Coord, Set<Edge>>();
         allEdges = new ArrayList<Edge>();
-        regions = new LinkedHashSet<Coord>();
+        regions = new LinkedHashMap<Coord, Region>();
         projection = proj;
+        try {
+			water = new Water(this, 160);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
-    private Coord getRegion(double lon, double lat) {
-    	return new Coord((int)Math.floor(lon/(1024/100000.0)), (int)Math.floor(lat/(1024/100000.0)));
+    public Coord getRegion(double lon, double lat) {
+    	return new Coord((int)Math.floor(lon/TILE_SIZE), (int)Math.floor(lat/TILE_SIZE));
     }
     
     public Set<Edge> chunkStructures(int x, int z) {
         Coord coord = new Coord(x,z);
         
-        if(!regionCache(projection.toGeo(x*CHUNK_SIZE, z*CHUNK_SIZE)))
+        if(regionCache(projection.toGeo(x*CHUNK_SIZE, z*CHUNK_SIZE))==null)
         	return null;
         
-        if(!regionCache(projection.toGeo((x+1)*CHUNK_SIZE, z*CHUNK_SIZE)))
+        if(regionCache(projection.toGeo((x+1)*CHUNK_SIZE, z*CHUNK_SIZE))==null)
         	return null;
         
-        if(!regionCache(projection.toGeo((x+1)*CHUNK_SIZE, (z+1)*CHUNK_SIZE)))
+        if(regionCache(projection.toGeo((x+1)*CHUNK_SIZE, (z+1)*CHUNK_SIZE))==null)
         	return null;
         
-        if(!regionCache(projection.toGeo(x*CHUNK_SIZE, (z+1)*CHUNK_SIZE)))
+        if(regionCache(projection.toGeo(x*CHUNK_SIZE, (z+1)*CHUNK_SIZE))==null)
         	return null;
         
         return chunks.get(coord);
     }
     
-    private boolean regionCache(double[] corner) {
-    	Coord region = getRegion(corner[0], corner[1]);
+    public Region regionCache(double[] corner) {
+    	Coord coord = getRegion(corner[0], corner[1]);
+		Region region;
     	
-    	if(!regions.contains(region)) {
+    	if((region = regions.get(coord)) == null) {
+    		region = new Region(coord, water);
             int i;
             for (i = 0; i < 5 && !regiondownload(region); i++);
-            regions.add(region);
+            regions.put(coord, region);
             if(regions.size() > numcache) {
-                Iterator<Coord> it = regions.iterator();
-                Coord delete = it.next();
+            	//TODO: delete
+                /*Iterator<Region> it = regions.entrySet().iterator();
+                Region delete = it.next();
                 it.remove();
-                removeRegion(delete);
+                removeRegion(delete);*/
             }
 
             if(i==5) {
-                TerraMod.LOGGER.error("OSM region" + region.x + " " + region.y + " failed to download several times, no structures will spawn");
-                return false;
+                TerraMod.LOGGER.error("OSM region" + region.coord.x + " " + region.coord.y + " failed to download several times, no structures will spawn");
+                return null;
             }
         }
-    	return true;
+    	return region;
     }
 
-    public boolean regiondownload (Coord mchunk) {
-        double X = mchunk.x*MAP_CHUNK_SIZE;
-        double Y = mchunk.y*MAP_CHUNK_SIZE;
+    public boolean regiondownload (Region region) {
+        double X = region.coord.x*TILE_SIZE;
+        double Y = region.coord.y*TILE_SIZE;
 
         try {
-            String urltext = URL_PREFACE + Y + "," + X + "," + (Y + MAP_CHUNK_SIZE) + "," + (X + MAP_CHUNK_SIZE) + URL_SUFFIX;
+        	String bottomleft = Y + "," + X;
+        	String bbox = bottomleft + "," + (Y + TILE_SIZE) + "," + (X + TILE_SIZE);
+        	
+            String urltext = URL_PREFACE + bbox + URL_A + bbox + URL_B + bottomleft + URL_SUFFIX;
             TerraMod.LOGGER.info(urltext);
 
             URL url = new URL(urltext);
             InputStream is = url.openStream();
 
-            doGson(is, mchunk);
+            doGson(is, region);
             
             is.close();
 
@@ -124,9 +136,9 @@ public class OpenStreetMaps {
         }
 
         double[] ll = projection.fromGeo(X, Y);
-        double[] lr = projection.fromGeo(X + MAP_CHUNK_SIZE, Y);
-        double[] ur = projection.fromGeo(X + MAP_CHUNK_SIZE, Y + MAP_CHUNK_SIZE);
-        double[] ul = projection.fromGeo(X, Y + MAP_CHUNK_SIZE);
+        double[] lr = projection.fromGeo(X + TILE_SIZE, Y);
+        double[] ur = projection.fromGeo(X + TILE_SIZE, Y + TILE_SIZE);
+        double[] ul = projection.fromGeo(X, Y + TILE_SIZE);
         
         //estimate bounds of region in terms of chunks
         int lowX = (int)Math.floor(Math.min(Math.min(ll[0], ul[0]), Math.min(lr[0], ur[0]))/CHUNK_SIZE);
@@ -141,7 +153,7 @@ public class OpenStreetMaps {
         return true;
     }
     
-    private void doGson(InputStream is, Coord region) throws IOException {
+    private void doGson(InputStream is, Region region) throws IOException {
     	
     	StringWriter writer = new StringWriter();
     	IOUtils.copy(is, writer, StandardCharsets.UTF_8);
@@ -149,15 +161,26 @@ public class OpenStreetMaps {
     	
     	Data data = gson.fromJson(str.toString(), Data.class);
     	
+        Map<Long, Element> allWays = new HashMap<Long, Element>();
+        Set<Element> unusedWays = new HashSet<Element>();
+    	Set<Long> ground = new HashSet<Long>();
+        
     	for(Element elem: data.elements) {
-    		if(elem.type==EType.node) {
-    			allNodes.put(elem.id, elem);
-    		}
-    		else if(elem.type==EType.way && elem.tags!=null) {
+    		if(elem.type==EType.way) {
+    			allWays.put(elem.id, elem);
     			
+    			if(elem.tags==null) {
+    				unusedWays.add(elem);
+    				continue;
+    			}
+    			
+    			String naturalv = elem.tags.get("natural");
     			String highway = elem.tags.get("highway");
     			
-    			if(highway!=null) {
+    			if(naturalv != null && naturalv.equals("coastline"))
+    				waterway(elem, -1, region, null);
+    			
+    			else if(highway!=null) {
     				Type type = Type.ROAD;
 
                     if(highway.equals("motorway") || highway.equals("trunk"))
@@ -177,7 +200,7 @@ public class OpenStreetMaps {
                     	} catch(NumberFormatException e) { } //default to 2, if bad format
                     }
                     
-                    //prevent super high # of lanes to prevent ridiculous results (prly an error if its this high anyways)
+                    //prevent super high # of lanes to prevent ridiculous results (prly a mistake if its this high anyways)
                     if(lanes>8)
                     	lanes = 8;
                     
@@ -185,22 +208,66 @@ public class OpenStreetMaps {
                     if(lanes>2 && type==Type.MINOR)
                     	type = Type.MAJOR;
                     
-	    			Element lastNode = null;
-	    			double[] lastProj = null;
-	    			for(long id: elem.nodes) {
-	    				Element node = allNodes.get(id);
-	    				double[] proj = projection.fromGeo(node.lon, node.lat);
-	    				if(lastNode!=null) {
-	    					allEdges.add(new Edge(lastProj[0], lastProj[1], proj[0], proj[1], type, lanes, region));
-	    				}
-	    				lastProj = proj;
-	    				lastNode = node;
-	    			}
+                    double[] lastProj = null;
+                    for(Geometry geom: elem.geometry) {
+                    	if(geom==null) lastProj = null;
+                    	else {
+	                    	double[] proj = projection.fromGeo(geom.lon, geom.lat);
+	                    	
+	                    	if(lastProj!=null) { //register as a road edge
+	                    		allEdges.add(new Edge(lastProj[0], lastProj[1], proj[0], proj[1], type, lanes, region));
+	                    	}
+	                    	
+	                    	lastProj = proj;
+                    	}
+                    }
     			}
+    			else unusedWays.add(elem);
+    		}
+    		else if(elem.type == EType.relation && elem.members!=null && elem.tags!=null) {
+    			String naturalv = elem.tags.get("natural");
+	    		String waterv = elem.tags.get("water");
+	    			
+	    		if(waterv!=null || (naturalv!=null && elem.tags.get("natural").equals("water"))) {
+	    			for(Member member: elem.members) {
+	    				if(member.type == EType.way) {
+	    					Element way = allWays.get(member.ref);
+	    					if(way != null) {
+		    					waterway(way, elem.id+3600000000L, region, null);
+		    					unusedWays.remove(way);
+	    					}
+	    				}
+	    			}
+	    		}
+    		}
+    		else if(elem.type == EType.area) {
+    			ground.add(elem.id);
     		}
     	}
     	
-    	allNodes.clear();
+    	for(Element way: unusedWays) {
+    		if(way.tags!=null) {
+    			String naturalv = way.tags.get("natural");
+    			String waterv = way.tags.get("water");
+    			
+    			if(waterv != null || (naturalv!=null && naturalv.equals("water")))
+    				waterway(way, way.id+2400000000L, region, null);
+			}
+    	}
+    	
+    	region.renderWater(ground);
+    }
+    
+    Geometry waterway(Element way, long id, Region region, Geometry last) {
+    	if(way.geometry!=null)
+    	for(Geometry geom: way.geometry) {
+        	if(geom!=null && last != null) {
+            	region.addWaterEdge(last.lon, last.lat, geom.lon, geom.lat, id);
+        	}
+        	last = geom;
+        }
+    	
+    	return last;
     }
 
     private void relevantChunks(int lowX, int lowZ, int highX, int highZ, Edge edge) {
@@ -246,15 +313,15 @@ public class OpenStreetMaps {
     }
 
     //TODO: this algorithm is untested and may have some memory leak issues and also strait up copies code from earlier
-    private void removeRegion(Coord mchunk) {
+    private void removeRegion(Region delete) {
     	
-    	double X = mchunk.x*MAP_CHUNK_SIZE;
-        double Y = mchunk.y*MAP_CHUNK_SIZE;
+    	double X = delete.coord.x*TILE_SIZE;
+        double Y = delete.coord.y*TILE_SIZE;
     	
     	double[] ll = projection.fromGeo(X, Y);
-        double[] lr = projection.fromGeo(X + MAP_CHUNK_SIZE, Y);
-        double[] ur = projection.fromGeo(X + MAP_CHUNK_SIZE, Y + MAP_CHUNK_SIZE);
-        double[] ul = projection.fromGeo(X, Y + MAP_CHUNK_SIZE);
+        double[] lr = projection.fromGeo(X + TILE_SIZE, Y);
+        double[] ur = projection.fromGeo(X + TILE_SIZE, Y + TILE_SIZE);
+        double[] ul = projection.fromGeo(X, Y + TILE_SIZE);
         
         //estimate bounds of region in terms of chunks
         int lowX = (int)Math.floor(Math.min(Math.min(ll[0], ul[0]), Math.min(lr[0], ur[0]))/CHUNK_SIZE);
@@ -268,7 +335,7 @@ public class OpenStreetMaps {
             	if(edges!=null) {
             		Iterator<Edge> it = edges.iterator();
             		while(it.hasNext())
-            			if(it.next().region.equals(mchunk))
+            			if(it.next().region.equals(delete))
             				it.remove();
             		
             		if(edges.size() <= 0)
@@ -279,9 +346,9 @@ public class OpenStreetMaps {
     }
 
     //integer coordinate class
-    private static class Coord {
-        private int x;
-        private int y;
+    public static class Coord {
+        public int x;
+        public int y;
 
         private Coord(int x, int y) {
             this.x = x;
@@ -314,7 +381,7 @@ public class OpenStreetMaps {
 
         public byte lanes;
         
-        Coord region;
+        Region region;
 
         private double squareLength() {
             double dlat = elat-slat;
@@ -322,7 +389,7 @@ public class OpenStreetMaps {
             return dlat*dlat + dlon*dlon;
         }
 
-        private Edge(double slon, double slat, double elon, double elat, Type type, byte lanes, Coord region) {
+        private Edge(double slon, double slat, double elon, double elat, Type type, byte lanes, Region region) {
             //slope must not be infinity, slight inaccuracy shouldn't even be noticible unless you go looking for it
             double dif = elon-slon;
             if(-NOTHING <= dif && dif <= NOTHING) {
@@ -360,7 +427,18 @@ public class OpenStreetMaps {
     }
     
     public static enum EType {
-    	invalid, node, way, relation
+    	invalid, node, way, relation, area
+    }
+    
+    public static class Member {
+    	EType type;
+    	long ref;
+    	String role;
+    }
+    
+    public static class Geometry {
+    	double lat;
+    	double lon;
     }
     
     public static class Element {
@@ -368,8 +446,8 @@ public class OpenStreetMaps {
     	long id;
     	Map<String,String> tags;
     	long[] nodes;
-    	double lat;
-    	double lon;
+    	Member[] members;
+    	Geometry[] geometry;
     }
     
     public static class Data {
