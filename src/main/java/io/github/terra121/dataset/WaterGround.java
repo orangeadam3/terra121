@@ -33,13 +33,17 @@ public class WaterGround {
 		}
 	}
 	
-    public byte getOfficial(int x, int y) {
+    private byte getOfficial(int x, int y) {
+    	
+    	System.out.println(x+" "+y);
+    	System.out.println(data.get(x + y*width));
+    	
         if(x>=width || x<0 || y>=height || y<0)
             return 0;
         return data.get(x + y*width);
     }
     
     public byte state(int x, int y) {
-		return getOfficial(x-(width/2), y-(height/2));
+		return getOfficial(x+(width/2), y+(height/2));
     }
 }

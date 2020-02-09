@@ -29,7 +29,7 @@ public class OpenStreetMaps {
     private static final String URL_PREFACE = OVERPASS_INSTANCE+"/api/interpreter?data=[out:json];way(";
     private static final String URL_A = ")[!\"building\"];out%20geom(";
     private static final String URL_B = ")%20tags%20qt;(._<;);out%20body%20qt;is_in(";
-    private static final String URL_SUFFIX = ");area._[\"natural\"=\"water\"];out%20ids;";
+    private static final String URL_SUFFIX = ");area._[\"natural|waterway\"~\"water|riverbank\"];out%20ids;";
 
     private HashMap<Coord, Set<Edge>> chunks;
     public LinkedHashMap<Coord, Region> regions;
@@ -227,8 +227,9 @@ public class OpenStreetMaps {
     		else if(elem.type == EType.relation && elem.members!=null && elem.tags!=null) {
     			String naturalv = elem.tags.get("natural");
 	    		String waterv = elem.tags.get("water");
+	    		String wway = elem.tags.get("waterway");
 	    			
-	    		if(waterv!=null || (naturalv!=null && elem.tags.get("natural").equals("water"))) {
+	    		if(waterv!=null || (naturalv!=null && naturalv.equals("water")) || (wway!=null && wway.equals("riverbank"))) {
 	    			for(Member member: elem.members) {
 	    				if(member.type == EType.way) {
 	    					Element way = allWays.get(member.ref);
@@ -249,10 +250,15 @@ public class OpenStreetMaps {
     		if(way.tags!=null) {
     			String naturalv = way.tags.get("natural");
     			String waterv = way.tags.get("water");
+    			String wway = way.tags.get("waterway");
     			
-    			if(waterv != null || (naturalv!=null && naturalv.equals("water")))
+    			if(waterv != null || (naturalv!=null && naturalv.equals("water")) || (wway!=null && wway.equals("riverbank")))
     				waterway(way, way.id+2400000000L, region, null);
 			}
+    	}
+    	
+    	if(water.grounding.state(region.coord.x, region.coord.y)==0) {
+    		ground.add(-1L);
     	}
     	
     	region.renderWater(ground);
