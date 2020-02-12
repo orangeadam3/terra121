@@ -45,7 +45,7 @@ public class Water {
 		//TODO: range check
 		int idx = region.getStateIdx((short)lon, (short)lat);
 
-		return (byte) (region.states[(int)lon][idx]==0?0:1);
+		return region.states[(int)lon][idx];
 	}
 	
 	//TODO: more efficient
@@ -73,7 +73,52 @@ public class Water {
         float ur = getState(Ot, At);
         float ul = getState(Ob, At);
         
+        //all is ocean
+        if(ll==2||lr==2||ur==2||ur==2)
+        	return 2;
+        
         //get perlin style interpolation on this block
         return (1-v)*(ll*(1-u) + lr*u) + (ul*(1-u) + ur*u)*v;
+	}
+	
+	public static void main(String args[]) {
+		TerraMod.LOGGER = LogManager.getLogger();
+		
+		OpenStreetMaps osm = new OpenStreetMaps(new GeographicProjection());
+		
+		double south = 21.2938987;
+		double north = 21.3280017;
+		double west = -157.6564764;
+		double east = -157.6393124;
+		int n = 1000;
+		
+		System.out.println("Rendering...");
+    	BufferedImage img = new BufferedImage(n, n, BufferedImage.TYPE_INT_RGB);
+		
+		for(int y=0; y<n; y++) {
+			for(int x=0; x<n; x++) {
+				double X = west + x*(east-west)/n;
+				double Y = south + (n-y-1)*(north-south)/n;
+				
+				Region b = osm.regionCache(new double[] {X,Y});
+				int c = osm.water.getState(X,Y)==2?0xff0000ff:osm.water.getState(X,Y)>0.4?0xffffffff:0;
+				//int c = osm.water.grounding.state(b.coord.x, b.coord.y)==0?0xff0000ff:0xffffffff;
+				img.setRGB(x, y, c);
+				
+				//osm.water.getState(-98.923594, 29.564990)
+			}
+		}
+		
+	    File outputfile = new File("saved.png");
+	    try {
+			ImageIO.write(img, "png", outputfile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		
+		/*for(LandLine line: osm.regions.iterator().next().lines) {
+			System.out.println(line.breaks);
+		}*/
 	}
 }

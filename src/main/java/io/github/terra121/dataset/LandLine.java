@@ -73,20 +73,21 @@ public class LandLine {
 		byte[] value = new byte[breaks.size()+1];
 		
 		index[0] = 0;
-		value[0] = (byte) (current.size()==0?0:1);
+		value[0] = (byte) (current.size()==0?0:current.contains(-1L)?2:1);
 		
 		int idx = 1;
 		
 		for(Entry<Double, Long> e: breaks.entrySet()) {
 			double pos = e.getKey();
 			if(pos>=0 && pos < max) {
+				
 				Long flag = e.getValue();
 				if(current.contains(flag))
 					current.remove(flag);
 				else current.add(flag);
 				
 				index[idx] = (short) pos;
-				value[idx] = (byte) (current.size()==0?0:1);
+				value[idx] = (byte) (current.size()==0?0:current.contains(-1L)?2:1);
 				
 				idx++;
 			}

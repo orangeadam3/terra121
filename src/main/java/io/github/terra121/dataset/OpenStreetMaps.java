@@ -29,7 +29,7 @@ public class OpenStreetMaps {
     private static final String URL_PREFACE = OVERPASS_INSTANCE+"/api/interpreter?data=[out:json];way(";
     private static final String URL_A = ")[!\"building\"];out%20geom(";
     private static final String URL_B = ")%20tags%20qt;(._<;);out%20body%20qt;is_in(";
-    private static final String URL_SUFFIX = ");area._[\"natural|waterway\"~\"water|riverbank\"];out%20ids;";
+    private static final String URL_SUFFIX = ");area._[~\"natural|waterway\"~\"water|riverbank\"];out%20ids;";
 
     private HashMap<Coord, Set<Edge>> chunks;
     public LinkedHashMap<Coord, Region> regions;
