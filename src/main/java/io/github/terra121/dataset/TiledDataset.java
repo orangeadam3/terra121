@@ -37,6 +37,7 @@ public abstract class TiledDataset {
 
         //project coords
         double[] floatCoords = projection.fromGeo(lon, lat);
+        
         double X = floatCoords[0]*scaleX;
         double Y = floatCoords[1]*scaleY;
 
@@ -58,7 +59,7 @@ public abstract class TiledDataset {
         return (1-v)*(ll*(1-u) + lr*u) + (ul*(1-u) + ur*u)*v;
     }
 
-	private double getOfficialHeight(Coord coord) {
+	protected double getOfficialHeight(Coord coord) {
         Coord tile = coord.tile();
 
         //is the tile that this coord lies on already downloaded?

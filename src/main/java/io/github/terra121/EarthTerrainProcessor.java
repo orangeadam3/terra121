@@ -69,9 +69,9 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         
         biomes = (EarthBiomeProvider)world.getBiomeProvider();
         projection = biomes.projection;
-        heights = new Heights(13);
-        depths = new Heights(10); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
         osm = new OpenStreetMaps(projection);
+        heights = new Heights(13, osm.water);
+        depths = new Heights(10, osm.water); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
         
         unnaturals = new HashSet<Block>();
         unnaturals.add(Blocks.STONEBRICK);
@@ -162,10 +162,10 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                     }
             	}
             	
-            	if(-5 < cubeX && cubeX < 5 && -5 < cubeZ && cubeZ < 5);
-            	else if(wateroff>=2&&Y>0) { //drop above sea level areas that are in the ocean
+            	/*if(-5 < cubeX && cubeX < 5 && -5 < cubeZ && cubeZ < 5);
+            	else if(wateroff>=1.4&&Y>=0) { //drop above sea level areas that are in the ocean
             		Y = -1;
-            	}
+            	}*/
             	
                 for (int y = 0; y < 16 && y < Y - Coords.cubeToMinBlock(cubeY); y++) {
                 	
@@ -190,7 +190,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                 
             	if(-5 < cubeX && cubeX < 5 && -5 < cubeZ && cubeZ < 5);//NULL ISLAND
             	else {
-            		if(wateroff>=2) {
+            		if(wateroff>1) {
             			int start = (int) (Y) - Coords.cubeToMinBlock(cubeY);
             			if(start<0)start = 0;
             			for (int y = start; y < 16 && y <= -1-Coords.cubeToMinBlock(cubeY); y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());

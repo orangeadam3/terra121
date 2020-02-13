@@ -74,8 +74,12 @@ public class Water {
         float ul = getState(Ob, At);
         
         //all is ocean
-        if(ll==2||lr==2||ur==2||ur==2)
-        	return 2;
+        if(ll==2||lr==2||ur==2||ul==2) {
+        	if(ll<2)ll += 1;
+        	if(lr<2)lr += 1;
+        	if(ur<2)ur += 1;
+        	if(ul<2)ul += 1;
+        }
         
         //get perlin style interpolation on this block
         return (1-v)*(ll*(1-u) + lr*u) + (ul*(1-u) + ur*u)*v;
