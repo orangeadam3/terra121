@@ -32,7 +32,7 @@ This is also another work in progress, so permissions and things may change acco
 
 Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UClbmNgZmGahCDKcs8_aMN0A), Administrator and Moderator on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), and has been interested in the development of our mod since the beginning.
 
-[![Wozat Showcase](https://img.youtube.com/vi/XJG1XXOdJcc/0.jpg)](https://www.youtube.com/watch?v=XJG1XXOdJcc)
+[![Wozat Showcase](https://img.youtube.com/vi/XJG1XXOdJcc/maxresdefault.jpg)](https://www.youtube.com/watch?v=XJG1XXOdJcc)
 
 -*Much love from orangeadam3 and shejan0* 😫😤😘
 
@@ -149,6 +149,7 @@ However, if you find issues with the mod that are not resolved by doing things i
 
 This mod is still in development, and we are still resolving problems that we have found, and are being found, but here is a small list of some of the issues we know exist with this mod:
 
+- The mod is not compatible with CWG 115 or later.
 - As a rule, if it involves water it is probably broken, most of these problems should be fixed when the new water system is added (see Future Plans):
   - Areas on land but below sea level (ex. parts of The Netherlands, Caspian Sea Depression, Dead Sea region, Imperial Valley, etc.) are covered in water as if they were below sea level.
   - Coastlines are very broken/blockly, no non-accidental beaches
