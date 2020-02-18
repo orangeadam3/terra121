@@ -121,6 +121,8 @@ public class EarthBiomeProvider extends BiomeProvider {
             case 51: //salt flats always desert
             	return Biomes.DESERT;
             case 52: case 53: case 55: case 99: //hot and dry
+				if(clim.temp<2)
+					return Biomes.TAIGA; //TODO: Tundra in (1.15)
             	if(clim.precip<5)
             		return Biomes.DESERT;
                 return Biomes.MESA; //TODO: this soil can also be desert i.e. saudi Arabia (base on percip?)    

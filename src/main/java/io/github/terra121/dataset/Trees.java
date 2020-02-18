@@ -23,7 +23,7 @@ public class Trees extends TiledDataset {
 	public static final double REGION_SIZE = BLOCK_SIZE*256;
 	
 	public Trees() {
-		super(256, 256, 10, new ImageProjection(), 1.0/BLOCK_SIZE, 1.0/BLOCK_SIZE);
+		super(256, 256, 100, new ImageProjection(), 1.0/BLOCK_SIZE, 1.0/BLOCK_SIZE);
 	}
 
 	protected double dataToDouble(int data) {

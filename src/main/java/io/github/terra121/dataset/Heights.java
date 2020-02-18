@@ -19,7 +19,7 @@ public class Heights extends TiledDataset{
     private String url_prefix = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/";
 
     public Heights(int zoom) {
-    	super(256, 256, 10, new MapsProjection(), 1<<(zoom+8), 1<<(zoom+8));
+    	super(256, 256, 100, new MapsProjection(), 1<<(zoom+8), 1<<(zoom+8));
     	this.zoom = zoom;
     	url_prefix += zoom+"/";
     }

@@ -85,7 +85,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         cfg = CustomGeneratorSettings.defaults();
         cfg.ravines = false;
         cfg.dungeonCount = 3; //there are way too many of these by default (in my humble opinion)
-        cfg.waterLakeRarity = 10;
+        //cfg.waterLakeRarity = 10;
         
         //InitCubicStructureGeneratorEvent caveEvent = new InitCubicStructureGeneratorEvent(EventType.CAVE, new CubicCaveGenerator());
         caveGenerator = new CubicCaveGenerator();
@@ -267,21 +267,31 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             Random rand = Coords.coordsSeedRandom(cube.getWorld().getSeed(), cube.getX(), cube.getY(), cube.getZ());
             
             Biome biome = cube.getBiome(Coords.getCubeCenter(cube));
-            
+
+			double[] proj = projection.toGeo((cube.getX()*16 + 8)/SCALE, (cube.getZ()*16 + 8)/SCALE);
+			double approxDepth = heights.estimateLocal(proj[0], proj[1]) - cube.getY();
+			
             int surf = isSurface(world, cube);
             if(surf == 0) {
                 for(ICubicPopulator pop: surfacePopulators)
                 	pop.generate(cube.getWorld(), rand, cube.getCoords(), biome);
                 
-                cfg.waterLakes = true; //we have will our own version of this on the surface, TODO: make this work
+                //cfg.waterLakes = true; //we have will our own version of this on the surface, TODO: make this work
             } else if(surf == 1) {
-            	cfg.waterLakes = true;
+            	//cfg.waterLakes = true;
             } else {
-            	cfg.waterLakes = false; //(but who am I to inhibit sub-surface)
+            	//cfg.waterLakes = false; //(but who am I to inhibit sub-surface)
             }
             
+			//List<CustomGeneratorSettings.LakeConfig> lakes = cfg.lakes;
+			
+			//stop surface lakes
+			if(approxDepth<20);//cfg.lakes = new ArrayList<CustomGeneratorSettings.LakeConfig>();
+			
             biomePopulators.get(biome).generate(cube.getWorld(), rand, cube.getCoords(), biome);
             
+			//cfg.lakes = lakes;
+			
             if(surf==1)
             	snow.generate(cube.getWorld(), rand, cube.getCoords(), biome);
         }
