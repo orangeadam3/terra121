@@ -164,7 +164,7 @@ Clicking on that, will open a seperate java application window, similar to that 
 
 Open your finder and use the COMMAND+SHIFT+G shortcut, and paste the path into the box and go the the folder.
 
-### Switching JVM certifications on Windows and Mac
+### Switching JVM certifications on Windows
 
 Travel to the folder you copied, inside of that folder, find the ""**lib**" folder, then "**security**", inside of that should exist a file called "**cacerts**", if it doesn't exist try installing another JVM (like the one we have above), or using another one installed to your machine (if you have more than one).
 
@@ -193,6 +193,26 @@ On Mac:
 ```
 
 Replace the *<JVMwithoutBin>* area with your copied Path, then click save.
+
+Re-open Minecraft, then create a new world with the Planet Earth generator, you should now have roads.
+
+### Copying "cacerts" into the standard Minecraft Java Executable on Mac
+
+Due to file permissions associated with standard Java installations on Mac, only the executable associated with a specific JVM installed can access it's own "cacerts" file, however, the user can copy and paste files between locations, such as the "cacerts" file itself. 
+
+Travel to the folder you copied (COMMAND+SHIFT+G and paste the directory), inside of that folder, find the ""**lib**" folder, then "**security**", inside of that should exist a file called "**cacerts**", copy this file (DO NOT CUT, using Right click, then copy "cacerts" ensures it is copied).
+
+![Copy cacerts](Pictures/CopycacertsMac.png) 
+
+After that, Go to your JVM that is stored in the Minecraft files, the default installation directory is:
+
+```bash
+~/Library/Application Support/minecraft/runtime/jre-x64/jre.bundle/Contents/Home/
+```
+
+enter the "**lib**" folder, then find the "**security**" folder, and find your existing "**cacerts**" file. RENAME (do not delete) this file to anything but its existing name (something like "**cacerts_old**" is a good way to remember what it was supposed to be).
+
+Then right-click and select "**Paste Item**", you should now have the cacerts file copied from your other JVM into this folder.
 
 Re-open Minecraft, then create a new world with the Planet Earth generator, you should now have roads.
 

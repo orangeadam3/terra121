@@ -1,3 +1,7 @@
+### CubicWorldGen 115 forward has code changes that makes the current release build incompatible with it, we are working dilligently to get the mod up to date, but for now please use versions between 85 and 115, compiling the current master branch does have a 115+ hotfix for users who want to use CWG 115+, but it may introduce issues elsewhere, as it is not fully tested and not ready for release.
+
+### We deeply apologize for the wait, we are also working on adding features on top of fixing CWG 115+ so expect great new things to be added very soon.
+
 ![Logo](Pictures/TerraTextIconnocompress.png)
 
 # Terra 1 to 1 Minecraft Earth Project
@@ -18,7 +22,7 @@ The server is hosted by FyreBurns from the [Cubic Chunks Discord](https://discor
 
 Either Direct Connect or Add a new server with the following IP:
 
-### ert.g.akliz.net:40838
+### ert.g.akliz.net
 
 This is also another work in progress, so permissions and things may change according to FyreBurns, we greatly appreciate the resources that FyreBurns is placing to run this server for the public.
 
@@ -86,10 +90,7 @@ This modification of CubicWorldGen generates the world using information from da
 
 ### CubicWorldGen 0.0.85.0 or later is HIGHLY recommended, as it has changes made that no longer causes conflicts with CubicWorldGen's default "Custom Cubic" generator, with the Terra 1-to-1 Planet Earth generator. 
 
-### CubicWorldGen 115 has code changes that makes the current build incompatible, we are working dilligently to get the mod up to date, but for now please use versions between 85 and 115.
-
 ### (Users who have standard Custom Cubic worlds with earlier CubicWorldGen versions and load Terra 1-to-1, might have broken generation on new chunks)!!!!
-
 
 
 
