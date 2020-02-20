@@ -1,4 +1,4 @@
-### CubicWorldGen 115 forward has code changes that makes the current release build incompatible with it, we are working dilligently to get the mod up to date, but for now please use versions between 85 and 115, compiling the current master branch does have a 115+ hotfix for users who want to use CWG 115+, but it may introduce issues elsewhere, as it is not fully tested and not ready for release.
+### CubicWorldGen 115 forward has code changes that makes the current release build incompatible with it, we are working dilligently to get the mod up to date, but for now please use versions between 85 and 115, a minor update has been placed to allow compatibility with CWG 115+ but introduces issues elsewhere. If you want a stable game with CWG 115 forward, we recommend you wait for a major update.
 
 ### We deeply apologize for the wait, we are also working on adding features on top of fixing CWG 115+ so expect great new things to be added very soon.
 
