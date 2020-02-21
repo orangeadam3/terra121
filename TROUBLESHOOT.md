@@ -57,11 +57,11 @@ This is an issue with older Java versions that do not know the proper SSL certif
 
 Unfortunately, this means that you should download your own [JRE (Java Runtime Enviroment)](https://www.java.com/ES/download/) if you don't have one already (Veteran's should have no such difficulties as this used to be a requirement for minecraft vanilla).
 
-If you already have a JRE you should locate it on [Windows](#Finding JREs on Windows), [Mac](#Finding other JVMs on Windows), or [Linux](#Switching JREs on Linux) which has it's own method.
+If you already have a JRE you should locate it on [Windows](#finding-jres-on-windows), [Mac](#finding-jres-on-mac), or [Linux](#switching-jres-on-linux) which has it's own method.
 
 Once you find them, just put that full path to the JRE adding the terms "/bin/java" on the end (or "\bin\javaw.exe" if you are on Windows) (TODO: shejean, add photos/context)
 
-If this still does not work there is an [alternative method](#Switching JVM certifications on Windows)
+If this still does not work there is an [alternative method](#switching-jvm-certifications-on-windows)
 
 
 
