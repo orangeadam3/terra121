@@ -21,6 +21,10 @@ import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.populator.Defa
 import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.structure.CubicCaveGenerator;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
+import io.github.terra121.populator.CliffReplacer;
+import io.github.terra121.populator.EarthTreePopulator;
+import io.github.terra121.populator.RoadGenerator;
+import io.github.terra121.populator.SnowPopulator;
 import io.github.terra121.projection.GeographicProjection;
 import io.github.terra121.projection.InvertedGeographic;
 import io.github.terra121.projection.MinecraftGeographic;

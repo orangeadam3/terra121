@@ -1,4 +1,4 @@
-package io.github.terra121;
+package io.github.terra121.populator;
 
 import java.util.HashMap;
 import java.util.HashSet;

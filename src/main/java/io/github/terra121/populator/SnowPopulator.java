@@ -1,9 +1,10 @@
-package io.github.terra121;
+package io.github.terra121.populator;
 
 import java.util.Random;
 
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
+import io.github.terra121.EarthBiomeProvider;
 import io.github.terra121.dataset.Climate;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
