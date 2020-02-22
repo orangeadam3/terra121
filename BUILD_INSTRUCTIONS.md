@@ -17,7 +17,14 @@ If you are on Windows:
 ```
 gradlew.bat build
 ```
-If you are on macOS or Linux:
+If you are on macOS or Linux, you may need to define executability:
+
+```bash
+sudo chmod +x gradlew
+```
+
+then you can use:
+
 ```
 ./gradlew build
 ```
