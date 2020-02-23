@@ -32,6 +32,16 @@ This is also another work in progress, so permissions and things may change acco
 
 *- shejan0 and orangeadam3* 😘
 
+## Streaming? (we sure do)
+
+So in order to get our mod onto [CurseForge](https://www.curseforge.com/minecraft/mc-mods/terra-1-to-1-minecraft-world-project#c6) (Hey to those who came over from CurseForge), we had to make a twitch account.
+
+And because a Twitch account can stream to twitch, shejan0 has been thinking about streaming to Twitch with that account.
+
+So give us a follow over at our [TheTerraDev](https://www.twitch.tv/theterradev) Twitch account.
+
+Also let us know if you want us to host your stream in our page if you are using our mod in your stream.
+
 ## Creation showcase
 
 Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UClbmNgZmGahCDKcs8_aMN0A), Administrator and Moderator on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), and has been interested in the development of our mod since the beginning.
