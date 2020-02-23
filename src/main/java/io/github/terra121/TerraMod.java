@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.net.URL;
@@ -20,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.event.PopulateCubeEvent;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.event.PopulateCubeEvent.Populate;
+import io.github.terra121.control.TerraTeleport;
 import io.github.terra121.provider.EarthWorldProvider;
 import io.github.terra121.provider.GenerationEventDenier;
 
@@ -54,6 +56,11 @@ public class TerraMod
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {    	
     	
+    }
+    
+    @EventHandler
+    public void serverLoad(FMLServerStartingEvent event) {
+        event.registerServerCommand(new TerraTeleport());
     }
     
     //set custom provider
