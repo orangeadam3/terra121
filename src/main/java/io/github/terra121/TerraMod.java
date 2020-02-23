@@ -1,5 +1,6 @@
 package io.github.terra121;
 
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldProviderSurface;
 import net.minecraft.world.WorldServer;

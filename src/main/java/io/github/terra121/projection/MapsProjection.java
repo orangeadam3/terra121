@@ -18,4 +18,8 @@ public class MapsProjection extends GeographicProjection {
 				(Math.PI - Math.log( Math.tan((Math.PI/2 + lat*TO_RADIANS)/2) ) ) / TAU
 			};
 	}
+	
+	public double[] bounds() {
+		return new double[]{0,0,1,2*Math.PI};
+	}
 }

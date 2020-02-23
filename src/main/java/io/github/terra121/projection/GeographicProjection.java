@@ -28,4 +28,8 @@ public class GeographicProjection {
 	public double metersPerUnit() {
 		return 100000;
 	}
+	
+	public double[] bounds() {
+		return new double[]{-180,-90,180,90};
+	}
 }
