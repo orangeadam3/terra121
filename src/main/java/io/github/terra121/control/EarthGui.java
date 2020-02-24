@@ -3,30 +3,61 @@ package io.github.terra121.control;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 import javax.imageio.ImageIO;
 
 import org.apache.commons.io.IOUtils;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.gui.*;
+import io.github.terra121.EarthGeneratorSettings;
+import io.github.terra121.TerraMod;
+import io.github.terra121.control.DynamicOptions.Element;
 import io.github.terra121.projection.GeographicProjection;
 import io.github.terra121.projection.SinusoidalProjection;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
+import net.minecraft.client.gui.GuiLanguage;
+import net.minecraft.client.gui.GuiPageButtonList;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiSlot;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.resources.Language;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class EarthGui extends GuiScreen {
+public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 
-	ResourceLocation leftmap;
-	ResourceLocation rightmap;
+	ResourceLocation leftmap = null;
+	ResourceLocation rightmap = null;
 	BufferedImage base;
-	GeographicProjection projection = new SinusoidalProjection();
+	GeographicProjection projection;
+	DynamicOptions settings;
+	DynamicOptions.CycleButtonElement projectionType;
+	DynamicOptions.CycleButtonElement orentationType;
+	private DynamicOptions.Element[] settingElems;
+	
+	private EarthGeneratorSettings cfg;
+	
+	Map<String, String> alias;
 	
 	public EarthGui(GuiCreateWorld guiCreateWorld, Minecraft mc) {
+		
+		cfg = new EarthGeneratorSettings(guiCreateWorld.chunkProviderSettingsJson);
+		
 		this.mc = mc;
 		InputStream is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/map.png");
 		try {
@@ -37,10 +68,37 @@ public class EarthGui extends GuiScreen {
 			IOUtils.closeQuietly(is);
 		}
 		
+		alias = new HashMap<String, String>();
+		
+		String[] projs = (String[])GeographicProjection.projections.keySet().toArray(new String[GeographicProjection.projections.size()]);
+		
+		settingElems = new DynamicOptions.Element[] {
+						cycleButton(6969, "projection", projs, e -> {projectMap(); return e;}),
+						cycleButton(6968, "orentation", GeographicProjection.Orentation.values(), e -> {projectMap(); return e.toString();}),
+						};
+		
 		projectMap();
 	}
-
+	
+	private <E> DynamicOptions.CycleButtonElement<E> cycleButton(int id, String field, E[] list, Function<E, String> tostring) {
+		try {
+			return new DynamicOptions.CycleButtonElement<E>(id, list, EarthGeneratorSettings.JsonSettings.class.getField(field), cfg.settings, tostring);
+		} catch (NoSuchFieldException | SecurityException e) {
+			TerraMod.LOGGER.error("This should never happen, but find field reflection error");
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	private void projectMap() {
+
+		projection = cfg.getProjection();
+		
+		if(leftmap!=null)
+			mc.renderEngine.deleteTexture(leftmap);
+		else if(rightmap!=null)
+			mc.renderEngine.deleteTexture(rightmap);
+		
 		BufferedImage left = new BufferedImage(512,512,BufferedImage.TYPE_INT_ARGB);
 		BufferedImage right = new BufferedImage(512,512,BufferedImage.TYPE_INT_ARGB);
 		
@@ -52,7 +110,7 @@ public class EarthGui extends GuiScreen {
 		for(int x=0;x<w;x++) {
 			for(int y=0;y<h;y++) {
 				double X = (x/(double)w)*(bounds[2]-bounds[0])+bounds[0];
-				double Y = ((h-y-1)/(double)h)*(bounds[3]-bounds[1])+bounds[1];
+				double Y = (y/(double)h)*(bounds[3]-bounds[1])+bounds[1];
 				
 				double proj[] = projection.toGeo(X, Y);
 				
@@ -69,24 +127,38 @@ public class EarthGui extends GuiScreen {
 			}
 		}
 		
-		leftmap = this.mc.renderEngine.getDynamicTextureLocation("shejan", new DynamicTexture(left));
-		rightmap = this.mc.renderEngine.getDynamicTextureLocation("shejan", new DynamicTexture(right));
+		leftmap = this.mc.renderEngine.getDynamicTextureLocation("leftmapdemo", new DynamicTexture(left));
+		rightmap = this.mc.renderEngine.getDynamicTextureLocation("rightmapdemo", new DynamicTexture(right));
 	}
 	
 	@Override
 	public void initGui() {
+		settings = new DynamicOptions(mc, width, height/2, height/2, height, 32, this, settingElems);
     }
 	
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		this.drawDefaultBackground();
 		
+		settings.drawScreen(mouseX, mouseY, partialTicks);
+		
+		//todo remove seams
 		this.mc.renderEngine.bindTexture(leftmap);
-		this.drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+		this.drawScaledCustomSizeModalRect(this.height/2, 0, 0, 0, 512, 512, this.height/2, this.height/2, 512, 512);
 		this.mc.renderEngine.bindTexture(rightmap);
-		this.drawTexturedModalRect(256, 0, 0, 0, 256, 256);
+		this.drawScaledCustomSizeModalRect(2*(this.height/2), 0, 0, 0, 512, 512, this.height/2, this.height/2, 512, 512);
+		
 		this.drawCenteredString(this.fontRenderer, "BRUH", this.width/2, this.height/2, 0x00FF5555);
 		
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
+
+	public void mouseClicked(int mouseX, int mouseY, int mouseEvent)
+    {
+		settings.mouseClicked(mouseX, mouseY, mouseEvent);
+    }
+	
+	@Override
+	public void onDynOptClick(Element elem) {
+	}
 }

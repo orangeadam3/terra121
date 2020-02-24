@@ -15,16 +15,15 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import io.github.terra121.projection.GeographicProjection;
-import io.github.terra121.projection.InvertedGeographic;
+import io.github.terra121.projection.InvertedOrientation;
 import io.github.terra121.TerraMod;
 
 public class OpenStreetMaps {
 
     private static final int CHUNK_PER_MAP_CHUNK = 64;
-    private static final double BLOCK_SIZE = 1/100000.0;
-    private static final double CHUNK_SIZE = 16*BLOCK_SIZE;
-    private static final double MAP_CHUNK_SIZE = CHUNK_SIZE*CHUNK_PER_MAP_CHUNK;//250*(360.0/40075000.0);
-    private static final double NOTHING = 0.1*BLOCK_SIZE;
+    private static final double CHUNK_SIZE = 16;
+    private static final double TILE_SIZE = 1/60.0;//250*(360.0/40075000.0);
+    private static final double NOTHING = 0.01;
     
     private static final String OVERPASS_INSTANCE = "overpass-api.de";
     private static final String URL_PREFACE = "https://"+OVERPASS_INSTANCE+"/api/interpreter?data=[out:json];way(";
@@ -37,7 +36,7 @@ public class OpenStreetMaps {
 
     private Map<Long, Element> allNodes;
     private ArrayList<Edge> allEdges;
-
+    
     private Gson gson;
     
     private GeographicProjection projection;
@@ -59,7 +58,7 @@ public class OpenStreetMaps {
     }
 
     private Coord getRegion(double lon, double lat) {
-    	return new Coord((int)Math.floor(lon/(1024/100000.0)), (int)Math.floor(lat/(1024/100000.0)));
+    	return new Coord((int)Math.floor(lon/TILE_SIZE), (int)Math.floor(lat/TILE_SIZE));
     }
     
     public Set<Edge> chunkStructures(int x, int z) {
@@ -103,11 +102,11 @@ public class OpenStreetMaps {
     }
 
     public boolean regiondownload (Coord mchunk) {
-        double X = mchunk.x*MAP_CHUNK_SIZE;
-        double Y = mchunk.y*MAP_CHUNK_SIZE;
+        double X = mchunk.x*TILE_SIZE;
+        double Y = mchunk.y*TILE_SIZE;
 
         try {
-            String urltext = URL_PREFACE + Y + "," + X + "," + (Y + MAP_CHUNK_SIZE) + "," + (X + MAP_CHUNK_SIZE) + URL_SUFFIX;
+            String urltext = URL_PREFACE + Y + "," + X + "," + (Y + TILE_SIZE) + "," + (X + TILE_SIZE) + URL_SUFFIX;
             TerraMod.LOGGER.info(urltext);
 
             URL url = new URL(urltext);
@@ -124,9 +123,9 @@ public class OpenStreetMaps {
         }
 
         double[] ll = projection.fromGeo(X, Y);
-        double[] lr = projection.fromGeo(X + MAP_CHUNK_SIZE, Y);
-        double[] ur = projection.fromGeo(X + MAP_CHUNK_SIZE, Y + MAP_CHUNK_SIZE);
-        double[] ul = projection.fromGeo(X, Y + MAP_CHUNK_SIZE);
+        double[] lr = projection.fromGeo(X + TILE_SIZE, Y);
+        double[] ur = projection.fromGeo(X + TILE_SIZE, Y + TILE_SIZE);
+        double[] ul = projection.fromGeo(X, Y + TILE_SIZE);
         
         //estimate bounds of region in terms of chunks
         int lowX = (int)Math.floor(Math.min(Math.min(ll[0], ul[0]), Math.min(lr[0], ur[0]))/CHUNK_SIZE);
@@ -248,13 +247,13 @@ public class OpenStreetMaps {
     //TODO: this algorithm is untested and may have some memory leak issues and also strait up copies code from earlier
     private void removeRegion(Coord mchunk) {
     	
-    	double X = mchunk.x*MAP_CHUNK_SIZE;
-        double Y = mchunk.y*MAP_CHUNK_SIZE;
+    	double X = mchunk.x*TILE_SIZE;
+        double Y = mchunk.y*TILE_SIZE;
     	
     	double[] ll = projection.fromGeo(X, Y);
-        double[] lr = projection.fromGeo(X + MAP_CHUNK_SIZE, Y);
-        double[] ur = projection.fromGeo(X + MAP_CHUNK_SIZE, Y + MAP_CHUNK_SIZE);
-        double[] ul = projection.fromGeo(X, Y + MAP_CHUNK_SIZE);
+        double[] lr = projection.fromGeo(X + TILE_SIZE, Y);
+        double[] ur = projection.fromGeo(X + TILE_SIZE, Y + TILE_SIZE);
+        double[] ul = projection.fromGeo(X, Y + TILE_SIZE);
         
         //estimate bounds of region in terms of chunks
         int lowX = (int)Math.floor(Math.min(Math.min(ll[0], ul[0]), Math.min(lr[0], ur[0]))/CHUNK_SIZE);

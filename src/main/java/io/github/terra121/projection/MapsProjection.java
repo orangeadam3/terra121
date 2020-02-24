@@ -20,6 +20,10 @@ public class MapsProjection extends GeographicProjection {
 	}
 	
 	public double[] bounds() {
-		return new double[]{0,0,1,2*Math.PI};
+		return new double[]{0,0,1,1};
+	}
+	
+	public boolean upright() {
+		return true;
 	}
 }

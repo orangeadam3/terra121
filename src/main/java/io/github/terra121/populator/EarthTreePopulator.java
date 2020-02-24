@@ -50,7 +50,7 @@ public class EarthTreePopulator implements ICubicPopulator {
 	@Override
 	public void generate(World world, Random random, CubePos pos, Biome biome) {
 
-		double[] projected = projection.toGeo(pos.getX()*16/100000.0, pos.getZ()*16/100000.0);
+		double[] projected = projection.toGeo(pos.getX()*16, pos.getZ()*16);
 		
 	    double canopy = trees.estimateLocal(projected[0], projected[1]);
 	    

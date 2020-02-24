@@ -13,8 +13,28 @@ public class GeographicProjection {
 	static {
 		projections = new HashMap<String, GeographicProjection>();
 		projections.put("maps", new MapsProjection());
-		projections.put("classic", new InvertedGeographic());
-		projections.put("geographic", new MinecraftGeographic());
+		projections.put("equirectangular", new GeographicProjection());
+		projections.put("sinusoidal", new SinusoidalProjection());
+	}
+	
+	public static enum Orentation {
+		none, upright, swapped
+	};
+	
+	public static GeographicProjection orientProjection(GeographicProjection base, Orentation o) {
+		if(base.upright()) {
+			if(o==Orentation.upright)
+				return base;
+			base = new UprightOrientation(base);
+		}
+		
+		if(o==Orentation.swapped) {
+			return new InvertedOrientation(base);
+		} else if(o==Orentation.upright) {
+			base = new UprightOrientation(base);
+		}
+		
+		return base;
 	}
 	
 	public double[] toGeo(double x, double y) {
@@ -31,5 +51,9 @@ public class GeographicProjection {
 	
 	public double[] bounds() {
 		return new double[]{-180,-90,180,90};
+	}
+	
+	public boolean upright() {
+		return false;
 	}
 }

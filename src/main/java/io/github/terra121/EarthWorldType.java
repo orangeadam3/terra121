@@ -28,11 +28,11 @@ public class EarthWorldType extends WorldType implements ICubicWorldType  {
 
     @Override
     public BiomeProvider getBiomeProvider(World world) {
-        return new EarthBiomeProvider(Biomes.FOREST);
+        return new EarthBiomeProvider(Biomes.FOREST, world);
     }
 
     @Override public IntRange calculateGenerationHeightRange(WorldServer world) {
-        return new IntRange(0, 256); // TODO: Flat generation height range
+        return new IntRange(-12000, 9000);
     }
 
     @Override public boolean hasCubicGeneratorForWorld(World w) {
@@ -54,7 +54,6 @@ public class EarthWorldType extends WorldType implements ICubicWorldType  {
     
     @SideOnly(Side.CLIENT)
     public void onCustomizeButton(Minecraft mc, GuiCreateWorld guiCreateWorld) {
-    	System.out.println(mc);
     	mc.displayGuiScreen(new EarthGui(guiCreateWorld, mc));
     }
 }

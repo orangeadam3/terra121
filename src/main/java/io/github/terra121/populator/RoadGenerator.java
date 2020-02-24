@@ -22,8 +22,7 @@ import net.minecraft.block.state.IBlockState;
 import java.util.Random;
 
 public class RoadGenerator implements ICubicPopulator {
-
-    private static final double SCALE = 100000.0;
+	
     private static final IBlockState ASPHALT = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.GRAY);
 
     private OpenStreetMaps osm;
@@ -45,7 +44,7 @@ public class RoadGenerator implements ICubicPopulator {
         if(edges!=null) for(OpenStreetMaps.Edge e: edges) {
             if(e.type == OpenStreetMaps.Type.MAJOR || e.type == OpenStreetMaps.Type.HIGHWAY) {
 
-                double r = 1.5*e.lanes/SCALE; //scale with lanes
+                double r = 1.5*e.lanes; //scale with lanes
                 double x0 = 0;
                 double b = r;
                 if(Math.abs(e.slope)>=0.000001) {
@@ -53,9 +52,9 @@ public class RoadGenerator implements ICubicPopulator {
                     b = (e.slope < 0 ? -1 : 1) * x0 * (e.slope + 1.0 / e.slope);
                 }
 
-                double j = e.slon - (cubeX*16)/SCALE;
-                double k = e.elon - (cubeX*16)/SCALE;
-                double off = e.offset - (cubeZ*16)/SCALE + e.slope*(cubeX*16)/SCALE;
+                double j = e.slon - (cubeX*16);
+                double k = e.elon - (cubeX*16);
+                double off = e.offset - (cubeZ*16) + e.slope*(cubeX*16);
                 
                 if(j>k) {
                     double t = j;
@@ -70,27 +69,27 @@ public class RoadGenerator implements ICubicPopulator {
                 	j=0;
                 	//ij=0;
                 }
-                if(k>=16/SCALE) {
-                	k=16/SCALE;
+                if(k>=16) {
+                	k=16;
                 	//ik = 16/SCALE;
                 }
 
-                int is = (int)Math.floor(ij*SCALE);
-                int ie = (int)Math.floor(ik*SCALE);
+                int is = (int)Math.floor(ij);
+                int ie = (int)Math.floor(ik);
 
                 for(int x=is; x<=ie; x++) {
-                    double X = x/SCALE;
+                    double X = x;
                     double ul = bound(X, e.slope, j, k, r, x0, b, 1) + off; //TODO: save these repeated values
-                    double ur = bound(X+1/SCALE, e.slope, j, k, r, x0, b, 1) + off;
+                    double ur = bound(X+1, e.slope, j, k, r, x0, b, 1) + off;
                     double ll = bound(X, e.slope, j, k, r, x0, b, -1) + off;
-                    double lr = bound(X+1/SCALE, e.slope, j, k, r, x0, b,-1) + off;
+                    double lr = bound(X+1, e.slope, j, k, r, x0, b,-1) + off;
 
                     double from = Math.min(Math.min(ul,ur),Math.min(ll,lr));
                     double to = Math.max(Math.max(ul,ur),Math.max(ll,lr));
                     
                     if(from==from) {
-                        int ifrom = (int)Math.floor(from*SCALE);
-                        int ito = (int)Math.floor(to*SCALE);
+                        int ifrom = (int)Math.floor(from);
+                        int ito = (int)Math.floor(to);
 
                         if(ifrom <= -1*16)
                             ifrom = 1 - 16;
@@ -99,7 +98,7 @@ public class RoadGenerator implements ICubicPopulator {
 
                         for(int z=ifrom; z<=ito; z++) {
                             //get the part of the center line i am tangent to (i hate high school algebra!!!)
-                            double Z = z/SCALE;
+                            double Z = z;
                             double mainX = X;
                             if(Math.abs(e.slope)>=0.000001)
                                 mainX = (Z + X/e.slope - off)/(e.slope + 1/e.slope);
@@ -109,7 +108,7 @@ public class RoadGenerator implements ICubicPopulator {
 
                             double mainZ = e.slope*mainX + off;
 
-                            double[] geo = projection.toGeo(mainX + cubeX*(16/SCALE), mainZ + cubeZ*(16/SCALE));
+                            double[] geo = projection.toGeo(mainX + cubeX*(16), mainZ + cubeZ*(16));
                             
                             int y = (int)Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY*16);
 

@@ -26,8 +26,7 @@ import io.github.terra121.populator.EarthTreePopulator;
 import io.github.terra121.populator.RoadGenerator;
 import io.github.terra121.populator.SnowPopulator;
 import io.github.terra121.projection.GeographicProjection;
-import io.github.terra121.projection.InvertedGeographic;
-import io.github.terra121.projection.MinecraftGeographic;
+import io.github.terra121.projection.InvertedOrientation;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -59,20 +58,21 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     public GeographicProjection projection;
 
     public Set<Block> unnaturals;
-    private CustomGeneratorSettings cfg;
+    private CustomGeneratorSettings cubiccfg;
     private Set<ICubicPopulator> surfacePopulators;
     private Map<Biome, ICubicPopulator> biomePopulators;
     private CubicCaveGenerator caveGenerator;
     private SnowPopulator snow;
-
-    private static final double SCALE = 100000.0;
+	private EarthGeneratorSettings cfg;
 
     public EarthTerrainProcessor(World world) {
         super(world);
         Entity e;
         
-        biomes = (EarthBiomeProvider)world.getBiomeProvider();
-        projection = biomes.projection;
+        cfg = new EarthGeneratorSettings(world.getWorldInfo().getGeneratorOptions());
+    	projection = cfg.getProjection();
+        
+        biomes = (EarthBiomeProvider)world.getBiomeProvider(); //TODO: make this not order dependent
         heights = new Heights(13);
         depths = new Heights(10); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
         osm = new OpenStreetMaps(projection);
@@ -86,9 +86,9 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
         
-        cfg = CustomGeneratorSettings.defaults();
-        cfg.ravines = false;
-        cfg.dungeonCount = 3; //there are way too many of these by default (in my humble opinion)
+        cubiccfg = CustomGeneratorSettings.defaults();
+        cubiccfg.ravines = false;
+        cubiccfg.dungeonCount = 3; //there are way too many of these by default (in my humble opinion)
         //cfg.waterLakeRarity = 10;
         
         //InitCubicStructureGeneratorEvent caveEvent = new InitCubicStructureGeneratorEvent(EventType.CAVE, new CubicCaveGenerator());
@@ -98,11 +98,11 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         
         for (Biome biome : ForgeRegistries.BIOMES) {
             CubicBiome cubicBiome = CubicBiome.getCubic(biome);
-            biomePopulators.put(biome, cubicBiome.getDecorator(cfg));
+            biomePopulators.put(biome, cubicBiome.getDecorator(cubiccfg));
         }
 
         biomeBlockReplacers = new HashMap<Biome, List<IBiomeBlockReplacer>>();
-        BiomeBlockReplacerConfig conf = cfg.replacerConfig;
+        BiomeBlockReplacerConfig conf = cubiccfg.replacerConfig;
         CliffReplacer cliffs = new CliffReplacer();
         
         for (Biome biome : ForgeRegistries.BIOMES) {
@@ -137,7 +137,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 	        for(int x=0; x<16; x++) {
 	            for(int z=0; z<16; z++) {
 	            	
-	            	double[] projected = projection.toGeo((cubeX*16 + x)/SCALE, (cubeZ*16 + z)/SCALE);
+	            	double[] projected = projection.toGeo((cubeX*16 + x), (cubeZ*16 + z));
 	                double Y = heights.estimateLocal(projected[0], projected[1]);
 	                heightarr[x][z] = Y;
 	                
@@ -156,7 +156,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             	
             	//ocean?
             	if(-0.001 < Y && Y < 0.001) {
-            		double[] projected = projection.toGeo((cubeX*16 + x)/SCALE, (cubeZ*16 + z)/SCALE);
+            		double[] projected = projection.toGeo((cubeX*16 + x), (cubeZ*16 + z));
                     double depth = depths.estimateLocal(projected[0], projected[1]);
                     
                     if(depth < 0) {
@@ -222,22 +222,22 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                         end = tmp;
                     }
 
-                    int sx = (int)Math.floor(SCALE*start) - cubeX*16;
-                    int ex = (int)Math.floor(SCALE*end) - cubeX*16;
+                    int sx = (int)Math.floor(start) - cubeX*16;
+                    int ex = (int)Math.floor(end) - cubeX*16;
 
                     if(ex >= 16)ex = 16-1;
 
                     for(int x=sx>0?sx:0; x<=ex; x++) {
-                        double realx = (x+cubeX*16)/SCALE;
+                        double realx = (x+cubeX*16);
                         if(realx < start)
                             realx = start;
 
-                        double nextx = realx + (1/SCALE);
+                        double nextx = realx + 1;
                         if(nextx > end)
                             nextx = end;
 
-                        int from = (int)Math.floor(SCALE*(e.slope*realx + e.offset)) - cubeZ*16;
-                        int to = (int)Math.floor(SCALE*(e.slope*nextx + e.offset)) - cubeZ*16;
+                        int from = (int)Math.floor((e.slope*realx + e.offset)) - cubeZ*16;
+                        int to = (int)Math.floor((e.slope*nextx + e.offset)) - cubeZ*16;
 
                         if(from > to) {
                             int tmp = from;
@@ -272,7 +272,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             
             Biome biome = cube.getBiome(Coords.getCubeCenter(cube));
 
-			double[] proj = projection.toGeo((cube.getX()*16 + 8)/SCALE, (cube.getZ()*16 + 8)/SCALE);
+			double[] proj = projection.toGeo((cube.getX()*16 + 8), (cube.getZ()*16 + 8));
 			double approxDepth = heights.estimateLocal(proj[0], proj[1]) - cube.getY();
 			
             int surf = isSurface(world, cube);

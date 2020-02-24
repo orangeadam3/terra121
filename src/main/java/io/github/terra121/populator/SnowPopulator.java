@@ -21,7 +21,7 @@ public class SnowPopulator implements ICubicPopulator {
         {
 			//this cast could fail but this function should only be called in earth anyways
 			EarthBiomeProvider ebp = (EarthBiomeProvider) world.getBiomeProvider();
-			double[] proj = ebp.projection.toGeo(pos.getX()/100000.0, pos.getY()/100000.0);
+			double[] proj = ebp.projection.toGeo(pos.getX(), pos.getY());
 			return ebp.climate.isSnow(proj[0], proj[1], pos.getY());
         }
 		return false;
