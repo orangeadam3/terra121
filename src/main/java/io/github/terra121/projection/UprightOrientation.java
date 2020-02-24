@@ -15,7 +15,7 @@ public class UprightOrientation extends ProjectionTransform {
 	}
 	
 	public double[] fromGeo(double lon, double lat) {
-		double[] p = input.toGeo(lon, lat);
+		double[] p = input.fromGeo(lon, lat);
 		p[1] = base-p[1];
 		return p;
 	}

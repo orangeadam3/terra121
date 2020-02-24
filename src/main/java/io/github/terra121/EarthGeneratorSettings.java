@@ -49,8 +49,13 @@ public class EarthGeneratorSettings {
 			return new ScaleProjection(p, 100000, 100000); //TODO: better default
 		}
 		
-		if(settings.scaleX==1&&settings.scaleY==1) return p;
+		if(settings.scaleX==1&&settings.scaleY==1) System.exit(-1);
 		
 		return new ScaleProjection(p, settings.scaleX, settings.scaleY);
+	}
+	
+	public GeographicProjection getNormalizedProjection() {
+		return GeographicProjection.orientProjection(
+			GeographicProjection.projections.get(settings.projection),GeographicProjection.Orentation.upright);
 	}
 }

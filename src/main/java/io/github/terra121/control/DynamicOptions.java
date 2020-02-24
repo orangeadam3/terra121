@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiSlot;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -17,9 +18,9 @@ public class DynamicOptions extends GuiSlot {
 	private Element[] elements;
 	private Handler handler;
 	
-    public DynamicOptions(Minecraft mcIn, int width, int height, int slotsize, int bottom, int top, Handler handler, Element[] elems)
+    public DynamicOptions(Minecraft mcIn, int width, int height, int top, int bottom, int slotsize, Handler handler, Element[] elems)
     {
-        super(mcIn, width, height, slotsize, bottom, top);
+        super(mcIn, width, height, top, bottom, slotsize);
         elements = elems;
         this.handler = handler;
     }
@@ -60,7 +61,7 @@ public class DynamicOptions extends GuiSlot {
     {
         //EarthGui.this.drawDefaultBackground();
     }
-
+    
     protected void drawSlot(int slotIndex, int xPos, int yPos, int heightIn, int mouseXIn, int mouseYIn, float partialTicks)
     {
         elements[slotIndex].draw(mc, xPos, yPos, heightIn, mouseXIn, mouseYIn, partialTicks);

@@ -49,16 +49,21 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 	DynamicOptions.CycleButtonElement projectionType;
 	DynamicOptions.CycleButtonElement orentationType;
 	private DynamicOptions.Element[] settingElems;
+	private GuiButton done;
 	
 	private EarthGeneratorSettings cfg;
 	
 	Map<String, String> alias;
+	
+	GuiCreateWorld guiCreateWorld;
 	
 	public EarthGui(GuiCreateWorld guiCreateWorld, Minecraft mc) {
 		
 		cfg = new EarthGeneratorSettings(guiCreateWorld.chunkProviderSettingsJson);
 		
 		this.mc = mc;
+		this.guiCreateWorld = guiCreateWorld;
+		
 		InputStream is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/map.png");
 		try {
 			base = ImageIO.read(is);
@@ -74,7 +79,7 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		
 		settingElems = new DynamicOptions.Element[] {
 						cycleButton(6969, "projection", projs, e -> {projectMap(); return e;}),
-						cycleButton(6968, "orentation", GeographicProjection.Orentation.values(), e -> {projectMap(); return e.toString();}),
+						cycleButton(6968, "orentation", GeographicProjection.Orentation.values(), e -> {projectMap(); cfg.settings.scaleX = cfg.settings.scaleY = cfg.getNormalizedProjection().metersPerUnit(); return e.toString();}),
 						};
 		
 		projectMap();
@@ -133,12 +138,13 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 	
 	@Override
 	public void initGui() {
-		settings = new DynamicOptions(mc, width, height/2, height/2, height, 32, this, settingElems);
+		settings = new DynamicOptions(mc, width, height/2, height/2, height-32, 32, this, settingElems);
+		done = new GuiButton(69, width-106, height-26, 100, 20, "Done");
     }
 	
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		this.drawDefaultBackground();
+		//this.drawDefaultBackground();
 		
 		settings.drawScreen(mouseX, mouseY, partialTicks);
 		
@@ -148,13 +154,23 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		this.mc.renderEngine.bindTexture(rightmap);
 		this.drawScaledCustomSizeModalRect(2*(this.height/2), 0, 0, 0, 512, 512, this.height/2, this.height/2, 512, 512);
 		
-		this.drawCenteredString(this.fontRenderer, "BRUH", this.width/2, this.height/2, 0x00FF5555);
+		this.mc.renderEngine.bindTexture(Gui.OPTIONS_BACKGROUND);
+		this.drawTexturedModalRect(0, height-32, 0, 0, width, 32);
+		
+		done.drawButton(mc, mouseX, mouseY, partialTicks);
+		
+		this.drawCenteredString(this.fontRenderer, "WORK IN PROGRESS", this.width/2, this.height/2, 0x00FF5555);
 		
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
 	public void mouseClicked(int mouseX, int mouseY, int mouseEvent)
     {
+		if(done.mousePressed(mc, mouseX, mouseY)) {
+			this.guiCreateWorld.chunkProviderSettingsJson = cfg.toString();
+            this.mc.displayGuiScreen(this.guiCreateWorld);
+			return;
+		}
 		settings.mouseClicked(mouseX, mouseY, mouseEvent);
     }
 	

@@ -19,7 +19,7 @@ public class ScaleProjection extends ProjectionTransform {
 	}
 	
 	public double[] fromGeo(double lon, double lat) {
-		double[] p = input.toGeo(lon, lat);
+		double[] p = input.fromGeo(lon, lat);
 		p[0] *= scaleX;
 		p[1] *= scaleY;
 		return p;
@@ -36,5 +36,9 @@ public class ScaleProjection extends ProjectionTransform {
 		b[2] *= scaleX;
 		b[3] *= scaleY;
 		return b;
+	}
+	
+	public double metersPerUnit() {
+		return input.metersPerUnit()/Math.sqrt((scaleX*scaleX + scaleY*scaleY)/2); //TODO: better transform
 	}
 }
