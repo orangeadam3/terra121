@@ -4,6 +4,8 @@
 
 *sniff sniff* **OwO** do I smell upcoming GUIs and projections in a major release?
 
+**Current build status:** [![Build](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fjenkins.altillimity.com%2Fjob%2FTerra%2F)](https://jenkins.altillimity.com/job/Terra/)
+
 ![Logo](Pictures/TerraTextIconnocompress.png)
 
 # Terra 1 to 1 Minecraft Earth Project
@@ -42,6 +44,7 @@ And because a Twitch account can stream to twitch, shejan0 has been thinking abo
 
 So give us a follow over at our [TheTerraDev](https://www.twitch.tv/theterradev) Twitch account.
 
+[![Twitch](https://brand.twitch.tv/assets/images/twitch.svg)](https://www.twitch.tv/theterradev)
 
 Also let shejan0#9517 know if you want us to host your stream on our page if you are using our mod in your stream.
 
@@ -51,9 +54,6 @@ Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UCl
 
 [![Wozat Showcase](https://img.youtube.com/vi/XJG1XXOdJcc/maxresdefault.jpg)](https://www.youtube.com/watch?v=XJG1XXOdJcc)
 
-or watch it [here](https://www.youtube.com/watch?v=XJG1XXOdJcc).
-
-or watch it [here](https://www.youtube.com/watch?v=XJG1XXOdJcc).
 
 -*Much love from orangeadam3 and shejan0* 😫😤😘
 
