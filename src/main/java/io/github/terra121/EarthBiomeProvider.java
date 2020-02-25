@@ -1,22 +1,21 @@
 package io.github.terra121;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+
 import javax.annotation.Nullable;
 
 import io.github.terra121.dataset.Climate;
 import io.github.terra121.dataset.Soil;
 import io.github.terra121.projection.GeographicProjection;
-import io.github.terra121.projection.InvertedOrientation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.init.Biomes;
-import net.minecraft.world.biome.BiomeProvider;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-
-import java.io.IOException;
-import java.io.InputStream;
+import net.minecraft.world.biome.BiomeProvider;
 
 public class EarthBiomeProvider extends BiomeProvider {
 
@@ -29,7 +28,6 @@ public class EarthBiomeProvider extends BiomeProvider {
     public Soil soil;
     public Climate climate;
     public GeographicProjection projection;
-    private World world;
     private EarthGeneratorSettings cfg;
 
     /** The biome generator object. */
@@ -37,7 +35,6 @@ public class EarthBiomeProvider extends BiomeProvider {
 
     public EarthBiomeProvider(Biome biomeIn, World world)
     {
-    	this.world = world;
     	cfg = new EarthGeneratorSettings(world.getWorldInfo().getGeneratorOptions());
     	projection = cfg.getProjection();
     	

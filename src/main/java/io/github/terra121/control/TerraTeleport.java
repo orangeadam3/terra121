@@ -1,11 +1,8 @@
 package io.github.terra121.control;
 
-import org.apache.commons.codec.DecoderException;
-
 import io.github.opencubicchunks.cubicchunks.api.worldgen.ICubeGenerator;
 import io.github.opencubicchunks.cubicchunks.core.server.CubeProviderServer;
 import io.github.terra121.EarthTerrainProcessor;
-import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandTP;
@@ -13,9 +10,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraftforge.server.permission.PermissionAPI;
 
 public class TerraTeleport extends CommandBase {
 	

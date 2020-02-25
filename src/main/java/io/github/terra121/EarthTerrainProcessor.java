@@ -1,23 +1,25 @@
 package io.github.terra121;
 
-import io.github.opencubicchunks.cubicchunks.api.util.Box;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+
 import io.github.opencubicchunks.cubicchunks.api.util.Coords;
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.world.ICube;
-import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
-import io.github.opencubicchunks.cubicchunks.api.worldgen.CubeGeneratorsRegistry;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.CubePrimer;
-import io.github.opencubicchunks.cubicchunks.api.worldgen.ICubeGenerator;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.CubePopulatorEvent;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
 import io.github.opencubicchunks.cubicchunks.cubicgen.BasicCubeGenerator;
-import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.CustomGeneratorSettings;
-import  io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.populator.*;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.BiomeBlockReplacerConfig;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.CubicBiome;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.IBiomeBlockReplacer;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.IBiomeBlockReplacerProvider;
-import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.populator.DefaultDecorator;
+import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.CustomGeneratorSettings;
 import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.structure.CubicCaveGenerator;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
@@ -26,27 +28,15 @@ import io.github.terra121.populator.EarthTreePopulator;
 import io.github.terra121.populator.RoadGenerator;
 import io.github.terra121.populator.SnowPopulator;
 import io.github.terra121.projection.GeographicProjection;
-import io.github.terra121.projection.InvertedOrientation;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.init.Biomes;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraft.init.Blocks;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 //import io.github.opencubicchunks.cubicchunks.api.worldgen.structure.event.InitCubicStructureGeneratorEvent;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Random;
-import net.minecraft.world.biome.BiomeProvider;
 
 public class EarthTerrainProcessor extends BasicCubeGenerator {
 
@@ -68,7 +58,6 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
     public EarthTerrainProcessor(World world) {
         super(world);
-        Entity e;
         
         cfg = new EarthGeneratorSettings(world.getWorldInfo().getGeneratorOptions());
     	projection = cfg.getProjection();
@@ -154,8 +143,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     	//fill in the world
         for(int x=0; x<16; x++) {
             for(int z=0; z<16; z++) {
-            	double Y = heightarr[x][z];
-            	boolean ocean = false;
+            	double Y = heightarr[x][z];      	
             	
             	//ocean?
             	if(-0.001 < Y && Y < 0.001) {
