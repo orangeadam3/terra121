@@ -13,6 +13,6 @@ public class SinusoidalProjection extends GeographicProjection {
 	}
 	
 	public double metersPerUnit() {
-		return 40075017/360.0; //gotta make good on that exact area
+		return EARTH_CIRCUMFERENCE/360.0; //gotta make good on that exact area
 	}
 }

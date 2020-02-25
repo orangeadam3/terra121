@@ -8,11 +8,13 @@ import java.util.Map;
 //this base class does nothing so lon lat is the same as x y
 public class GeographicProjection {
 	
+	public static double EARTH_CIRCUMFERENCE = 40075017;
+	
 	public static Map<String, GeographicProjection> projections;
 	
 	static {
 		projections = new HashMap<String, GeographicProjection>();
-		projections.put("maps", new MapsProjection());
+		projections.put("web_mercator", new CenteredMapsProjection());
 		projections.put("equirectangular", new GeographicProjection());
 		projections.put("sinusoidal", new SinusoidalProjection());
 	}

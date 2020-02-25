@@ -64,6 +64,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     private CubicCaveGenerator caveGenerator;
     private SnowPopulator snow;
 	private EarthGeneratorSettings cfg;
+	private boolean doRoads;
 
     public EarthTerrainProcessor(World world) {
         super(world);
@@ -71,6 +72,8 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         
         cfg = new EarthGeneratorSettings(world.getWorldInfo().getGeneratorOptions());
     	projection = cfg.getProjection();
+    	
+    	doRoads = cfg.settings.roads && world.getWorldInfo().isMapFeaturesEnabled();
         
         biomes = (EarthBiomeProvider)world.getBiomeProvider(); //TODO: make this not order dependent
         heights = new Heights(13);
@@ -82,7 +85,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         unnaturals.add(Blocks.CONCRETE);
         
         surfacePopulators = new HashSet<ICubicPopulator>();
-        surfacePopulators.add(new RoadGenerator(osm, heights, projection));
+        if(doRoads)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
         surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
         
@@ -198,7 +201,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         caveGenerator.generate(world, primer, new CubePos(cubeX, cubeY, cubeZ));
 
         //spawn roads
-        if(surface) {
+        if(doRoads && surface) {
             Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeZ);
 
             if(edges != null) {

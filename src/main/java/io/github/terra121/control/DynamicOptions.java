@@ -11,6 +11,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiSlot;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -32,13 +33,26 @@ public class DynamicOptions extends GuiSlot {
 
     /**
      * The element in the slot that was clicked, boolean for whether it was double clicked or not
+     * This don't work idk why, so using mouseClicked
      */
     protected void elementClicked(int slotIndex, boolean isDoubleClick, int mouseX, int mouseY)
     {
-    	elements[slotIndex].click(mc);
-    	
-    	if(handler!=null)
-    		handler.onDynOptClick(elements[slotIndex]);
+    }
+    
+    //click the proper button
+    public void mouseClicked(int mouseX, int mouseY, int mouseEvent)
+    {
+        if (this.isMouseYWithinSlotBounds(mouseY))
+        {
+            int i = this.getSlotIndexFromScreenCoords(mouseX, mouseY);
+
+            if (i >= 0)
+            {
+                elements[i].click(mc);
+                if(handler!=null)
+                	handler.onDynOptClick(elements[i]);
+            }
+        }
     }
 
     /**
@@ -47,14 +61,6 @@ public class DynamicOptions extends GuiSlot {
     protected boolean isSelected(int slotIndex)
     {
         return false;
-    }
-
-    /**
-     * Return the height of the content being scrolled
-     */
-    protected int getContentHeight()
-    {
-        return elements.length * 18;
     }
 
     protected void drawBackground()
@@ -69,25 +75,7 @@ public class DynamicOptions extends GuiSlot {
     
     public abstract static class Element {
     	public abstract void draw(Minecraft mc, int x, int y, int height, int mouseX, int mouseY, float partialTicks);
-    	public void click(Minecraft mc) {
-    		
-    	}
-    }
-    
-    public boolean mouseClicked(int mouseX, int mouseY, int mouseEvent)
-    {
-        if (this.isMouseYWithinSlotBounds(mouseY))
-        {
-            int i = this.getSlotIndexFromScreenCoords(mouseX, mouseY);
-
-            if (i >= 0)
-            {
-                elements[i].click(mc);
-                handler.onDynOptClick(elements[i]);
-            }
-        }
-
-        return false;
+    	public void click(Minecraft mc) {}
     }
     
     public static class CycleButtonElement<E> extends Element {
@@ -134,6 +122,17 @@ public class DynamicOptions extends GuiSlot {
     		gui.x = x;
     		gui.y = y;
     		gui.drawButton(mc, mouseX, mouseY, partialTicks);
+    	}
+    }
+    
+    //quick wrapper for a yes or no toggle
+    public static class ToggleElement extends CycleButtonElement<Boolean> {
+    	public ToggleElement(int id, String name, Field outfield, Object outobject, Consumer<Boolean> notify){
+    		super(id, new Boolean[] {false, true}, outfield, outobject, b -> {
+	    			if(notify!=null)
+	    				notify.accept(b);
+	    			return name+": "+(b?I18n.format("options.on"):I18n.format("options.off"));
+    			});
     	}
     }
     

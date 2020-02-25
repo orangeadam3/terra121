@@ -15,6 +15,8 @@ public class EarthGeneratorSettings {
 		public GeographicProjection.Orentation orentation = GeographicProjection.Orentation.swapped;
 		public Double scaleX = 100000.0;
 		public Double scaleY = 100000.0;
+		public Boolean smoothblend = false;
+		public Boolean roads = true;
 	}
 	public JsonSettings settings;
 	

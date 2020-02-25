@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.imageio.ImageIO;
@@ -41,7 +42,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 
-	ResourceLocation leftmap = null;
+	ResourceLocation map = null;
 	ResourceLocation rightmap = null;
 	BufferedImage base;
 	GeographicProjection projection;
@@ -49,7 +50,9 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 	DynamicOptions.CycleButtonElement projectionType;
 	DynamicOptions.CycleButtonElement orentationType;
 	private DynamicOptions.Element[] settingElems;
-	private GuiButton done;
+	private GuiButton done, cancel;
+	
+	private int mapsize;
 	
 	private EarthGeneratorSettings cfg;
 	
@@ -78,11 +81,12 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		String[] projs = (String[])GeographicProjection.projections.keySet().toArray(new String[GeographicProjection.projections.size()]);
 		
 		settingElems = new DynamicOptions.Element[] {
-						cycleButton(6969, "projection", projs, e -> {projectMap(); return e;}),
-						cycleButton(6968, "orentation", GeographicProjection.Orentation.values(), e -> {projectMap(); cfg.settings.scaleX = cfg.settings.scaleY = cfg.getNormalizedProjection().metersPerUnit(); return e.toString();}),
-						};
-		
-		projectMap();
+						cycleButton(6969, "projection", projs, e -> {projectMap(true); return "Projection: "+e;}),
+						toggleButton(6967, "Smooth Blending", "smoothblend", null),
+						cycleButton(6968, "orentation", GeographicProjection.Orentation.values(), e -> {projectMap(true); return "Orentation: "+e.toString();}),
+						toggleButton(6966, "Spawn Roads", "roads", null),
+		};
+		projectMap(false);
 	}
 	
 	private <E> DynamicOptions.CycleButtonElement<E> cycleButton(int id, String field, E[] list, Function<E, String> tostring) {
@@ -95,12 +99,24 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		return null;
 	}
 	
-	private void projectMap() {
+	private <E> DynamicOptions.ToggleElement toggleButton(int id, String name, String field, Consumer<Boolean> notify) {
+		try {
+			return new DynamicOptions.ToggleElement(id, name, EarthGeneratorSettings.JsonSettings.class.getField(field), cfg.settings, notify);
+		} catch (NoSuchFieldException | SecurityException e) {
+			TerraMod.LOGGER.error("This should never happen, but find field reflection error");
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	private void projectMap(boolean change) {
 
-		projection = cfg.getProjection();
+		projection = cfg.getNormalizedProjection();
 		
-		if(leftmap!=null)
-			mc.renderEngine.deleteTexture(leftmap);
+		cfg.settings.scaleX = cfg.settings.scaleY = projection.metersPerUnit();
+		
+		if(map!=null)
+			mc.renderEngine.deleteTexture(map);
 		else if(rightmap!=null)
 			mc.renderEngine.deleteTexture(rightmap);
 		
@@ -109,13 +125,15 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		
 		double[] bounds = projection.bounds();
 		
-		int w = left.getWidth()*2;
+		double scale = Math.max(Math.abs(bounds[2]-bounds[0]), Math.abs(bounds[3]-bounds[1]));
+		
+		int w = left.getWidth();
 		int h = left.getHeight();
 		
 		for(int x=0;x<w;x++) {
 			for(int y=0;y<h;y++) {
-				double X = (x/(double)w)*(bounds[2]-bounds[0])+bounds[0];
-				double Y = (y/(double)h)*(bounds[3]-bounds[1])+bounds[1];
+				double X = (x/(double)w)*scale+bounds[0];
+				double Y = (y/(double)h)*scale+bounds[1];
 				
 				double proj[] = projection.toGeo(X, Y);
 				
@@ -125,39 +143,48 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 				//System.out.println(X + " " + Y+" "+lon+" "+lat);
 				
 				if(lon>=0 && lat>=0 && lat < base.getHeight() && lon < base.getWidth()) {
-					if(x<w/2)
-						left.setRGB(x, y, base.getRGB(lon, base.getHeight()-lat-1));
-					else right.setRGB(x-w/2, y, base.getRGB(lon, base.getHeight()-lat-1));
+					left.setRGB(x, y, base.getRGB(lon, base.getHeight()-lat-1));
 				}
 			}
 		}
 		
-		leftmap = this.mc.renderEngine.getDynamicTextureLocation("leftmapdemo", new DynamicTexture(left));
-		rightmap = this.mc.renderEngine.getDynamicTextureLocation("rightmapdemo", new DynamicTexture(right));
+		map = this.mc.renderEngine.getDynamicTextureLocation("mapdemo", new DynamicTexture(left));
 	}
 	
 	@Override
 	public void initGui() {
-		settings = new DynamicOptions(mc, width, height/2, height/2, height-32, 32, this, settingElems);
+		mapsize = height-64;
+		if(width-mapsize<200)
+			mapsize = width-200;
+		if(mapsize<32)
+			mapsize = 0;
+		/*if(mapsize>0.75*width)
+			mapsize = (int)(0.75*width);
+		if(mapsize<300)
+			mapsize = 0;*/
+
+		settings = new DynamicOptions(mc, width-mapsize, height-32, 32, height-32, 32, this, settingElems);
 		done = new GuiButton(69, width-106, height-26, 100, 20, "Done");
+		cancel = new GuiButton(69, 6, height-26, 100, 20, "Cancel");
     }
 	
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		//this.drawDefaultBackground();
+		this.drawBackground(0xff);
 		
 		settings.drawScreen(mouseX, mouseY, partialTicks);
 		
 		//todo remove seams
-		this.mc.renderEngine.bindTexture(leftmap);
-		this.drawScaledCustomSizeModalRect(this.height/2, 0, 0, 0, 512, 512, this.height/2, this.height/2, 512, 512);
-		this.mc.renderEngine.bindTexture(rightmap);
-		this.drawScaledCustomSizeModalRect(2*(this.height/2), 0, 0, 0, 512, 512, this.height/2, this.height/2, 512, 512);
+		this.mc.renderEngine.bindTexture(map);
+		this.drawScaledCustomSizeModalRect(width-mapsize, (height-mapsize)/2, 0, 0, 512, 512, mapsize, mapsize, 512, 512);
 		
 		this.mc.renderEngine.bindTexture(Gui.OPTIONS_BACKGROUND);
-		this.drawTexturedModalRect(0, height-32, 0, 0, width, 32);
+		//this.drawTexturedModalRect(0, height-32, 0, 0, width, 32);
+		this.drawScaledCustomSizeModalRect(0, height-32, 0, 0, width, 32, width, 32, 32, 32); //footer, TODO: make not bad
+		this.drawScaledCustomSizeModalRect(0, 0, 0, 0, width, 32, width, 32, 32, 32); //header, TODO: make not bad
 		
 		done.drawButton(mc, mouseX, mouseY, partialTicks);
+		cancel.drawButton(mc, mouseX, mouseY, partialTicks);
 		
 		this.drawCenteredString(this.fontRenderer, "WORK IN PROGRESS", this.width/2, this.height/2, 0x00FF5555);
 		
@@ -167,12 +194,23 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 	public void mouseClicked(int mouseX, int mouseY, int mouseEvent)
     {
 		if(done.mousePressed(mc, mouseX, mouseY)) {
-			this.guiCreateWorld.chunkProviderSettingsJson = cfg.toString();
-            this.mc.displayGuiScreen(this.guiCreateWorld);
+			this.guiCreateWorld.chunkProviderSettingsJson = cfg.toString(); //save settings
+            this.mc.displayGuiScreen(this.guiCreateWorld); ///exit
+			return;
+			
+		} else if(cancel.mousePressed(mc, mouseX, mouseY)) {
+			this.mc.displayGuiScreen(this.guiCreateWorld); //exit without saving
 			return;
 		}
+		
 		settings.mouseClicked(mouseX, mouseY, mouseEvent);
     }
+	
+	@Override
+	public void handleMouseInput() throws IOException {
+		super.handleMouseInput();
+		settings.handleMouseInput();
+	}
 	
 	@Override
 	public void onDynOptClick(Element elem) {
