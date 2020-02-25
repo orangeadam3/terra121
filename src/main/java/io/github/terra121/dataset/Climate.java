@@ -1,7 +1,9 @@
 package io.github.terra121.dataset;
 
-import java.util.*;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class Climate {
     public static final int COLS = 720;

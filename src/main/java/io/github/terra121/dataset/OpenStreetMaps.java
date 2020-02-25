@@ -1,26 +1,30 @@
 package io.github.terra121.dataset;
 
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 
-import java.io.*;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import io.github.terra121.projection.GeographicProjection;
-import io.github.terra121.projection.InvertedOrientation;
 import io.github.terra121.TerraMod;
+import io.github.terra121.projection.GeographicProjection;
 
 public class OpenStreetMaps {
 
-    private static final int CHUNK_PER_MAP_CHUNK = 64;
     private static final double CHUNK_SIZE = 16;
     private static final double TILE_SIZE = 1/60.0;//250*(360.0/40075000.0);
     private static final double NOTHING = 0.01;

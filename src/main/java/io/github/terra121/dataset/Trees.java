@@ -6,13 +6,12 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 
-import javax.imageio.ImageIO;
-
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
 import org.apache.commons.imaging.formats.tiff.TiffImageParser;
-import io.github.terra121.projection.ImageProjection;
+
 import io.github.terra121.TerraMod;
+import io.github.terra121.projection.ImageProjection;
 
 public class Trees extends TiledDataset {
 	public static final String SERVER = "https://gis-treecover.wri.org";//"http://50.18.182.188:6080";

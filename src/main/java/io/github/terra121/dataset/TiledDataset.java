@@ -71,7 +71,7 @@ public abstract class TiledDataset {
 
             //cache is too large, remove the least recent element
             if(cache.size() > numcache) {
-                Iterator it = cache.values().iterator();
+                Iterator<?> it = cache.values().iterator();
                 it.next();
                 it.remove();
             }

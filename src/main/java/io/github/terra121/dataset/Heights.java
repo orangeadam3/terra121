@@ -1,18 +1,14 @@
 package io.github.terra121.dataset;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
+import javax.imageio.ImageIO;
+
 import io.github.terra121.TerraMod;
 import io.github.terra121.projection.MapsProjection;
-
-import java.awt.image.BufferedImage;
-import java.net.URL;
-import java.io.*;
-import java.util.*;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-
-import org.apache.commons.imaging.ImageReadException;
-import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
-import org.apache.commons.imaging.formats.tiff.TiffImageParser;
 
 public class Heights extends TiledDataset{
     private int zoom;

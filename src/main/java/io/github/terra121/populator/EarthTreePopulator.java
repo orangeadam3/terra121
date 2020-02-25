@@ -1,26 +1,21 @@
 package io.github.terra121.populator;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Random;
+import java.util.Set;
 
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.world.ICube;
-import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
-import io.github.opencubicchunks.cubicchunks.cubicgen.CWGEventFactory;
 import io.github.terra121.dataset.Trees;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.WorldGenAbstractTree;
-import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
 
 public class EarthTreePopulator implements ICubicPopulator {
 
@@ -65,8 +60,6 @@ public class EarthTreePopulator implements ICubicPopulator {
 
 	    if(random.nextFloat()*5 < biome.decorator.extraTreeChance)
 	    	treeCount++;
-	    
-	    ICubicWorld cworld = (ICubicWorld)world;
 	    
 	    //we are special, and this event is being canceled to control the default populators
 	    //CWGEventFactory.decorate(world, random, pos, DecorateBiomeEvent.Decorate.EventType.TREE);
