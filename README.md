@@ -106,13 +106,15 @@ This modification of CubicWorldGen generates the world using information from da
 
 ## Obtaining
 
-We have compiled binaries both on our [releases page](https://github.com/orangeadam3/terra121/releases), and on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/terra-1-to-1-minecraft-world-project). 
+We have compiled releases both on our [releases page](https://github.com/orangeadam3/terra121/releases), and on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/terra-1-to-1-minecraft-world-project). 
 
 
 
-However, some of you are little itchy peepers, and want the most recent version of the code, fresh with all the testing and beta stuffs. 
+However, some of you are little itchy peepers, and want the most recent version of the code, fresh with all the testing and beta, and broken stuffs. 
 
-Luckily for pretty ol' you, here are the [building instructions](BUILD_INSTRUCTIONS.md)
+Luckily for pretty ol' you, here are the [building instructions](BUILD_INSTRUCTIONS.md), or you can use builds from this [unofficial Jenkins CI](https://jenkins.altillimity.com/job/Terra/) that Aang23#7721 on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m) created, this will always build the latest git master branch, so you don't have to build locally. (For the code that runs in Minecraft, make sure you get the file that does *not* end in **-sources.jar**)
+
+Thanks Aang, much appreciated.
 
 
 
