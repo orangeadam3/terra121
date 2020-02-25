@@ -1,6 +1,8 @@
-### CubicWorldGen 115 forward has code changes that makes the current release build incompatible with it, we are working dilligently to get the mod up to date, but for now please use versions between 85 and 115, a minor update has been placed to allow compatibility with CWG 115+ but introduces issues elsewhere. If you want a stable game with CWG 115 forward, we recommend you wait for a major update.
+### CubicWorldGen 115 forward has code changes that makes the current release build incompatible with it, we are working dilligently to get the mod up to date, but for now please use versions between 85 and 115, a minor update has been released to allow compatibility with CWG 115+ but introduces issues elsewhere. If you want a stable game with CWG 115 forward, we recommend you wait for a major update.
 
 ### We deeply apologize for the wait, we are also working on adding features on top of fixing CWG 115+ so expect great new things to be added very soon.
+
+*sniff sniff* **OwO** do I smell upcoming GUIs and projections in a major release?
 
 ![Logo](Pictures/TerraTextIconnocompress.png)
 
@@ -38,15 +40,23 @@ So in order to get our mod onto [CurseForge](https://www.curseforge.com/minecraf
 
 And because a Twitch account can stream to twitch, shejan0 has been thinking about streaming to Twitch with that account.
 
-So give us a follow over at our [TheTerraDev](https://www.twitch.tv/theterradev) Twitch account.
+So give us a follow over at our [TheTerraDev](https://www.twitch.tv/theterradev) Twitch account, or watch live here (you need to go to the stream in order to chat, sorry GitHub is weird).
 
-Also let us know if you want us to host your stream in our page if you are using our mod in your stream.
+<dl>
+  <iframe src="https://player.twitch.tv/?channel=theterradev" frameborder="0" allowfullscreen="true" scrolling="no" height="378" width="620"></iframe><a href="https://www.twitch.tv/theterradev?tt_content=text_link&tt_medium=live_embed" style="padding:2px 0px 4px; display:block; width:345px; font-weight:normal; font-size:10px; text-decoration:underline;">Watch live video from theterradev on www.twitch.tv</a>
+</dl>
+
+Also let shejan0#9517 know if you want us to host your stream on our page if you are using our mod in your stream.
 
 ## Creation showcase
 
 Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UClbmNgZmGahCDKcs8_aMN0A), Administrator and Moderator on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), and has been interested in the development of our mod since the beginning.
 
-[![Wozat Showcase](https://img.youtube.com/vi/XJG1XXOdJcc/maxresdefault.jpg)](https://www.youtube.com/watch?v=XJG1XXOdJcc)
+<dl>
+  <iframe width="882" height="496" src="https://www.youtube.com/embed/XJG1XXOdJcc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</dl>
+
+or watch it [here](https://www.youtube.com/watch?v=XJG1XXOdJcc).
 
 -*Much love from orangeadam3 and shejan0* 😫😤😘
 
@@ -108,7 +118,9 @@ This modification of CubicWorldGen generates the world using information from da
 
 We have compiled releases both on our [releases page](https://github.com/orangeadam3/terra121/releases), and on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/terra-1-to-1-minecraft-world-project). 
 
+However, some of you are little itchy peepers, and want the most recent version of the code, fresh with all the testing and beta, and broken stuffs. 
 
+Luckily for pretty ol' you, here are the [building instructions](BUILD_INSTRUCTIONS.md).
 
 However, some of you are little itchy peepers, and want the most recent version of the code, fresh with all the testing and beta, and broken stuffs. 
 
@@ -119,7 +131,7 @@ Thanks Aang, much appreciated.
 
 
 ## Client Usage
-After completing the [Build Instructions](BUILD_INSTRUCTIONS.md). When creating a new world, under the World Type, you will now have an option called "**Planet Earth**" which will allow you to generate a world using the new generation method.
+After obtaining the binary (through a method listed above), when creating a new world, under the World Type, you will now have an option called "**Planet Earth**" which will allow you to generate a world using the new generation method.
 
 Upon creation, You will spawn near or on (0,0,0) (a.k.a. 0°N, 0°E or [Null Island](https://www.youtube.com/watch?v=bjvIpI-1w84)), This region is placeholder, meant to be a type of testing zone and also to not spawn under the ocean. You would need to [teleport away to see somewhere meaningful](COOL_LOCATIONS.md).
 
