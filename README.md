@@ -40,11 +40,7 @@ So in order to get our mod onto [CurseForge](https://www.curseforge.com/minecraf
 
 And because a Twitch account can stream to twitch, shejan0 has been thinking about streaming to Twitch with that account.
 
-So give us a follow over at our [TheTerraDev](https://www.twitch.tv/theterradev) Twitch account, or watch live here (you need to go to the stream in order to chat, sorry GitHub is weird).
-
-<dl>
-  <iframe src="https://player.twitch.tv/?channel=theterradev" frameborder="0" allowfullscreen="true" scrolling="no" height="378" width="620"></iframe><a href="https://www.twitch.tv/theterradev?tt_content=text_link&tt_medium=live_embed" style="padding:2px 0px 4px; display:block; width:345px; font-weight:normal; font-size:10px; text-decoration:underline;">Watch live video from theterradev on www.twitch.tv</a>
-</dl>
+So give us a follow over at our [TheTerraDev](https://www.twitch.tv/theterradev) Twitch account.
 
 Also let shejan0#9517 know if you want us to host your stream on our page if you are using our mod in your stream.
 
@@ -52,9 +48,7 @@ Also let shejan0#9517 know if you want us to host your stream on our page if you
 
 Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UClbmNgZmGahCDKcs8_aMN0A), Administrator and Moderator on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), and has been interested in the development of our mod since the beginning.
 
-<dl>
-  <iframe width="882" height="496" src="https://www.youtube.com/embed/XJG1XXOdJcc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</dl>
+[![Wozat Showcase](https://img.youtube.com/vi/XJG1XXOdJcc/maxresdefault.jpg)](https://www.youtube.com/watch?v=XJG1XXOdJcc)
 
 or watch it [here](https://www.youtube.com/watch?v=XJG1XXOdJcc).
 
@@ -124,9 +118,11 @@ Luckily for pretty ol' you, here are the [building instructions](BUILD_INSTRUCTI
 
 However, some of you are little itchy peepers, and want the most recent version of the code, fresh with all the testing and beta, and broken stuffs. 
 
-Luckily for pretty ol' you, here are the [building instructions](BUILD_INSTRUCTIONS.md), or you can use builds from this [unofficial Jenkins CI](https://jenkins.altillimity.com/job/Terra/) that Aang23#7721 on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m) created, this will always build the latest git master branch, so you don't have to build locally. (For the code that runs in Minecraft, make sure you get the file that does *not* end in **-sources.jar**)
+Luckily for pretty ol' you, here are the [building instructions](BUILD_INSTRUCTIONS.md).
 
-Thanks Aang, much appreciated.
+You can also use builds from this [unofficial Jenkins CI](https://jenkins.altillimity.com/job/Terra/) that Aang23#7721 on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m) created, this will always build the latest git master branch, so you don't have to build locally. (For the code that runs in Minecraft, make sure you get the file that does *not* end in **-sources.jar**)
+
+- Love from shejan0 and orangeadam3 😤😖👏😘🤪
 
 
 
