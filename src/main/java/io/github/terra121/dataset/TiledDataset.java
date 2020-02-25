@@ -37,25 +37,35 @@ public abstract class TiledDataset {
 
         //project coords
         double[] floatCoords = projection.fromGeo(lon, lat);
-        double X = floatCoords[0]*scaleX;
-        double Y = floatCoords[1]*scaleY;
+        double X = floatCoords[0]*scaleX - 0.5;
+        double Y = floatCoords[1]*scaleY - 0.5;
 
         //get the corners surrounding this block
         Coord coord = new Coord((int)X, (int)Y);
         
         double u = X-coord.x;
         double v = Y-coord.y;
-        
-        double ll = getOfficialHeight(coord);
-        coord.x++;
-        double lr = getOfficialHeight(coord);
-        coord.y++;
-        double ur = getOfficialHeight(coord);
-        coord.x--;
-        double ul = getOfficialHeight(coord);
 
-        //get perlin style interpolation on this block
-        return (1-v)*(ll*(1-u) + lr*u) + (ul*(1-u) + ur*u)*v;
+        double v00 = getOfficialHeight(coord);
+        coord.x++;
+        double v10 = getOfficialHeight(coord);
+        coord.x++;
+        double v20 = getOfficialHeight(coord);
+        coord.y++;
+        double v21 = getOfficialHeight(coord);
+        coord.x--;
+        double v11 = getOfficialHeight(coord);
+        coord.x--;
+        double v01 = getOfficialHeight(coord);
+        coord.y++;
+        double v02 = getOfficialHeight(coord);
+        coord.x++;
+        double v12 = getOfficialHeight(coord);
+        coord.x++;
+        double v22 = getOfficialHeight(coord);
+
+        //Compute smooth 9-point interpolation on this block
+        return SmoothBlend.compute(u, v, v00, v01, v02, v10, v11, v12, v20, v21, v22);
     }
 
 	private double getOfficialHeight(Coord coord) {
