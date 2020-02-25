@@ -42,6 +42,7 @@ And because a Twitch account can stream to twitch, shejan0 has been thinking abo
 
 So give us a follow over at our [TheTerraDev](https://www.twitch.tv/theterradev) Twitch account.
 
+
 Also let shejan0#9517 know if you want us to host your stream on our page if you are using our mod in your stream.
 
 ## Creation showcase
@@ -49,6 +50,8 @@ Also let shejan0#9517 know if you want us to host your stream on our page if you
 Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UClbmNgZmGahCDKcs8_aMN0A), Administrator and Moderator on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), and has been interested in the development of our mod since the beginning.
 
 [![Wozat Showcase](https://img.youtube.com/vi/XJG1XXOdJcc/maxresdefault.jpg)](https://www.youtube.com/watch?v=XJG1XXOdJcc)
+
+or watch it [here](https://www.youtube.com/watch?v=XJG1XXOdJcc).
 
 or watch it [here](https://www.youtube.com/watch?v=XJG1XXOdJcc).
 
