@@ -17,6 +17,7 @@ public class GeographicProjection {
 		projections.put("web_mercator", new CenteredMapsProjection());
 		projections.put("equirectangular", new GeographicProjection());
 		projections.put("sinusoidal", new SinusoidalProjection());
+		projections.put("equal_earth", new EqualEarth());
 	}
 	
 	public static enum Orentation {
@@ -52,10 +53,31 @@ public class GeographicProjection {
 	}
 	
 	public double[] bounds() {
-		return new double[]{-180,-90,180,90};
+		
+		//get max in by using extreme coordinates
+		double[] b = new double[] { 
+				fromGeo(-180,0)[0],
+				fromGeo(0,-90)[1],
+				fromGeo(180,0)[0],
+				fromGeo(0,90)[1]
+			};
+
+		if(b[0]>b[2]) {
+			double t = b[0];
+			b[0] = b[2];
+			b[2] = t;
+		}
+		
+		if(b[1]>b[3]) {
+			double t = b[1];
+			b[1] = b[3];
+			b[3] = t;
+		}
+		
+		return b;
 	}
 	
 	public boolean upright() {
-		return false;
+		return fromGeo(0,90)[1]<=fromGeo(0,-90)[1];
 	}
 }
