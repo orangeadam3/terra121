@@ -1,14 +1,7 @@
-### CubicWorldGen 115 forward has code changes that makes the current release build incompatible with it, we are working dilligently to get the mod up to date, but for now please use versions between 85 and 115, a minor update has been released to allow compatibility with CWG 115+ but introduces issues elsewhere. If you want a stable game with CWG 115 forward, we recommend you wait for a major update.
-
-### We deeply apologize for the wait, we are also working on adding features on top of fixing CWG 115+ so expect great new things to be added very soon.
-
-*sniff sniff* **OwO** do I smell upcoming GUIs and projections in a major release?
-
-**Current build status:** [![Build](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fjenkins.altillimity.com%2Fjob%2FTerra%2F)](https://jenkins.altillimity.com/job/Terra/)
-
 ![Logo](Pictures/TerraTextIconnocompress.png)
 
 # Terra 1 to 1 Minecraft Earth Project
+**Current build status:** [![Build](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fjenkins.altillimity.com%2Fjob%2FTerra%2F)](https://jenkins.altillimity.com/job/Terra/)
 
 ### Developed by orangeadam3
 ### Co-Developed and images by shejan0 
@@ -17,6 +10,7 @@
 ![Copper Canyon](Pictures/CopperCanyonMex.png)
 
 Barranca del Cobre (Copper Canyon), Chihuahua, Mexico 
+
 
 ## Public Server
 
