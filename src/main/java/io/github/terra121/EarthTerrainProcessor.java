@@ -65,7 +65,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     	doRoads = cfg.settings.roads && world.getWorldInfo().isMapFeaturesEnabled();
         
         biomes = (EarthBiomeProvider)world.getBiomeProvider(); //TODO: make this not order dependent
-        heights = new Heights(13);
+        heights = new Heights(13, cfg.settings.smoothblend);
         depths = new Heights(10); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
         osm = new OpenStreetMaps(projection);
         

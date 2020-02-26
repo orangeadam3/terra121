@@ -14,10 +14,14 @@ public class Heights extends TiledDataset{
     private int zoom;
     private String url_prefix = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/";
 
-    public Heights(int zoom) {
-    	super(256, 256, 100, new MapsProjection(), 1<<(zoom+8), 1<<(zoom+8));
+    public Heights(int zoom, boolean smooth) {
+    	super(256, 256, 100, new MapsProjection(), 1<<(zoom+8), 1<<(zoom+8), smooth);
     	this.zoom = zoom;
     	url_prefix += zoom+"/";
+    }
+    
+    public Heights(int zoom) {
+    	this(zoom, false);
     }
 
     //request a mapzen tile from amazon, this should only be needed evrey 2 thousand blocks or so if the cache is large enough
