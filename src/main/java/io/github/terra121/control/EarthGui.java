@@ -3,7 +3,6 @@ package io.github.terra121.control;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -13,32 +12,17 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.io.IOUtils;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import io.github.opencubicchunks.cubicchunks.cubicgen.common.gui.*;
 import io.github.terra121.EarthGeneratorSettings;
 import io.github.terra121.TerraMod;
 import io.github.terra121.control.DynamicOptions.Element;
 import io.github.terra121.projection.GeographicProjection;
-import io.github.terra121.projection.SinusoidalProjection;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
-import net.minecraft.client.gui.GuiLanguage;
-import net.minecraft.client.gui.GuiPageButtonList;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiSlot;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.client.resources.Language;
-import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 
@@ -80,8 +64,8 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		
 		settingElems = new DynamicOptions.Element[] {
 						cycleButton(6969, "projection", projs, e -> {projectMap(true); return "Projection: "+e;}),
-						toggleButton(6967, "Smooth Blending", "smoothblend", null),
 						cycleButton(6968, "orentation", GeographicProjection.Orentation.values(), e -> {projectMap(true); return "Orentation: "+e.toString();}),
+						toggleButton(6967, "Smooth Blending", "smoothblend", null),
 						toggleButton(6966, "Spawn Roads", "roads", null),
 		};
 		projectMap(false);
