@@ -47,8 +47,6 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 	BufferedImage base;
 	GeographicProjection projection;
 	DynamicOptions settings;
-	DynamicOptions.CycleButtonElement projectionType;
-	DynamicOptions.CycleButtonElement orentationType;
 	private DynamicOptions.Element[] settingElems;
 	private GuiButton done, cancel;
 	
@@ -121,7 +119,6 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 			mc.renderEngine.deleteTexture(rightmap);
 		
 		BufferedImage left = new BufferedImage(512,512,BufferedImage.TYPE_INT_ARGB);
-		BufferedImage right = new BufferedImage(512,512,BufferedImage.TYPE_INT_ARGB);
 		
 		double[] bounds = projection.bounds();
 		
@@ -176,12 +173,12 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		
 		//todo remove seams
 		this.mc.renderEngine.bindTexture(map);
-		this.drawScaledCustomSizeModalRect(width-mapsize, (height-mapsize)/2, 0, 0, 512, 512, mapsize, mapsize, 512, 512);
+		drawScaledCustomSizeModalRect(width-mapsize, (height-mapsize)/2, 0, 0, 512, 512, mapsize, mapsize, 512, 512);
 		
 		this.mc.renderEngine.bindTexture(Gui.OPTIONS_BACKGROUND);
 		//this.drawTexturedModalRect(0, height-32, 0, 0, width, 32);
-		this.drawScaledCustomSizeModalRect(0, height-32, 0, 0, width, 32, width, 32, 32, 32); //footer, TODO: make not bad
-		this.drawScaledCustomSizeModalRect(0, 0, 0, 0, width, 32, width, 32, 32, 32); //header, TODO: make not bad
+		drawScaledCustomSizeModalRect(0, height-32, 0, 0, width, 32, width, 32, 32, 32); //footer, TODO: make not bad
+		drawScaledCustomSizeModalRect(0, 0, 0, 0, width, 32, width, 32, 32, 32); //header, TODO: make not bad
 		
 		done.drawButton(mc, mouseX, mouseY, partialTicks);
 		cancel.drawButton(mc, mouseX, mouseY, partialTicks);
