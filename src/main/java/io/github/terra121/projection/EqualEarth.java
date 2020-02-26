@@ -69,15 +69,4 @@ public class EqualEarth extends GeographicProjection {
 	public double metersPerUnit() {
 		return EARTH_CIRCUMFERENCE/(2*bounds()[2]);
 	}
-	
-	public static void main(String args[]) {
-		GeographicProjection p = new EqualEarth();
-		
-		double[] r = p.fromGeo(-97.7374959, 30.2835516);
-		System.out.println(r[0]+" "+r[1]);
-		r = p.toGeo(r[0], r[1]);
-		System.out.println(r[0]+" "+r[1]);
-		
-		System.out.println(p.metersPerUnit());
-	}
 }

@@ -16,10 +16,15 @@ public abstract class TiledDataset {
     protected final int height;
     
     protected GeographicProjection projection;
+    
+    //TODO: scales are obsolete with new ScaleProjection type
     protected double scaleX;
     protected double scaleY;
+    
+    //enable smooth interpolation?
+    public boolean smooth;
 
-    public TiledDataset(int width, int height, int numcache, GeographicProjection proj, double projScaleX, double projScaleY) {
+    public TiledDataset(int width, int height, int numcache, GeographicProjection proj, double projScaleX, double projScaleY, boolean smooth) {
         cache = new LinkedHashMap<Coord, int[]>();
         this.numcache = numcache;
         this.width = width;
@@ -27,16 +32,30 @@ public abstract class TiledDataset {
         this.projection = proj;
         this.scaleX = projScaleX;
         this.scaleY = projScaleY;
+        this.smooth = smooth;
+    }
+    
+    public TiledDataset(int width, int height, int numcache, GeographicProjection proj, double projScaleX, double projScaleY) {
+    	this(width, height, numcache, proj, projScaleX, projScaleY, false);
     }
 	
     public double estimateLocal(double lon, double lat) {
-        //bound check
+    	//bound check
         if(lon > 180 || lon < -180 || lat > 85 || lat < -85) {
             return 0;
         }
 
         //project coords
         double[] floatCoords = projection.fromGeo(lon, lat);
+        
+        if(smooth)
+        	return estimateSmooth(floatCoords);
+        return estimateBasic(floatCoords);
+    }
+    
+    //new style
+    protected double estimateSmooth(double[] floatCoords) {
+        
         double X = floatCoords[0]*scaleX - 0.5;
         double Y = floatCoords[1]*scaleY - 0.5;
 
@@ -66,6 +85,30 @@ public abstract class TiledDataset {
 
         //Compute smooth 9-point interpolation on this block
         return SmoothBlend.compute(u, v, v00, v01, v02, v10, v11, v12, v20, v21, v22);
+    }
+    
+    //old style
+    protected double estimateBasic(double[] floatCoords) {
+
+        double X = floatCoords[0]*scaleX;
+        double Y = floatCoords[1]*scaleY;
+
+        //get the corners surrounding this block
+        Coord coord = new Coord((int)X, (int)Y);
+        
+        double u = X-coord.x;
+        double v = Y-coord.y;
+        
+        double ll = getOfficialHeight(coord);
+        coord.x++;
+        double lr = getOfficialHeight(coord);
+        coord.y++;
+        double ur = getOfficialHeight(coord);
+        coord.x--;
+        double ul = getOfficialHeight(coord);
+
+        //get perlin style interpolation on this block
+        return (1-v)*(ll*(1-u) + lr*u) + (ul*(1-u) + ur*u)*v;
     }
 
 	private double getOfficialHeight(Coord coord) {
