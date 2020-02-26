@@ -102,34 +102,39 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		else if(rightmap!=null)
 			mc.renderEngine.deleteTexture(rightmap);
 		
-		BufferedImage left = new BufferedImage(512,512,BufferedImage.TYPE_INT_ARGB);
+		BufferedImage img = new BufferedImage(1024,1024,BufferedImage.TYPE_INT_ARGB);
 		
+		//scale should be able to fit whole earth inside texture
 		double[] bounds = projection.bounds();
-		
 		double scale = Math.max(Math.abs(bounds[2]-bounds[0]), Math.abs(bounds[3]-bounds[1]));
 		
-		int w = left.getWidth();
-		int h = left.getHeight();
+		int w = img.getWidth();
+		int h = img.getHeight();
 		
 		for(int x=0;x<w;x++) {
 			for(int y=0;y<h;y++) {
+				//image coords to projection coords
 				double X = (x/(double)w)*scale+bounds[0];
 				double Y = (y/(double)h)*scale+bounds[1];
 				
-				double proj[] = projection.toGeo(X, Y);
-				
-				int lon = (int)((proj[0]/360 + 0.5)*base.getWidth());
-				int lat = (int)((0.5 + proj[1]/180)*base.getHeight());
-				
-				//System.out.println(X + " " + Y+" "+lon+" "+lat);
-				
-				if(lon>=0 && lat>=0 && lat < base.getHeight() && lon < base.getWidth()) {
-					left.setRGB(x, y, base.getRGB(lon, base.getHeight()-lat-1));
+				//not out of bounds
+				if(bounds[0]<=X&&X<=bounds[2]&&bounds[1]<=Y&&Y<=bounds[3]) {
+					
+					double proj[] = projection.toGeo(X, Y); //projection coords to lon lat
+					
+					//lat lon to reference image coords
+					int lon = (int)((proj[0]/360 + 0.5)*base.getWidth());
+					int lat = (int)((0.5 + proj[1]/180)*base.getHeight());
+					
+					//get pixel from reference image if possible
+					if(lon>=0 && lat>=0 && lat < base.getHeight() && lon < base.getWidth()) {
+						img.setRGB(x, y, base.getRGB(lon, base.getHeight()-lat-1));
+					}
 				}
 			}
 		}
 		
-		map = this.mc.renderEngine.getDynamicTextureLocation("mapdemo", new DynamicTexture(left));
+		map = this.mc.renderEngine.getDynamicTextureLocation("mapdemo", new DynamicTexture(img));
 	}
 	
 	@Override
@@ -155,9 +160,9 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		
 		settings.drawScreen(mouseX, mouseY, partialTicks);
 		
-		//todo remove seams
+		//render map texture
 		this.mc.renderEngine.bindTexture(map);
-		drawScaledCustomSizeModalRect(width-mapsize, (height-mapsize)/2, 0, 0, 512, 512, mapsize, mapsize, 512, 512);
+		drawScaledCustomSizeModalRect(width-mapsize, (height-mapsize)/2, 0, 0, 1024, 1024, mapsize, mapsize, 1024, 1024);
 		
 		this.mc.renderEngine.bindTexture(Gui.OPTIONS_BACKGROUND);
 		//this.drawTexturedModalRect(0, height-32, 0, 0, width, 32);
