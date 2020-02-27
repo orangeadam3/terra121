@@ -58,7 +58,7 @@ public class EarthTreePopulator implements ICubicPopulator {
 	    if(pos.getX()==0 && pos.getZ()==0)
 	    	treeCount = 10;
 
-	    if(random.nextFloat()*5 < biome.decorator.extraTreeChance)
+	    if(treeCount!=0 && random.nextFloat() < biome.decorator.extraTreeChance)
 	    	treeCount++;
 	    
 	    //we are special, and this event is being canceled to control the default populators

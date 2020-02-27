@@ -82,9 +82,14 @@ public abstract class TiledDataset {
         double v12 = getOfficialHeight(coord);
         coord.x++;
         double v22 = getOfficialHeight(coord);
-
+        
         //Compute smooth 9-point interpolation on this block
-        return SmoothBlend.compute(u, v, v00, v01, v02, v10, v11, v12, v20, v21, v22);
+        double result = SmoothBlend.compute(u, v, v00, v01, v02, v10, v11, v12, v20, v21, v22);
+        
+        if(result>0&&v00<=0&&v10<=0&&v20<=0&&v21<=0&&v11<=0&&v01<=0&&v02<=0&&v12<=0&&v22<=0)
+        	return 0; //anti ocean ridges
+        
+        return result;
     }
     
     //old style
