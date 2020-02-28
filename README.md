@@ -7,10 +7,66 @@
 ### Co-Developed and images by shejan0 
 ### Submod of [CubicChunks](https://github.com/OpenCubicChunks/CubicChunks) and [CubicWorldGen](https://github.com/OpenCubicChunks/CubicWorldGen/) from the [OpenCubicChunks](https://github.com/OpenCubicChunks) project. 
 
+Special thanks to other developers and community who have helped us along the way: Barteks2x, KdotJPG, Wozat, MineCrak, FyreBurns, and so many more. This mod wouldn't be anywhere without you.
+
 ![Copper Canyon](Pictures/CopperCanyonMex.png)
 
 Barranca del Cobre (Copper Canyon), Chihuahua, Mexico 
 
+## What is it?
+
+Terra 1-to-1 is a Minecraft Forge mod that adds a new world generation type to Minecraft that utilizes public datasets to generate the earth's structures and features (in Minecraft) using existing properties of the game. 
+
+Features like Terrain, Biomes (somewhat), Tree placement, Major Roads and ways, Oceans, different World projections, world-wide teleportation, and many more have been added with a lot more coming in the future.
+
+The mod is constantly being worked on and being updated as we add more features and fine tune the mod to achieve a better connection between the real world and the world of blocks. 
+
+We recommend regularly checking in to this page, and our stream (down below) to always see what is cooking and coming out.
+
+## How is it done?
+
+**CubicChunks**, first of all, adds a 3rd dimensionality to the already existing Minecraft chunk system, allowing much more accessibility when it comes to vertical height (a must have when representing earth)
+
+**CubicWorldGen** is an extension mod to *CubicChunks* to allow generation of worlds with 3 dimensions of chunks rather than the 2 dimensional generation of standard Minecraft.
+
+This mod is a modification of CubicWorldGen that generates the world using information from public datasets regarding terrain, biome, and human structures with 3 dimensional chunks.
+
+## What is the difference this and the between other earth models available in Minecraft?
+
+Rather than being on a percentage scale of the actual world, such as 1:2000 the scale, this generator generates the world on a 1:1 scale (Approximately, actual scale varies based on latitude ). Every block is 1 meter of the real world in every dimension. 
+
+![Mount Everest](Pictures/MountEverestNepal.png)
+
+**The heights of Mount Everest never felt so virtually high before.**
+
+You can take a sneak peak at other world landmarks with our [Screenshot Showcase](PICTURES.md)
+
+## Currently used APIs:
+
+Elevations data is downloaded in real time from [AWS Terrain Tiles](https://registry.opendata.aws/terrain-tiles/). (© [Mapzen](https://www.mapzen.com/rights), [OpenStreetMap](https://openstreetmap.org/copyright), and [others](https://mapzen.com/rights/#services-and-data-sources))
+
+Tree cover data is downloaded in real time from the [ARCGIS REST TreeCover2000 Image Server hosted by the World Resources Institute](https://gis-treecover.wri.org/arcgis/rest/services/TreeCover2000/ImageServer), originally from [Landsat 7 ETM+](http://glad.geog.umd.edu/) (Originally [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/))
+
+Road (and soon, water) data is acquired from [OpenStreetMap](https://www.openstreetmap.org/) under the [Open Database License](https://www.openstreetmap.org/copyright). It is downloaded in real-time using a public [Overpass API](http://overpass-api.de/) instance. (© OpenStreetMap contributors)
+
+Climate (rain & temperature) data is from [The University of Delaware Center for Climatic Research's Climate Data Archive](http://climate.geog.udel.edu/~climate/html_pages/archive.html) (built into the mod)
+
+Soil suborder data is from the [USDA Natural Resources Conservation Service's Global Soil Region Map](https://www.nrcs.usda.gov/wps/portal/nrcs/detail/soils/use/?cid=nrcs142p2_054013) (built into the mod)
+
+### THIS MOD DOWNLOADS DATA IN REAL-TIME FROM THE INTERNET!!!!! IT WILL NEED A DECENT INTERNET CONNECTION, AND WILL NOT WORK OFFLINE!!! DO NOT USE WITH MOBILE DATA CONNECTIONS, UNLESS YOU HAVE UNLIMITED DATA!!!!
+
+
+
+## Creation showcase
+
+Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UClbmNgZmGahCDKcs8_aMN0A), Administrator and Moderator on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), and has been interested in the development of our mod since the beginning.
+
+[![Wozat Showcase](https://img.youtube.com/vi/XJG1XXOdJcc/maxresdefault.jpg)](https://www.youtube.com/watch?v=XJG1XXOdJcc)
+
+
+-*Much love from orangeadam3 and shejan0* 😫😤😘
+
+You can also see all the other creations in our [Full Creations showcase](CREATIONS.md)
 
 ## Public Server
 
@@ -25,6 +81,8 @@ Either Direct Connect or Add a new server with the following IP:
 This is also another work in progress, so permissions and things may change according to FyreBurns, we greatly appreciate the resources that FyreBurns is placing to run this server for the public.
 
 **If you cannot join, then most likely it is off, do not spam message FyreBurns or us, check back at another time.**
+
+**We cannot guarantee that the server will stay up to date with the latest version of the mod, it maybe a couple versions behind**
 
 *Thank you FyreBurns for your efforts, much appreciated*
 
@@ -42,46 +100,7 @@ So give us a follow over at our [TheTerraDev](https://www.twitch.tv/theterradev)
 
 Also let shejan0#9517 know if you want us to host your stream on our page if you are using our mod in your stream.
 
-## Creation showcase
-
-Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UClbmNgZmGahCDKcs8_aMN0A), Administrator and Moderator on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), and has been interested in the development of our mod since the beginning.
-
-[![Wozat Showcase](https://img.youtube.com/vi/XJG1XXOdJcc/maxresdefault.jpg)](https://www.youtube.com/watch?v=XJG1XXOdJcc)
-
-
--*Much love from orangeadam3 and shejan0* 😫😤😘
-
-You can also see all the other creations in our [Full Creations showcase](CREATIONS.md)
-
-## Currently used APIs:
-
-Elevations data is downloaded in real time from [AWS Terrain Tiles](https://registry.opendata.aws/terrain-tiles/). (© [Mapzen](https://www.mapzen.com/rights), [OpenStreetMap](https://openstreetmap.org/copyright), and [others](https://mapzen.com/rights/#services-and-data-sources))
-
-Tree cover data is downloaded in real time from the [ARCGIS REST TreeCover2000 Image Server hosted by the World Resources Institute](https://gis-treecover.wri.org/arcgis/rest/services/TreeCover2000/ImageServer), originally from [Landsat 7 ETM+](http://glad.geog.umd.edu/) (Originally [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/))
-
-Road (and soon, water) data is acquired from [OpenStreetMap](https://www.openstreetmap.org/) under the [Open Database License](https://www.openstreetmap.org/copyright). It is downloaded in real-time using a public [Overpass API](http://overpass-api.de/) instance. (© OpenStreetMap contributors)
-
-Climate (rain & temperature) data is from [The University of Delaware Center for Climatic Research's Climate Data Archive](http://climate.geog.udel.edu/~climate/html_pages/archive.html) (built into the mod)
-
-Soil suborder data is from the [USDA Natural Resources Conservation Service's Global Soil Region Map](https://www.nrcs.usda.gov/wps/portal/nrcs/detail/soils/use/?cid=nrcs142p2_054013) (built into the mod)
-
-### THIS MOD DOWNLOADS DATA IN REAL-TIME FROM THE INTERNET!!!!! IT WILL NEED A DECENT INTERNET CONNECTION, AND WILL NOT WORK OFFLINE!!! DO NOT USE WITH MOBILE DATA CONNECTIONS, UNLESS YOU HAVE UNLIMITED DATA!!!!
-
-## What is the difference between the other earth models in Minecraft?
-Rather than being on a percentage scale of the actual world, such as 1:2000 the scale, this generator generates the world on a 1:1 scale (Approximately, actual scale varies based on latitude ). Every block is 1 meter of the real world in every dimension. 
-
-![Mount Everest](Pictures/MountEverestNepal.png)
-
-**The heights of Mount Everest never felt so virtually high before.**
-
-You can take a sneak peak with our [Screenshot Showcase](PICTURES.md)
-
-## How is it done?
-**CubicChunks**, first of all, adds a 3rd dimensionality to the already existing Minecraft chunk system, allowing much more accessibility when it comes to vertical height. 
-
-**CubicWorldGen** is an extension mod to *CubicChunks* to allow generation of worlds with 3 dimensions of chunks rather than the 2 dimensional generation of standard Minecraft.
-
-This modification of CubicWorldGen generates the world using information from datasets regarding terrain, biome, and human structures with 3 dimensional chunks.
+CREATIONS.md)
 
 ## Prerequisites
 
@@ -103,15 +122,9 @@ This modification of CubicWorldGen generates the world using information from da
 
 ### (Users who have standard Custom Cubic worlds with earlier CubicWorldGen versions and load Terra 1-to-1, might have broken generation on new chunks)!!!!
 
-
-
 ## Obtaining
 
 We have compiled releases both on our [releases page](https://github.com/orangeadam3/terra121/releases), and on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/terra-1-to-1-minecraft-world-project). 
-
-However, some of you are little itchy peepers, and want the most recent version of the code, fresh with all the testing and beta, and broken stuffs. 
-
-Luckily for pretty ol' you, here are the [building instructions](BUILD_INSTRUCTIONS.md).
 
 However, some of you are little itchy peepers, and want the most recent version of the code, fresh with all the testing and beta, and broken stuffs. 
 
@@ -131,8 +144,24 @@ Upon creation, You will spawn near or on (0,0,0) (a.k.a. 0°N, 0°E or [Null Isl
 ## Server Usage
 Instructions on how to use this mod in a Minecraft Forge Server can be found in our [Server Run Instructions](USING_SERVER.md)
 
+## Using Custom Terra 1-to-1 TP command
+
+With version 0.1.2, there is now a specific teleportation command that will automatically teleport to any standard decimal longitude and latitude:
+
+```java
+/tpll 36.0660 -112.1172 <custom height>
+```
+
+You will require operator or cheats power for this mod to work. This is implemented to work around the slight coordinate changes between different projections and orientations.
+
+Leaving <custom height> blank will teleport you to elevation at that point, but setting it to a specific 
+
 ## Using you own coordinates/calculating your own coordinates
+
+### This system only works with Mercator and normal orientation.
+
 The block coordinates in Minecraft are calculated by (X, Y, Z). This mod will convert these values to coordinates on a world projection:
+
 - X values are *(longitude × 10^5)*
 
 - Y values is *the elevation in meters above the sea level*
