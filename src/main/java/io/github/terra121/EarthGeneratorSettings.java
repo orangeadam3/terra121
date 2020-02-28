@@ -4,6 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
+import io.github.opencubicchunks.cubicchunks.cubicgen.blue.endless.jankson.api.DeserializationException;
+import io.github.opencubicchunks.cubicchunks.cubicgen.blue.endless.jankson.api.SyntaxError;
+import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.CustomGeneratorSettings;
+import io.github.opencubicchunks.cubicchunks.cubicgen.preset.CustomGenSettingsSerialization;
+import io.github.opencubicchunks.cubicchunks.cubicgen.preset.fixer.CustomGeneratorSettingsFixer;
+import io.github.opencubicchunks.cubicchunks.cubicgen.preset.fixer.PresetLoadError;
 import io.github.terra121.projection.GeographicProjection;
 import io.github.terra121.projection.ScaleProjection;
 
@@ -17,6 +23,7 @@ public class EarthGeneratorSettings {
 		public Double scaleY = 100000.0;
 		public Boolean smoothblend = false;
 		public Boolean roads = true;
+		public String customcubic = "";
 	}
 	public JsonSettings settings;
 	
@@ -41,6 +48,34 @@ public class EarthGeneratorSettings {
 	
 	public String toString() {
 		return gson.toJson(settings, JsonSettings.class);
+	}
+	
+	public CustomGeneratorSettings getCustomCubic() {
+		if(settings.customcubic.length()==0) {
+			CustomGeneratorSettings cfg = CustomGeneratorSettings.defaults();
+	        cfg.ravines = false;
+	        cfg.dungeonCount = 3; //there are way too many of these by default (in my humble opinion)
+	        
+	        //no surface lakes by default
+	        for(CustomGeneratorSettings.LakeConfig lake: cfg.lakes)
+	        	lake.surfaceProbability = new CustomGeneratorSettings.UserFunction();
+	        
+	        return cfg;
+		}
+		
+		return customCubicFromJson(settings.customcubic);
+	}
+	
+	//Crappy attempt to coerce custom cubic settings
+	private CustomGeneratorSettings customCubicFromJson(String jsonString) {
+		try {
+            return CustomGenSettingsSerialization.jankson().fromJsonCarefully(jsonString, CustomGeneratorSettings.class);
+        } catch (PresetLoadError | DeserializationException err) {
+            throw new RuntimeException(err);
+        } catch (SyntaxError err) {
+            String message = err.getMessage() + "\n" + err.getLineMessage();
+            throw new RuntimeException(message, err);
+        }
 	}
 	
 	public GeographicProjection getProjection() {

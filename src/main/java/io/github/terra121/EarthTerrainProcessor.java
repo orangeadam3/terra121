@@ -78,10 +78,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
         
-        cubiccfg = CustomGeneratorSettings.defaults();
-        cubiccfg.ravines = false;
-        cubiccfg.dungeonCount = 3; //there are way too many of these by default (in my humble opinion)
-        //cfg.waterLakeRarity = 10;
+        cubiccfg = cfg.getCustomCubic();
         
         //InitCubicStructureGeneratorEvent caveEvent = new InitCubicStructureGeneratorEvent(EventType.CAVE, new CubicCaveGenerator());
         caveGenerator = new CubicCaveGenerator();
