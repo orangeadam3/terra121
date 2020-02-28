@@ -51,7 +51,7 @@ public class Climate {
 
     //rough estimate of snow cover
     public boolean isSnow(double x, double y, double alt) {
-		return alt>5000 || getPoint(x,y).temp<10;
+		return alt>5000 || getPoint(x,y).temp<0;
 	}
     
     public static class ClimateData {

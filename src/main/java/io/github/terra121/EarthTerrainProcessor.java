@@ -85,7 +85,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         cfg = CustomGeneratorSettings.defaults();
         cfg.ravines = false;
         cfg.dungeonCount = 3; //there are way too many of these by default (in my humble opinion)
-        cfg.waterLakeRarity = 10;
+        //cfg.waterLakeRarity = 10;
         
         //InitCubicStructureGeneratorEvent caveEvent = new InitCubicStructureGeneratorEvent(EventType.CAVE, new CubicCaveGenerator());
         caveGenerator = new CubicCaveGenerator();
@@ -222,7 +222,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                 }*/
 
                 //minor one block wide roads get plastered first
-                for (OpenStreetMaps.Edge e: edges) if(e.type == OpenStreetMaps.Type.ROAD || e.type == OpenStreetMaps.Type.MINOR) {
+                for (OpenStreetMaps.Edge e: edges) if(e.type == OpenStreetMaps.Type.ROAD || e.type == OpenStreetMaps.Type.MINOR || e.type == OpenStreetMaps.Type.STREAM) {
                     double start = e.slon;
                     double end = e.elon;
 
@@ -260,8 +260,13 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                         for(int z=from>0?from:0; z<=to; z++) {
                             int y = (int)Math.floor(heightarr[x][z]) - Coords.cubeToMinBlock(cubeY);
 
-                            if(y >= 0 && y < 16)
-                                primer.setBlockState(x, y, z, ( e.type == OpenStreetMaps.Type.ROAD ? Blocks.GRASS_PATH : Blocks.STONEBRICK).getDefaultState());
+                            if(y >= 0 && y < 16) {
+                            	if(e.type == OpenStreetMaps.Type.STREAM) {
+                            		if(primer.getBlockState(x, y, z).getBlock()!=Blocks.WATER)
+                            			primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
+                            	}
+                            	else primer.setBlockState(x, y, z, ( e.type == OpenStreetMaps.Type.ROAD ? Blocks.GRASS_PATH : Blocks.STONEBRICK).getDefaultState());
+                            }
                         }
                     }
                 }
@@ -287,11 +292,11 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                 for(ICubicPopulator pop: surfacePopulators)
                 	pop.generate(cube.getWorld(), rand, cube.getCoords(), biome);
                 
-                cfg.waterLakes = true; //we have will our own version of this on the surface, TODO: make this work
+                //cfg.waterLakes = true; //we have will our own version of this on the surface, TODO: make this work
             } else if(surf == 1) {
-            	cfg.waterLakes = true;
+            	//cfg.waterLakes = true;
             } else {
-            	cfg.waterLakes = false; //(but who am I to inhibit sub-surface)
+            	//cfg.waterLakes = false; //(but who am I to inhibit sub-surface)
             }
             
             biomePopulators.get(biome).generate(cube.getWorld(), rand, cube.getCoords(), biome);

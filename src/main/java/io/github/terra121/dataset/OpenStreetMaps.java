@@ -44,7 +44,7 @@ public class OpenStreetMaps {
     private GeographicProjection projection;
     
     public static enum Type {
-        IGNORE, MINOR, ROAD, MAJOR, HIGHWAY, RAIL //TODO, rail
+        IGNORE, MINOR, ROAD, MAJOR, HIGHWAY, STREAM, RIVER, RAIL //TODO, rail
     }
 
     Type wayType;
@@ -176,14 +176,20 @@ public class OpenStreetMaps {
     			
     			String naturalv = elem.tags.get("natural");
     			String highway = elem.tags.get("highway");
+    			String waterway = elem.tags.get("waterway");
     			
     			if(naturalv != null && naturalv.equals("coastline"))
     				waterway(elem, -1, region, null);
     			
-    			else if(highway!=null) {
+    			else if(highway!=null || (waterway!=null && (waterway.equals("river") || waterway.equals("canal") || waterway.equals("stream")))) { //TODO: fewer equals
     				Type type = Type.ROAD;
 
-                    if(highway.equals("motorway") || highway.equals("trunk"))
+    				if(waterway!=null) {
+    					type = Type.STREAM;
+    					if(waterway.equals("river")||waterway.equals("canal"))
+    						type = Type.RIVER;
+    				}
+    				else if(highway.equals("motorway") || highway.equals("trunk"))
                         type = Type.HIGHWAY;
                     else if(highway.equals("tertiary") || highway.equals("residential") || highway.equals("primary") || highway.equals("secondary") || highway.equals("raceway") || highway.equals("motorway_link") || highway.equals("trunk_link"))
                         type = Type.MAJOR;
