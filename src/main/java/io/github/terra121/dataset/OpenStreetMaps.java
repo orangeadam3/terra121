@@ -20,6 +20,7 @@ import org.apache.commons.io.IOUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import io.github.terra121.TerraConfig;
 import io.github.terra121.TerraMod;
 import io.github.terra121.projection.GeographicProjection;
 
@@ -28,15 +29,14 @@ public class OpenStreetMaps {
     private static final double CHUNK_SIZE = 16;
     private static final double TILE_SIZE = 1/60.0;//250*(360.0/40075000.0);
     private static final double NOTHING = 0.01;
-    
-    private static final String OVERPASS_INSTANCE = "overpass-api.de";
-    private static final String URL_PREFACE = "https://"+OVERPASS_INSTANCE+"/api/interpreter?data=[out:json];way(";
-    private static final String URL_SUFFIX = ")[%22highway%22];(._;%3E;);out%20body;";
+
+    private String URL_PREFACE = TerraConfig.serverOverpass+"?data=[out:json];way(";
+    private String URL_SUFFIX = ")[%22highway%22];(._;%3E;);out%20body;";
 
     private HashMap<Coord, Set<Edge>> chunks;
     private LinkedHashSet<Coord> regions;
 
-    private int numcache = 1000000;
+    private int numcache = TerraConfig.osmCacheSize;
 
     private Map<Long, Element> allNodes;
     private ArrayList<Edge> allEdges;

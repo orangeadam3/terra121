@@ -7,15 +7,16 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 
+import io.github.terra121.TerraConfig;
 import io.github.terra121.TerraMod;
 import io.github.terra121.projection.MapsProjection;
 
 public class Heights extends TiledDataset{
     private int zoom;
-    private String url_prefix = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/";
+    private String url_prefix = TerraConfig.serverTerrain;
 
     public Heights(int zoom, boolean smooth) {
-    	super(256, 256, 100, new MapsProjection(), 1<<(zoom+8), 1<<(zoom+8), smooth);
+    	super(256, 256, TerraConfig.cacheSize, new MapsProjection(), 1<<(zoom+8), 1<<(zoom+8), smooth);
     	this.zoom = zoom;
     	url_prefix += zoom+"/";
     }
