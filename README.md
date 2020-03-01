@@ -11,29 +11,49 @@ Special thanks to other developers and community who have helped us along the wa
 
 ![Copper Canyon](Pictures/CopperCanyonMex.png)
 
-Barranca del Cobre (Copper Canyon), Chihuahua, Mexico 
+Barranca del Cobre (Copper Canyon), Chihuahua, Mexico
 
 ## What is it?
 
-Terra 1-to-1 is a Minecraft Forge mod that adds a new world generation type to Minecraft that utilizes public datasets to generate the earth's structures and features (in Minecraft) using existing properties of the game. 
+Terra 1-to-1 is a Minecraft Forge mod that adds a new world generation type to Minecraft that utilizes public online datasets to generate the earth's structures and features (in Minecraft) without any unfamiliar blocks or biomes at a 1 to 1. 
 
-Features like Terrain, Biomes (somewhat), Tree placement, Major Roads and ways, Oceans, different World projections, world-wide teleportation, and many more have been added with a lot more coming in the future.
+The main features available are terrain, biomes, trees, and roads, all pulled from real global data sources.
 
-The mod is constantly being worked on and being updated as we add more features and fine tune the mod to achieve a better connection between the real world and the world of blocks. 
+The mod is constantly being worked on and being updated as we add more features and fine tune the mod to achieve a better connection between the real world and the world of blocks.
 
-We recommend regularly checking in to this page, and our stream (down below) to always see what is cooking and coming out.
+Feel free to check in to this page, and our stream (down below) to always see what is cooking and coming out.
+
+The latest version can always be [compiled](BUILD_INSTRUCTIONS.md) from Github [https://github.com/orangeadam3/terra121] or downloaded from [Jenkins CI](https://jenkins.altillimity.com/job/Terra/), which may have features not yet avaliable in offical releases on CurseForge
+
+## Feature List
+
+- Concrete Roads, Stone Brick Minor Roads, and Grass Pathways from [OpenStreetMap](https://www.openstreetmap.org/)
+- (mostly) Accurate elevation and biome placement
+- Procedural Tree placement based on high resolution forest cover data
+- Simple Oceans based on elevation with (mostly) accurate depths (this will be improved with the coming Update Aquatic)
+- "Customize World" Gui that does not require MallisCore
+  - Custom [map projections (choice of Equirectangular, Sinusoidal, Web Mercator, or EqualEarth)](PROJECTIONS.md)
+  - Enable or Disable roads (this can also be done by disabling structures)
+  - Enable or Disable experimental options such as smooth blending (Thank's to [KdotJPG](https://github.com/KdotJPG) for the code)
+- Teleport by latitude and longitude using "/tpll latitude longitude \[elevation\]"
+  - Use the decimal latitude and longitude format (e.x. "/tpll 36.0660 -112.1172" not "36°03'57.6"N 112°07'01.9"W")
+  - If elevation is left blank, it will place you at the surface at that location
+- Ores spawn just below surface (so you don't have to dig over 8000 blocks down to find diamond's if you are on top of mt. everest)
+- Caves, Dungeons, and other standard undergound features are still available and procedually generated using CubicWorldGen as a baseline
 
 ## How is it done?
 
-**CubicChunks**, first of all, adds a 3rd dimensionality to the already existing Minecraft chunk system, allowing much more accessibility when it comes to vertical height (a must have when representing earth)
+**CubicChunks**, first of all, adds a 3rd dimensionality to the already existing Minecraft chunk system, allowing much more accessibility when it comes to vertical height (a must have when representing earth, since Mount Everests elevation of 8,848 meters and the oceans depth of 10,994 meters requiring a block limit way higher than measly 256 meters/blocks of vanilla)
 
 **CubicWorldGen** is an extension mod to *CubicChunks* to allow generation of worlds with 3 dimensions of chunks rather than the 2 dimensional generation of standard Minecraft.
 
-This mod is a modification of CubicWorldGen that generates the world using information from public datasets regarding terrain, biome, and human structures with 3 dimensional chunks.
+This mod generates the world using information from public datasets regarding terrain, trees, and human structures with 3 dimensional chunks.
+
+It also stores soil type and climate data within the mod itself to help with (mostly) accurate biome classification
 
 ## What is the difference this and the between other earth models available in Minecraft?
 
-Rather than being on a percentage scale of the actual world, such as 1:2000 the scale, this generator generates the world on a 1:1 scale (Approximately, actual scale varies based on latitude ). Every block is 1 meter of the real world in every dimension. 
+Rather than being on a percentage scale of the actual world, such as 1:2000 the scale, this generator generates the world on a 1:1 scale (Approximately, actual scale varies based on latitude ). Every block is 1 meter of the real world in every dimension. Because of this, it can have more specific features such as roads and (in a future update) smaller rivers and other bodies of water.
 
 ![Mount Everest](Pictures/MountEverestNepal.png)
 
@@ -43,7 +63,7 @@ You can take a sneak peak at other world landmarks with our [Screenshot Showcase
 
 ## Currently used APIs:
 
-Elevations data is downloaded in real time from [AWS Terrain Tiles](https://registry.opendata.aws/terrain-tiles/). (© [Mapzen](https://www.mapzen.com/rights), [OpenStreetMap](https://openstreetmap.org/copyright), and [others](https://mapzen.com/rights/#services-and-data-sources))
+Elevations data is downloaded in real time from [AWS Terrain Tiles](https://registry.opendata.aws/terrain-tiles/). (© [Mapzen](https://www.mapzen.com/rights), and [others](https://github.com/tilezen/joerd/blob/master/docs/attribution.md))
 
 Tree cover data is downloaded in real time from the [ARCGIS REST TreeCover2000 Image Server hosted by the World Resources Institute](https://gis-treecover.wri.org/arcgis/rest/services/TreeCover2000/ImageServer), originally from [Landsat 7 ETM+](http://glad.geog.umd.edu/) (Originally [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/))
 
@@ -52,6 +72,8 @@ Road (and soon, water) data is acquired from [OpenStreetMap](https://www.openstr
 Climate (rain & temperature) data is from [The University of Delaware Center for Climatic Research's Climate Data Archive](http://climate.geog.udel.edu/~climate/html_pages/archive.html) (built into the mod)
 
 Soil suborder data is from the [USDA Natural Resources Conservation Service's Global Soil Region Map](https://www.nrcs.usda.gov/wps/portal/nrcs/detail/soils/use/?cid=nrcs142p2_054013) (built into the mod)
+
+[More comprehensive copyright](COPYRIGHT.md)
 
 ### THIS MOD DOWNLOADS DATA IN REAL-TIME FROM THE INTERNET!!!!! IT WILL NEED A DECENT INTERNET CONNECTION, AND WILL NOT WORK OFFLINE!!! DO NOT USE WITH MOBILE DATA CONNECTIONS, UNLESS YOU HAVE UNLIMITED DATA!!!!
 
@@ -64,13 +86,15 @@ Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UCl
 [![Wozat Showcase](https://img.youtube.com/vi/XJG1XXOdJcc/maxresdefault.jpg)](https://www.youtube.com/watch?v=XJG1XXOdJcc)
 
 
--*Much love from orangeadam3 and shejan0* 😫😤😘
+-*Much love from orangeadam3 and shejan0* 😫😤😘 (I do not support the use of suggestive emojis -orangeadam3)
 
 You can also see all the other creations in our [Full Creations showcase](CREATIONS.md)
 
 ## Public Server
 
 ### We now have a public server that you can test the mod without ever having to install it!!!! 
+
+### It is cuurently not online, working on a fix or alternative
 
 The server is hosted by FyreBurns from the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), you will need **AT LEAST** Forge and CubicChunks installed on your machine to join (download information can be found in the Prerequisites below)!
 
@@ -87,20 +111,6 @@ This is also another work in progress, so permissions and things may change acco
 *Thank you FyreBurns for your efforts, much appreciated*
 
 *- shejan0 and orangeadam3* 😘
-
-## Streaming? (we sure do)
-
-So in order to get our mod onto [CurseForge](https://www.curseforge.com/minecraft/mc-mods/terra-1-to-1-minecraft-world-project#c6) (Hey to those who came over from CurseForge), we had to make a twitch account.
-
-And because a Twitch account can stream to twitch, shejan0 has been thinking about streaming to Twitch with that account.
-
-So give us a follow over at our [TheTerraDev](https://www.twitch.tv/theterradev) Twitch account.
-
-[![Twitch](https://brand.twitch.tv/assets/images/twitch.svg)](https://www.twitch.tv/theterradev)
-
-Also let shejan0#9517 know if you want us to host your stream on our page if you are using our mod in your stream.
-
-CREATIONS.md)
 
 ## Prerequisites
 
@@ -132,9 +142,7 @@ Luckily for pretty ol' you, here are the [building instructions](BUILD_INSTRUCTI
 
 You can also use builds from this [unofficial Jenkins CI](https://jenkins.altillimity.com/job/Terra/) that Aang23#7721 on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m) created, this will always build the latest git master branch, so you don't have to build locally. (For the code that runs in Minecraft, make sure you get the file that does *not* end in **-sources.jar**)
 
-- Love from shejan0 and orangeadam3 😤😖👏😘🤪
-
-
+- Love from shejan0 and orangeadam3 😤😖👏😘🤪 (still don't support the emoji -orangeadam3)
 
 ## Client Usage
 After obtaining the binary (through a method listed above), when creating a new world, under the World Type, you will now have an option called "**Planet Earth**" which will allow you to generate a world using the new generation method.
@@ -152,39 +160,11 @@ With version 0.1.2, there is now a specific teleportation command that will auto
 /tpll 36.0660 -112.1172 <custom height>
 ```
 
+![Yavapai Point](Pictures/YavapaiPointGrandCanyonUS1.png)
+
 You will require operator or cheats power for this mod to work. This is implemented to work around the slight coordinate changes between different projections and orientations.
 
 Leaving <custom height> blank will teleport you to elevation at that point, but setting it to a specific 
-
-## Using you own coordinates/calculating your own coordinates
-
-### This system only works with Mercator and normal orientation.
-
-The block coordinates in Minecraft are calculated by (X, Y, Z). This mod will convert these values to coordinates on a world projection:
-
-- X values are *(longitude × 10^5)*
-
-- Y values is *the elevation in meters above the sea level*
-
-- Z values are *(latitude × 10^5)*
-
-**Remember that multiplying by 10^5 is the same as moving the decimal place 5 points to the right.**
-
-#### Also remember that the longitude and latitude must be in decimal form (36.0660, -112.1172) and not degrees (36°03'57.6"N, 112°07'01.9"W)!!!
-
-Example: **Yavapai Point, Grand Canyon, Arizona, USA** ([OpenStreetMap](https://www.openstreetmap.org/#map=16/36.0660/-112.1172), [Google Maps](https://www.google.com/maps/place/Yavapai+Point/@36.0660043,-112.1193887,17z))
-
-![Yavapai Point](Pictures/YavapaiPointGrandCanyonUS1.png)
-
-has decimal coordinates of (36.0660, -112.1172) with an elevation just under 2200 meters, multiplying the latitude and longitude by 10^5 and setting Y to 2200 (the meters from sea level) gives the (X,Y,Z) coordinates of:
-**(3606600, 2200, -11211720) **
-
-or in tp command form: 
-```java
-/tp 3606600 2200 -11211720
-```
-
-
 
 ## Having issues?
 
@@ -196,7 +176,6 @@ However, if you find issues with the mod that are not resolved by doing things i
 
 This mod is still in development, and we are still resolving problems that we have found, and are being found, but here is a small list of some of the issues we know exist with this mod:
 
-- The mod is not compatible with CWG 115 or later.
 - As a rule, if it involves water it is probably broken, most of these problems should be fixed when the new water system is added (see Future Plans):
   - Areas on land but below sea level (ex. parts of The Netherlands, Caspian Sea Depression, Dead Sea region, Imperial Valley, etc.) are covered in water as if they were below sea level.
   - Coastlines are very broken/blockly, no non-accidental beaches
@@ -204,30 +183,36 @@ This mod is still in development, and we are still resolving problems that we ha
   - Parts of the ocean make odd shapes or appear as land (ex. the prime meridian ridge near null island) (this may never be fully fixed as it is fundamentally caused by glitches in the terrain tile's barometry data, but it's severity can be reduced)
 - The shape of biomes usually comes in 4-km blocks and the boundries are strait lines (this could be fixed with some smart interpolation and/or perlin noise)
 - Biomes are classified incorrectly in some places (this could be improved by more thorough classification)
-- The terrain looks very linear in some places (also could be fixed by minor perlin noise)
 - Seed and Flower item drops will sometimes appear on roads (I honestly don't fully understand this one)
-- Most ores only spawn in or below their default locations (around 0-63 Y), this will hopefully be fixed with a new ore system (see Future Plans)
+
+## Streaming? (we sure do)
+
+So in order to get our mod onto [CurseForge](https://www.curseforge.com/minecraft/mc-mods/terra-1-to-1-minecraft-world-project#c6) (Hey to those who came over from CurseForge), we had to make a twitch account.
+
+And because a Twitch account can stream to twitch, shejan0 has been thinking about streaming to Twitch with that account.
+
+So give us a follow over at our [TheTerraDev](https://www.twitch.tv/theterradev) Twitch account.
+
+[![Twitch](https://brand.twitch.tv/assets/images/twitch.svg)](https://www.twitch.tv/theterradev)
+
+Also let shejan0#9517 know if you want us to host your stream on our page if you are using our mod in your stream.
 
 ## Future Plans
-
-- Smarter ore generation that varies based on surface altitude, so that you don't have to dig 5000+ blocks down to find basic ores if you setup a base in the Himalayas.
 
 - Water based on actual river/lake/coastline locations from OpenStreetMap
 
 - Update forest data from 2000 to 2012 (we found a newer one wooooo)
 
-- [Malisis Core](https://www.curseforge.com/minecraft/mc-mods/malisiscore) GUI for world customization and bonus features such as:
-  - Changing the [projection](https://en.wikipedia.org/wiki/Map_projection) from Mercator to something else (such as [Sinusoidal](https://en.wikipedia.org/wiki/Sinusoidal_projection))
+- Additional GUI features such as:
   - Changing the scale of the world (both vertical and horizontal)
-  - Disabling Roads and other features
   - Enabling esoteric features that might not be appreciated by everyone (ex. Road signs with names at evrey intersection).
   - Custom spawnpoint
   - Normal generation options like cave/ore frequency, etc.
   
-- A custom set of commands to help you navigate the world by doing things such as:
-  - Converting Latitude and Longitude to Minecraft coordinates (and vice versa, especially if custom projections were added)
+- More commands to help you navigate the world by doing things such as:
+  - Converting Latitude and Longitude to Minecraft coordinates (and vice versa)
   - Tell you things about the surrounding area such as street names and addresses
 
 - An organic way to dealing with connecting both sides of the [antimeridian](https://en.wikipedia.org/wiki/180th_meridian) (maybe by simply teleporting the player from one side to the other?)
 
-- A nether where 1 block in the nether = 1000 blocks (1km) in the overworld, instead of the vanilla 1:8 ratio. This would make legitimate globe spanning survival practical as traveling to the other side of the earth would only be 20,000 blocks in the nether (not exactly a short trip but better than the 20,000,000 blocks (2/3s the way to the World Border) that it would take in the overworld)
+- A nether where 1 block in the nether = 1000 blocks (1km) in the overworld, instead of the vanilla 1:8 ratio. This would make legitimate globe spanning survival practical as traveling to the other side of the earth would only be 20,000 blocks in the nether (not exactly a short trip but better than the 20,000,000 blocks (2/3s the way to the World Border/Farlands) that it would take in the overworld)
