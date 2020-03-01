@@ -73,7 +73,7 @@ Climate (rain & temperature) data is from [The University of Delaware Center for
 
 Soil suborder data is from the [USDA Natural Resources Conservation Service's Global Soil Region Map](https://www.nrcs.usda.gov/wps/portal/nrcs/detail/soils/use/?cid=nrcs142p2_054013) (built into the mod)
 
-[More comprehensive copyright](COPYRIGHT.md)
+### [More comprehensive copyright and source description](SOURCES.md)
 
 ### THIS MOD DOWNLOADS DATA IN REAL-TIME FROM THE INTERNET!!!!! IT WILL NEED A DECENT INTERNET CONNECTION, AND WILL NOT WORK OFFLINE!!! DO NOT USE WITH MOBILE DATA CONNECTIONS, UNLESS YOU HAVE UNLIMITED DATA!!!!
 
