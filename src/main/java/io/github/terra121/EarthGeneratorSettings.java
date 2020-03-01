@@ -24,6 +24,8 @@ public class EarthGeneratorSettings {
 		public Boolean smoothblend = false;
 		public Boolean roads = true;
 		public String customcubic = "";
+		public Boolean dynamicbaseheight = true;
+		public Boolean osmwater = false;
 	}
 	public JsonSettings settings;
 	

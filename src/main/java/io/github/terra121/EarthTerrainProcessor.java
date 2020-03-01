@@ -260,29 +260,19 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             
             Biome biome = cube.getBiome(Coords.getCubeCenter(cube));
 
-			double[] proj = projection.toGeo((cube.getX()*16 + 8), (cube.getZ()*16 + 8));
-			double approxDepth = heights.estimateLocal(proj[0], proj[1]) - cube.getY();
-			
+            if(cfg.settings.dynamicbaseheight) {
+				double[] proj = projection.toGeo((cube.getX()*16 + 8), (cube.getZ()*16 + 8));
+				cubiccfg.expectedBaseHeight = (float) heights.estimateLocal(proj[0], proj[1]);
+            }
+
             int surf = isSurface(world, cube);
             if(surf == 0) {
                 for(ICubicPopulator pop: surfacePopulators)
                 	pop.generate(cube.getWorld(), rand, cube.getCoords(), biome);
-                
-                //cfg.waterLakes = true; //we have will our own version of this on the surface, TODO: make this work
-            } else if(surf == 1) {
-            	//cfg.waterLakes = true;
-            } else {
-            	//cfg.waterLakes = false; //(but who am I to inhibit sub-surface)
+                	
             }
-            
-			//List<CustomGeneratorSettings.LakeConfig> lakes = cfg.lakes;
-			
-			//stop surface lakes
-			if(approxDepth<20);//cfg.lakes = new ArrayList<CustomGeneratorSettings.LakeConfig>();
 			
             biomePopulators.get(biome).generate(cube.getWorld(), rand, cube.getCoords(), biome);
-            
-			//cfg.lakes = lakes;
 			
             if(surf==1)
             	snow.generate(cube.getWorld(), rand, cube.getCoords(), biome);
