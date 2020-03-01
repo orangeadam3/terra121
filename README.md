@@ -15,7 +15,7 @@ Barranca del Cobre (Copper Canyon), Chihuahua, Mexico
 
 ## What is it?
 
-Terra 1-to-1 is a Minecraft Forge mod that adds a new world generation type to Minecraft that utilizes public online datasets to generate the earth's structures and features (in Minecraft) without any unfamiliar blocks or biomes at a 1 to 1. 
+Terra 1-to-1 is a Minecraft Forge mod that adds a new world generation type to Minecraft that utilizes public online datasets to generate the earth's structures and features (in Minecraft) without any unfamiliar blocks or biomes at a 1 to 1 scale. 
 
 The main features available are terrain, biomes, trees, and roads, all pulled from real global data sources.
 
