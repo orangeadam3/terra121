@@ -23,23 +23,23 @@ The mod is constantly being worked on and being updated as we add more features 
 
 Feel free to check in to this page, and our stream (down below) to always see what is cooking and coming out.
 
-The latest version can always be [compiled](BUILD_INSTRUCTIONS.md) from Github [https://github.com/orangeadam3/terra121] or downloaded from [Jenkins CI](https://jenkins.altillimity.com/job/Terra/), which may have features not yet avaliable in offical releases on CurseForge
+The latest version can always be [compiled](BUILD_INSTRUCTIONS.md) from [Github](https://github.com/orangeadam3/terra121) or downloaded from our unofficial [Jenkins CI](https://jenkins.altillimity.com/job/Terra/), which may have features not yet available in official releases on CurseForge. (Warning, maybe unstable)
 
 ## Feature List
 
 - Concrete Roads, Stone Brick Minor Roads, and Grass Pathways from [OpenStreetMap](https://www.openstreetmap.org/)
-- (mostly) Accurate elevation and biome placement
-- Procedural Tree placement based on high resolution forest cover data
+- (mostly) Accurate elevation and biome placement using public terrain datasets.
+- Procedural Tree placement based on a High Resolution Forest Cover dataset.
 - Simple Oceans based on elevation with (mostly) accurate depths (this will be improved with the coming Update Aquatic)
-- "Customize World" Gui that does not require MallisCore
-  - Custom [map projections (choice of Equirectangular, Sinusoidal, Web Mercator, or EqualEarth)](PROJECTIONS.md)
+- "Customize World" GUI that does not require MalisisCore
+  - Custom [map projections](PROJECTIONS.md) (such as Equirectangular, Sinusoidal, Web Mercator, or EqualEarth)
   - Enable or Disable roads (this can also be done by disabling structures)
-  - Enable or Disable experimental options such as smooth blending (Thank's to [KdotJPG](https://github.com/KdotJPG) for the code)
+  - Enable or Disable experimental options such as smooth blending (Thanks to [KdotJPG](https://github.com/KdotJPG) for the code)
 - Teleport by latitude and longitude using "/tpll latitude longitude \[elevation\]"
-  - Use the decimal latitude and longitude format (e.x. "/tpll 36.0660 -112.1172" not "36°03'57.6"N 112°07'01.9"W")
+  - Use the decimal latitude and longitude format (for example,  "/tpll 36.0660 -112.1172" not "36°03'57.6"N 112°07'01.9"W")
   - If elevation is left blank, it will place you at the surface at that location
-- Ores spawn just below surface (so you don't have to dig over 8000 blocks down to find diamond's if you are on top of mt. everest)
-- Caves, Dungeons, and other standard undergound features are still available and procedually generated using CubicWorldGen as a baseline
+- Ores spawn just below surface (so you don't have to dig over 8000 blocks down to find diamond's if you are on top of Mt. Everest)
+- Caves, Dungeons, and other standard underground features are still available and procedurally generated using CubicWorldGen as a baseline
 
 ## How is it done?
 
@@ -94,7 +94,7 @@ You can also see all the other creations in our [Full Creations showcase](CREATI
 
 ### We now have a public server that you can test the mod without ever having to install it!!!! 
 
-### It is cuurently not online, working on a fix or alternative
+### It is currently not online, working on a fix or alternative!!! PLEASE DO NOT BOTHER FYREBURNS!!!!
 
 The server is hosted by FyreBurns from the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), you will need **AT LEAST** Forge and CubicChunks installed on your machine to join (download information can be found in the Prerequisites below)!
 
