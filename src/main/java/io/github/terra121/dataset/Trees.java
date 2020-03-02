@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 
 import org.apache.commons.imaging.ImageReadException;
@@ -39,8 +40,12 @@ public class Trees extends TiledDataset {
             try {
                 String urlText = URL_PREFIX + (place.x*REGION_SIZE - 180) + "," + (90-place.y*REGION_SIZE) + "," + ((place.x+1)*REGION_SIZE - 180) + "," + (90 - (place.y+1)*REGION_SIZE) +URL_SUFFIX;
                 TerraMod.LOGGER.info(urlText);
+
                 URL url = new URL(urlText);
-                is = url.openStream();
+                URLConnection con = url.openConnection();
+                con.addRequestProperty("User-Agent", TerraMod.USERAGENT);
+                is = con.getInputStream();
+                
                 ByteSourceInputStream by = new ByteSourceInputStream(is, "shits and giggles");
                 TiffImageParser p = new TiffImageParser();
                 BufferedImage img = p.getBufferedImage(by, new HashMap<String,Object>());

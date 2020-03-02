@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 
 import javax.imageio.ImageIO;
 
@@ -37,8 +38,12 @@ public class Heights extends TiledDataset{
             try {
                 String urlText = url_prefix + place.x + "/" + place.y + ".png";
                 TerraMod.LOGGER.info(urlText);
+                
                 URL url = new URL(urlText);
-                is = url.openStream();
+                URLConnection con = url.openConnection();
+                con.addRequestProperty("User-Agent", TerraMod.USERAGENT);
+                is = con.getInputStream();
+                
                 BufferedImage img = ImageIO.read(is);
                 is.close();
                 is = null;
