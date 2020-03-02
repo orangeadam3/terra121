@@ -109,6 +109,10 @@ public class OpenStreetMaps {
     public boolean regiondownload (Coord mchunk) {
         double X = mchunk.x*TILE_SIZE;
         double Y = mchunk.y*TILE_SIZE;
+        
+        //limit extreme (a.k.a. way too frequent) requests
+        if(Y>80||Y<-80)
+        	return true;
 
         try {
             String urltext = URL_PREFACE + Y + "," + X + "," + (Y + TILE_SIZE) + "," + (X + TILE_SIZE) + URL_SUFFIX;
