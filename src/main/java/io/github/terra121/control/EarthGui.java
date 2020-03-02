@@ -3,8 +3,6 @@ package io.github.terra121.control;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -22,6 +20,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiCreateWorld;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 
 public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
@@ -37,8 +36,6 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 	private int mapsize;
 	
 	private EarthGeneratorSettings cfg;
-	
-	Map<String, String> alias;
 	
 	GuiCreateWorld guiCreateWorld;
 	
@@ -58,16 +55,14 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 			IOUtils.closeQuietly(is);
 		}
 		
-		alias = new HashMap<String, String>();
-		
 		String[] projs = (String[])GeographicProjection.projections.keySet().toArray(new String[GeographicProjection.projections.size()]);
 		
 		settingElems = new DynamicOptions.Element[] {
-						cycleButton(6969, "projection", projs, e -> {projectMap(true); return "Projection: "+e;}),
-						cycleButton(6968, "orentation", GeographicProjection.Orentation.values(), e -> {projectMap(true); return "Orentation: "+e.toString();}),
-						toggleButton(6967, "Smooth Blending", "smoothblend", null),
-						toggleButton(6966, "Spawn Roads", "roads", null),
-						toggleButton(6966, "Elevation Based Ores", "dynamicbaseheight", null),
+						cycleButton(6969, "projection", projs, e -> {projectMap(true); return I18n.format("terra121.gui.projection")+": "+I18n.format("terra121.projection."+e);}),
+						cycleButton(6968, "orentation", GeographicProjection.Orientation.values(), e -> {projectMap(true); return I18n.format("terra121.gui.orientation")+": "+I18n.format("terra121.orientation."+e.toString());}),
+						toggleButton(6967, "smoothblend", null),
+						toggleButton(6966, "roads", null),
+						toggleButton(6965, "dynamicbaseheight", null),
 		};
 		projectMap(false);
 	}
@@ -80,6 +75,11 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	//auto format based on field name
+	private <E> DynamicOptions.ToggleElement toggleButton(int id, String field, Consumer<Boolean> notify) {
+		return toggleButton(id, I18n.format("terra121.gui."+field), field, notify);
 	}
 	
 	private <E> DynamicOptions.ToggleElement toggleButton(int id, String name, String field, Consumer<Boolean> notify) {

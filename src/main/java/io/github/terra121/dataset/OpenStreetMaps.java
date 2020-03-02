@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -113,8 +114,11 @@ public class OpenStreetMaps {
             String urltext = URL_PREFACE + Y + "," + X + "," + (Y + TILE_SIZE) + "," + (X + TILE_SIZE) + URL_SUFFIX;
             TerraMod.LOGGER.info(urltext);
 
+            //kumi systems request a meaningful user-agent
             URL url = new URL(urltext);
-            InputStream is = url.openStream();
+            URLConnection c = url.openConnection();
+            c.addRequestProperty("User-Agent", TerraMod.USERAGENT);
+            InputStream is = c.getInputStream();
 
             doGson(is, mchunk);
             

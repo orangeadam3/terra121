@@ -18,7 +18,7 @@ public class EarthGeneratorSettings {
 	//json template to be filled by Gson
 	public static class JsonSettings {
 		public String projection = "equirectangular";
-		public GeographicProjection.Orentation orentation = GeographicProjection.Orentation.swapped;
+		public GeographicProjection.Orientation orentation = GeographicProjection.Orientation.swapped;
 		public Double scaleX = 100000.0;
 		public Double scaleY = 100000.0;
 		public Boolean smoothblend = false;
@@ -95,6 +95,6 @@ public class EarthGeneratorSettings {
 	
 	public GeographicProjection getNormalizedProjection() {
 		return GeographicProjection.orientProjection(
-			GeographicProjection.projections.get(settings.projection),GeographicProjection.Orentation.upright);
+			GeographicProjection.projections.get(settings.projection),GeographicProjection.Orientation.upright);
 	}
 }

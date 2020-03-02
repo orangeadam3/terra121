@@ -20,20 +20,20 @@ public class GeographicProjection {
 		projections.put("equal_earth", new EqualEarth());
 	}
 	
-	public static enum Orentation {
+	public static enum Orientation {
 		none, upright, swapped
 	};
 	
-	public static GeographicProjection orientProjection(GeographicProjection base, Orentation o) {
+	public static GeographicProjection orientProjection(GeographicProjection base, Orientation o) {
 		if(base.upright()) {
-			if(o==Orentation.upright)
+			if(o==Orientation.upright)
 				return base;
 			base = new UprightOrientation(base);
 		}
 		
-		if(o==Orentation.swapped) {
+		if(o==Orientation.swapped) {
 			return new InvertedOrientation(base);
-		} else if(o==Orentation.upright) {
+		} else if(o==Orientation.upright) {
 			base = new UprightOrientation(base);
 		}
 		
