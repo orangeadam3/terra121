@@ -173,7 +173,7 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		done.drawButton(mc, mouseX, mouseY, partialTicks);
 		cancel.drawButton(mc, mouseX, mouseY, partialTicks);
 		
-		this.drawCenteredString(this.fontRenderer, "WORK IN PROGRESS", this.width/2, this.height/2, 0x00FF5555);
+		//this.drawCenteredString(this.fontRenderer, "WORK IN PROGRESS", this.width/2, this.height/2, 0x00FF5555);
 		
         super.drawScreen(mouseX, mouseY, partialTicks);
     }

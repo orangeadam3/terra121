@@ -21,7 +21,7 @@ public class EarthGeneratorSettings {
 		public GeographicProjection.Orientation orentation = GeographicProjection.Orientation.swapped;
 		public Double scaleX = 100000.0;
 		public Double scaleY = 100000.0;
-		public Boolean smoothblend = false;
+		public Boolean smoothblend = true;
 		public Boolean roads = true;
 		public String customcubic = "";
 		public Boolean dynamicbaseheight = true;
