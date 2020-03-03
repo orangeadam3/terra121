@@ -94,21 +94,19 @@ You can also see all the other creations in our [Full Creations showcase](CREATI
 
 ### We now have a public server that you can test the mod without ever having to install it!!!! 
 
-### It is currently not online, working on a fix or alternative!!! PLEASE DO NOT BOTHER FYREBURNS!!!!
-
-The server is hosted by FyreBurns from the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), you will need **AT LEAST** Forge and CubicChunks installed on your machine to join (download information can be found in the Prerequisites below)!
+The server is currently hosted by Aang23 from the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), originally hosted by FyreBurns, you will need **AT LEAST** Forge and CubicChunks installed on your machine to join (download information can be found in the Prerequisites below)!
 
 Either Direct Connect or Add a new server with the following IP:
 
-### ert.g.akliz.net
+### terra.altillimity.com
 
-This is also another work in progress, so permissions and things may change according to FyreBurns, we greatly appreciate the resources that FyreBurns is placing to run this server for the public.
+This is also another work in progress, so permissions and things may change according to Aang23 or FyreBurns, we greatly appreciate the resources that Aang23 is placing to run this server for the public, and what FyreBurns placed in the past.
 
-**If you cannot join, then most likely it is off, do not spam message FyreBurns or us, check back at another time.**
+**If you cannot join, then most likely it is off, do not spam message Aang23 or us, check back at another time.**
 
 **We cannot guarantee that the server will stay up to date with the latest version of the mod, it maybe a couple versions behind**
 
-*Thank you FyreBurns for your efforts, much appreciated*
+*Thank you Aang23, and FyreBurns for your efforts, much appreciated*
 
 *- shejan0 and orangeadam3* 😘
 
@@ -123,7 +121,6 @@ This is also another work in progress, so permissions and things may change acco
   - [On GitHub](https://github.com/OpenCubicChunks/CubicWorldGen/) (releases may be out of date, but can be compiled)
   - [On CurseForge](https://www.curseforge.com/minecraft/mc-mods/cubicworldgen) (may be out of date)
   - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE [CUBIC CHUNKS DISCORD](https://discord.gg/kMfWg9m) under the **#info-new-cc** channel)
-  - CubicWorldGen 0.0.85.0 [download direct from the developers](http://www.mediafire.com/file/57ki07oq2cw86bj/CubicWorldGen-1.12.2-0.0.85.0-SNAPSHOT-all.jar/file) if you are unsure about which service to use (still recommended to check the [Cubic Chunks Discord](https://discord.gg/kMfWg9m) channel if there is any newer versions)
 - Recommended: [Malisis Core](https://www.curseforge.com/minecraft/mc-mods/malisiscore):  (The Planet Earth generation at the current moment does not have any support for Malisis, and is a future plan, but the original generation methods inside of CubicWorldGen do support Malisis)
 
 **You must have all required mods installed for the Planet Earth generation to work!!!**
