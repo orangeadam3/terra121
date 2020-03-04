@@ -1,7 +1,9 @@
 package io.github.terra121.dataset;
 
-import java.util.*;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class Climate {
     public static final int COLS = 720;
@@ -51,7 +53,7 @@ public class Climate {
 
     //rough estimate of snow cover
     public boolean isSnow(double x, double y, double alt) {
-		return alt>5000 || getPoint(x,y).temp<0;
+		return alt>5000 || getPoint(x,y).temp<0; //high elevations or freezing temperatures
 	}
     
     public static class ClimateData {

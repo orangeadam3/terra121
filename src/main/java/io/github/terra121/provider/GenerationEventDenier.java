@@ -1,14 +1,12 @@
 package io.github.terra121.provider;
 
-import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.event.CubeGeneratorEvent;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.event.DecorateCubeBiomeEvent;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.event.PopulateCubeEvent;
 import io.github.terra121.EarthBiomeProvider;
 import io.github.terra121.EarthWorldType;
-import net.minecraftforge.event.terraingen.PopulateChunkEvent;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.event.terraingen.DecorateBiomeEvent;
+import net.minecraftforge.event.terraingen.PopulateChunkEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 //deny default tree and snow event because we have some of those already
 public class GenerationEventDenier {

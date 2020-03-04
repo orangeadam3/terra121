@@ -1,22 +1,21 @@
 package io.github.terra121;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+
 import javax.annotation.Nullable;
 
 import io.github.terra121.dataset.Climate;
 import io.github.terra121.dataset.Soil;
 import io.github.terra121.projection.GeographicProjection;
-import io.github.terra121.projection.InvertedGeographic;
-import io.github.terra121.projection.MinecraftGeographic;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.init.Biomes;
-import net.minecraft.world.biome.BiomeProvider;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-
-import java.io.IOException;
-import java.io.InputStream;
+import net.minecraft.world.biome.BiomeProvider;
 
 public class EarthBiomeProvider extends BiomeProvider {
 
@@ -29,14 +28,17 @@ public class EarthBiomeProvider extends BiomeProvider {
     public Soil soil;
     public Climate climate;
     public GeographicProjection projection;
+    private EarthGeneratorSettings cfg;
 
     /** The biome generator object. */
     private final Biome defaultBiome;
 
-    public EarthBiomeProvider(Biome biomeIn)
+    public EarthBiomeProvider(Biome biomeIn, World world)
     {
+    	cfg = new EarthGeneratorSettings(world.getWorldInfo().getGeneratorOptions());
+    	projection = cfg.getProjection();
+    	
     	//load soil and climate data from assets
-    	projection = new InvertedGeographic();
         this.defaultBiome = biomeIn;
         try {
             InputStream is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/suborder.img");
@@ -63,7 +65,7 @@ public class EarthBiomeProvider extends BiomeProvider {
     		return Biomes.MUSHROOM_ISLAND;
     	}
     	
-    	double[] projected = projection.toGeo(pos.getX() / 100000.0, pos.getZ() / 100000.0);
+    	double[] projected = projection.toGeo(pos.getX(), pos.getZ());
     	
         Climate.ClimateData clim = climate.getPoint(projected[0], projected[1]);
         byte stype = soil.getPoint(projected[0], projected[1]);
@@ -121,8 +123,10 @@ public class EarthBiomeProvider extends BiomeProvider {
             case 51: //salt flats always desert
             	return Biomes.DESERT;
             case 52: case 53: case 55: case 99: //hot and dry
-            	if(clim.temp<5)
+            	if(clim.temp<2)
             		return Biomes.COLD_TAIGA;
+				if(clim.temp<5)
+					return Biomes.TAIGA; //TODO: Tundra in (1.15)
             	if(clim.precip<5)
             		return Biomes.DESERT;
                 return Biomes.MESA; //TODO: this soil can also be desert i.e. saudi Arabia (base on percip?)    

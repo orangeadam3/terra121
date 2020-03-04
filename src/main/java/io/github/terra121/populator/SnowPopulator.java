@@ -1,10 +1,10 @@
-package io.github.terra121;
+package io.github.terra121.populator;
 
 import java.util.Random;
 
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
-import io.github.terra121.dataset.Climate;
+import io.github.terra121.EarthBiomeProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -20,7 +20,7 @@ public class SnowPopulator implements ICubicPopulator {
         {
 			//this cast could fail but this function should only be called in earth anyways
 			EarthBiomeProvider ebp = (EarthBiomeProvider) world.getBiomeProvider();
-			double[] proj = ebp.projection.toGeo(pos.getX()/100000.0, pos.getY()/100000.0);
+			double[] proj = ebp.projection.toGeo(pos.getX(), pos.getY());
 			return ebp.climate.isSnow(proj[0], proj[1], pos.getY());
         }
 		return false;

@@ -1,27 +1,33 @@
 package io.github.terra121.dataset;
 
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 
-import java.io.*;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import io.github.terra121.projection.GeographicProjection;
-import io.github.terra121.projection.InvertedGeographic;
+import io.github.terra121.TerraConfig;
 import io.github.terra121.TerraMod;
+import io.github.terra121.projection.GeographicProjection;
 
 public class OpenStreetMaps {
 
-    private static final double BLOCK_SIZE = 1/100000.0;
-    private static final double CHUNK_SIZE = 16*BLOCK_SIZE;
+    private static final double CHUNK_SIZE = 16;
     public static final double TILE_SIZE = 1/60.0;//250*(360.0/40075000.0);
     private static final double NOTHING = 0.1*BLOCK_SIZE;
     
@@ -35,10 +41,10 @@ public class OpenStreetMaps {
     public LinkedHashMap<Coord, Region> regions;
     public Water water;
 
-    private int numcache = 1000000;
+    private int numcache = TerraConfig.osmCacheSize;
 
     private ArrayList<Edge> allEdges;
-
+    
     private Gson gson;
     
     private GeographicProjection projection;
@@ -120,10 +126,26 @@ public class OpenStreetMaps {
         	String bbox = bottomleft + "," + (Y + TILE_SIZE) + "," + (X + TILE_SIZE);
         	
             String urltext = URL_PREFACE + bbox + URL_A + bbox + URL_B + bottomleft + URL_SUFFIX;
+    public boolean regiondownload (Coord mchunk) {
+        double X = mchunk.x*TILE_SIZE;
+        double Y = mchunk.y*TILE_SIZE;
+        
+        //limit extreme (a.k.a. way too frequent) requests
+        if(Y>80||Y<-80)
+        	return true;
+
+        try {
+            String bottomleft = Y + "," + X;
+        	String bbox = bottomleft + "," + (Y + TILE_SIZE) + "," + (X + TILE_SIZE);
+        	
+            String urltext = URL_PREFACE + bbox + URL_A + bbox + URL_B + bottomleft + URL_SUFFIX;
             TerraMod.LOGGER.info(urltext);
 
+            //kumi systems request a meaningful user-agent
             URL url = new URL(urltext);
-            InputStream is = url.openStream();
+            URLConnection c = url.openConnection();
+            c.addRequestProperty("User-Agent", TerraMod.USERAGENT);
+            InputStream is = c.getInputStream();
 
             doGson(is, region);
             
@@ -326,7 +348,6 @@ public class OpenStreetMaps {
 
     //TODO: this algorithm is untested and may have some memory leak issues and also strait up copies code from earlier
     private void removeRegion(Region delete) {
-    	
     	double X = delete.coord.x*TILE_SIZE;
         double Y = delete.coord.y*TILE_SIZE;
     	

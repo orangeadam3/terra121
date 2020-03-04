@@ -36,12 +36,10 @@ reobf {
 
 sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 compileJava {
-	println "icij"
     sourceCompatibility = targetCompatibility = '1.8'
 }
 
 minecraft {
-	println "icimc"
     version = "1.12.2-14.23.5.2847"
     runDir = "run"
     
@@ -55,7 +53,6 @@ minecraft {
 }
 
 dependencies {
-	println "icidp"
     // you may put jars on which you depend on in ./libs
     // or you may define them like so..
     //compile "some.group:artifact:version:classifier"
@@ -83,7 +80,6 @@ dependencies {
 }
 
 processResources {
-	println "icipr"
     // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version

@@ -1,1 +1,20 @@
+## World Type name
 generator.EarthCubic=Planet Earth
+
+## GUI options
+terra121.gui.projection=Projection
+terra121.gui.orientation=Orientation
+terra121.gui.roads=Spawn Roads
+terra121.gui.smoothblend=Smooth Blending
+terra121.gui.dynamicbaseheight=Elevation Based Ores
+
+## Projection types
+terra121.projection.web_mercator=Mercator
+terra121.projection.equirectangular=Equirectangular
+terra121.projection.sinusoidal=Sinusoidal
+terra121.projection.equal_earth=Equal Earth
+
+## Projection orientations
+terra121.orientation.upright=Upright
+terra121.orientation.none=No Orientation
+terra121.orientation.swapped=Flipped Axis

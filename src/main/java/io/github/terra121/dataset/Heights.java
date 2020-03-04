@@ -1,24 +1,30 @@
 package io.github.terra121.dataset;
 
+<<<<<<< HEAD
 import io.github.terra121.TerraMod;
 import io.github.terra121.projection.InvertedGeographic;
 import io.github.terra121.projection.MapsProjection;
 
+=======
+>>>>>>> remotes/origin/mergeaquatic
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import java.io.*;
-import java.util.*;
+import java.net.URLConnection;
+
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
 
 import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
 import org.apache.commons.imaging.formats.tiff.TiffImageParser;
 import org.apache.logging.log4j.LogManager;
+import io.github.terra121.TerraConfig;
+import io.github.terra121.TerraMod;
 
 public class Heights extends TiledDataset{
     private int zoom;
-    private String url_prefix = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/";
+    private String url_prefix = TerraConfig.serverTerrain;
 
     private Water water;
     
@@ -26,9 +32,17 @@ public class Heights extends TiledDataset{
     
     public Heights(int zoom, Water water) {
     	super(256, 256, 10, new MapsProjection(), 1<<(zoom+8), 1<<(zoom+8));
+	}
+	
+    public Heights(int zoom, boolean smooth) {
+    	super(256, 256, TerraConfig.cacheSize, new MapsProjection(), 1<<(zoom+8), 1<<(zoom+8), smooth);
     	this.zoom = zoom;
     	url_prefix += zoom+"/";
     	this.water = water;
+    }
+    
+    public Heights(int zoom) {
+    	this(zoom, false);
     }
 
     //request a mapzen tile from amazon, this should only be needed evrey 2 thousand blocks or so if the cache is large enough
@@ -43,8 +57,12 @@ public class Heights extends TiledDataset{
             try {
                 String urlText = url_prefix + place.x + "/" + place.y + ".png";
                 TerraMod.LOGGER.info(urlText);
+                
                 URL url = new URL(urlText);
-                is = url.openStream();
+                URLConnection con = url.openConnection();
+                con.addRequestProperty("User-Agent", TerraMod.USERAGENT);
+                is = con.getInputStream();
+                
                 BufferedImage img = ImageIO.read(is);
                 is.close();
                 is = null;

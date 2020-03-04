@@ -1,31 +1,25 @@
-package io.github.terra121;
+package io.github.terra121.populator;
 
+import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
-import io.github.opencubicchunks.cubicchunks.api.world.ICube;
-import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
+import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
 import io.github.terra121.projection.GeographicProjection;
-import io.github.opencubicchunks.cubicchunks.api.util.Coords;
+import net.minecraft.block.BlockColored;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.block.BlockColored;
-import net.minecraft.block.BlockOldLog;
-import net.minecraft.block.BlockPlanks;
-import net.minecraft.block.state.IBlockState;
-import java.util.Random;
 
 public class RoadGenerator implements ICubicPopulator {
-
-    private static final double SCALE = 100000.0;
+	
     private static final IBlockState ASPHALT = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.GRAY);
     private static final IBlockState WATER_SOURCE = Blocks.WATER.getDefaultState();
     private static final IBlockState WATER_RAMP = Blocks.WATER.getDefaultState();
@@ -46,7 +40,7 @@ public class RoadGenerator implements ICubicPopulator {
     	int cubeX = pos.getX(), cubeY = pos.getY(), cubeZ = pos.getZ();
     	
         Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeZ);
-
+		
         if(edges!=null) { 
         	
         	//rivers done before roads
@@ -146,7 +140,6 @@ public class RoadGenerator implements ICubicPopulator {
                 	distance = Math.sqrt(distance)*SCALE;
 
                     double[] geo = projection.toGeo(mainX + cubeX*(16/SCALE), mainZ + cubeZ*(16/SCALE));
-                    
                     int y = (int)Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY*16);
 
                     if (y >= 0 && y < 16) { //if not in this range, someone else will handle it
@@ -161,7 +154,7 @@ public class RoadGenerator implements ICubicPopulator {
 		                    IBlockState defState = Blocks.AIR.getDefaultState();
 		                    for (int ay = y + 1; ay < 16 * 2 && world.getBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16)) != defState; ay++) {
 		                        world.setBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16), defState);
-		                    } 
+		                    }
                         }
                     }
                 }

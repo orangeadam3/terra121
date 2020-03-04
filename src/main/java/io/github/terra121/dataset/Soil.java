@@ -1,7 +1,8 @@
 package io.github.terra121.dataset;
 
-import java.util.*;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class Soil {
     RandomAccessRunlength<Byte> data;

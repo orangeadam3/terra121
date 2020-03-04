@@ -1,49 +1,42 @@
 package io.github.terra121;
 
-import io.github.opencubicchunks.cubicchunks.api.util.Box;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+
 import io.github.opencubicchunks.cubicchunks.api.util.Coords;
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.world.ICube;
-import io.github.opencubicchunks.cubicchunks.api.world.ICubicWorld;
-import io.github.opencubicchunks.cubicchunks.api.worldgen.CubeGeneratorsRegistry;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.CubePrimer;
-import io.github.opencubicchunks.cubicchunks.api.worldgen.ICubeGenerator;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.CubePopulatorEvent;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
 import io.github.opencubicchunks.cubicchunks.cubicgen.BasicCubeGenerator;
-import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.CustomGeneratorSettings;
-import  io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.populator.*;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.BiomeBlockReplacerConfig;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.CubicBiome;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.IBiomeBlockReplacer;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.IBiomeBlockReplacerProvider;
-import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.populator.DefaultDecorator;
+import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.CustomGeneratorSettings;
 import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.structure.CubicCaveGenerator;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
+import io.github.terra121.populator.CliffReplacer;
+import io.github.terra121.populator.EarthTreePopulator;
+import io.github.terra121.populator.RoadGenerator;
+import io.github.terra121.populator.SnowPopulator;
 import io.github.terra121.projection.GeographicProjection;
-import io.github.terra121.projection.InvertedGeographic;
-import io.github.terra121.projection.MinecraftGeographic;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.init.Biomes;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraft.init.Blocks;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 //import io.github.opencubicchunks.cubicchunks.api.worldgen.structure.event.InitCubicStructureGeneratorEvent;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Random;
-import net.minecraft.world.biome.BiomeProvider;
 
 public class EarthTerrainProcessor extends BasicCubeGenerator {
 
@@ -55,20 +48,27 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     public GeographicProjection projection;
 
     public Set<Block> unnaturals;
-    private CustomGeneratorSettings cfg;
+    private CustomGeneratorSettings cubiccfg;
     private Set<ICubicPopulator> surfacePopulators;
     private Map<Biome, ICubicPopulator> biomePopulators;
     private CubicCaveGenerator caveGenerator;
     private SnowPopulator snow;
-
-    private static final double SCALE = 100000.0;
+	private EarthGeneratorSettings cfg;
+	private boolean doRoads;
 
     public EarthTerrainProcessor(World world) {
         super(world);
-        Entity e;
         
-        biomes = (EarthBiomeProvider)world.getBiomeProvider();
-        projection = biomes.projection;
+
+        cfg = new EarthGeneratorSettings(world.getWorldInfo().getGeneratorOptions());
+    	projection = cfg.getProjection();
+    	
+    	doRoads = cfg.settings.roads && world.getWorldInfo().isMapFeaturesEnabled();
+        
+        biomes = (EarthBiomeProvider)world.getBiomeProvider(); //TODO: make this not order dependent
+        heights = new Heights(13, cfg.settings.smoothblend);
+        depths = new Heights(10); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
+
         osm = new OpenStreetMaps(projection);
         heights = new Heights(13, osm.water);
         depths = new Heights(10, osm.water); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
@@ -78,14 +78,11 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         unnaturals.add(Blocks.CONCRETE);
         
         surfacePopulators = new HashSet<ICubicPopulator>();
-        surfacePopulators.add(new RoadGenerator(osm, heights, projection));
+        if(doRoads)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
         surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
-        
-        cfg = CustomGeneratorSettings.defaults();
-        cfg.ravines = false;
-        cfg.dungeonCount = 3; //there are way too many of these by default (in my humble opinion)
-        //cfg.waterLakeRarity = 10;
+
+        cubiccfg = cfg.getCustomCubic();
         
         //InitCubicStructureGeneratorEvent caveEvent = new InitCubicStructureGeneratorEvent(EventType.CAVE, new CubicCaveGenerator());
         caveGenerator = new CubicCaveGenerator();
@@ -94,11 +91,11 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         
         for (Biome biome : ForgeRegistries.BIOMES) {
             CubicBiome cubicBiome = CubicBiome.getCubic(biome);
-            biomePopulators.put(biome, cubicBiome.getDecorator(cfg));
+            biomePopulators.put(biome, cubicBiome.getDecorator(cubiccfg));
         }
 
         biomeBlockReplacers = new HashMap<Biome, List<IBiomeBlockReplacer>>();
-        BiomeBlockReplacerConfig conf = cfg.replacerConfig;
+        BiomeBlockReplacerConfig conf = cubiccfg.replacerConfig;
         CliffReplacer cliffs = new CliffReplacer();
         
         for (Biome biome : ForgeRegistries.BIOMES) {
@@ -133,7 +130,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 	        for(int x=0; x<16; x++) {
 	            for(int z=0; z<16; z++) {
 	            	
-	            	double[] projected = projection.toGeo((cubeX*16 + x)/SCALE, (cubeZ*16 + z)/SCALE);
+	            	double[] projected = projection.toGeo((cubeX*16 + x), (cubeZ*16 + z));
 	                double Y = heights.estimateLocal(projected[0], projected[1]);
 	                heightarr[x][z] = Y;
 	                
@@ -147,8 +144,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     	//fill in the world
         for(int x=0; x<16; x++) {
             for(int z=0; z<16; z++) {
-            	double Y = heightarr[x][z];
-            	boolean ocean = false;
+            	double Y = heightarr[x][z];      	
             	
             	double[] projected = projection.toGeo((cubeX*16 + x)/SCALE, (cubeZ*16 + z)/SCALE);
             	double wateroff = osm.water.estimateLocal(projected[0], projected[1]);
@@ -207,8 +203,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         caveGenerator.generate(world, primer, new CubePos(cubeX, cubeY, cubeZ));
 
         //spawn roads
-        if(surface) {
-        	
+        if(doRoads && surface) {
             Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeZ);
 
             if(edges != null) {
@@ -232,22 +227,22 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                         end = tmp;
                     }
 
-                    int sx = (int)Math.floor(SCALE*start) - cubeX*16;
-                    int ex = (int)Math.floor(SCALE*end) - cubeX*16;
+                    int sx = (int)Math.floor(start) - cubeX*16;
+                    int ex = (int)Math.floor(end) - cubeX*16;
 
                     if(ex >= 16)ex = 16-1;
 
                     for(int x=sx>0?sx:0; x<=ex; x++) {
-                        double realx = (x+cubeX*16)/SCALE;
+                        double realx = (x+cubeX*16);
                         if(realx < start)
                             realx = start;
 
-                        double nextx = realx + (1/SCALE);
+                        double nextx = realx + 1;
                         if(nextx > end)
                             nextx = end;
 
-                        int from = (int)Math.floor(SCALE*(e.slope*realx + e.offset)) - cubeZ*16;
-                        int to = (int)Math.floor(SCALE*(e.slope*nextx + e.offset)) - cubeZ*16;
+                        int from = (int)Math.floor((e.slope*realx + e.offset)) - cubeZ*16;
+                        int to = (int)Math.floor((e.slope*nextx + e.offset)) - cubeZ*16;
 
                         if(from > to) {
                             int tmp = from;
@@ -286,21 +281,20 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             Random rand = Coords.coordsSeedRandom(cube.getWorld().getSeed(), cube.getX(), cube.getY(), cube.getZ());
             
             Biome biome = cube.getBiome(Coords.getCubeCenter(cube));
-            
+
+            if(cfg.settings.dynamicbaseheight) {
+				double[] proj = projection.toGeo((cube.getX()*16 + 8), (cube.getZ()*16 + 8));
+				cubiccfg.expectedBaseHeight = (float) heights.estimateLocal(proj[0], proj[1]);
+            }
+
             int surf = isSurface(world, cube);
             if(surf == 0) {
                 for(ICubicPopulator pop: surfacePopulators)
                 	pop.generate(cube.getWorld(), rand, cube.getCoords(), biome);
-                
-                //cfg.waterLakes = true; //we have will our own version of this on the surface, TODO: make this work
-            } else if(surf == 1) {
-            	//cfg.waterLakes = true;
-            } else {
-            	//cfg.waterLakes = false; //(but who am I to inhibit sub-surface)
             }
-            
+			
             biomePopulators.get(biome).generate(cube.getWorld(), rand, cube.getCoords(), biome);
-            
+			
             if(surf==1)
             	snow.generate(cube.getWorld(), rand, cube.getCoords(), biome);
         }

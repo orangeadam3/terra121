@@ -2,15 +2,15 @@
 {
   "modid": "terra121",
   "name": "Terra 1 - 1",
-  "description": "This modification of CubicWorldGen generates the world using information from datasets regarding terrain, biome, and human structures with 3 dimensional chunks.\n\nSources:\n\nElevations data is downloaded in real time from AWS Terrain Tiles.\n\nTree cover data is downloaded in real time from the ARCGIS REST TreeCover2000 Image Server hosted by the World Resources Institute, originally from Landsat 7 ETM+.\n\nRoad (and soon, water) data is acquired from OpenStreetMap under the Open Database License. It is downloaded in real-time using a public Overpass API instance. (© OpenStreetMap contributors)\n\nClimate (rain & temperature) data is from The University of Delaware Center for Climatic Research's Climate Data Archive (built into the mod)\n\nSoil suborder data is from the USDA Natural Resources Conservation Service's Global Soil Region Map (built into the mod)",
+  "description": "This modification of CubicWorldGen generates the world using information from datasets regarding terrain, biome, and human structures with 3 dimensional chunks.\n\nSources:\n\nTree cover data is downloaded in real time from the ARCGIS REST TreeCover2000 Image Server hosted by the World Resources Institute, originally from Landsat 7 ETM+.\n\nRoad (and soon, water) data is acquired from OpenStreetMap under the Open Database License. It is downloaded in real-time using a public Overpass API instance. (© OpenStreetMap contributors)\n\nClimate (rain & temperature) data is from The University of Delaware Center for Climatic Research's Climate Data Archive (built into the mod)\n\nSoil suborder data is from the USDA Natural Resources Conservation Service's Global Soil Region Map (built into the mod)\n\nElevations data is downloaded in real time from AWS Terrain Tiles with data originally from many other data sources: https://github.com/tilezen/joerd/blob/master/docs/attribution.md",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
   "authorList": ["orangeadam3", "shejan0"],
-  "credits": "Cubics Chunks discord and all source providers specified below, especially OpenStreetMap (© OpenStreetMap contributors)",
+  "credits": "Cubics Chunks discord and all source providers specified below, especially OpenStreetMap (© OpenStreetMap contributors). A more comprehensive credits with links: https://github.com/orangeadam3/terra121/blob/master/SOURCES.md",
   "logoFile": "",
   "screenshots": [],
-  "dependencies": ["org.apache.commons.imaging"]
+  "dependencies": ["io.github.opencubicchunks.cubicchunks","org.apache.commons.imaging"]
 }
 ]
