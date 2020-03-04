@@ -46,13 +46,13 @@ public class RoadGenerator implements ICubicPopulator {
         	//rivers done before roads
         	for(OpenStreetMaps.Edge e: edges) {
 	            if(e.type == OpenStreetMaps.Type.RIVER) {
-	            	placeEdge(e, world, cubeX, cubeY, cubeZ, 2*e.lanes/SCALE, (dis, bpos) -> riverState(world, dis, bpos));
+	            	placeEdge(e, world, cubeX, cubeY, cubeZ, 2*e.lanes, (dis, bpos) -> riverState(world, dis, bpos));
 	            }
 	        }
         	
 	        for(OpenStreetMaps.Edge e: edges) {
 	            if(e.type == OpenStreetMaps.Type.MAJOR || e.type == OpenStreetMaps.Type.HIGHWAY) {
-	            	placeEdge(e, world, cubeX, cubeY, cubeZ, 1.5*e.lanes/SCALE, (dis, bpos) -> ASPHALT);
+	            	placeEdge(e, world, cubeX, cubeY, cubeZ, 1.5*e.lanes, (dis, bpos) -> ASPHALT);
 	            }
 	        }
         }
@@ -76,9 +76,9 @@ public class RoadGenerator implements ICubicPopulator {
             b = (e.slope < 0 ? -1 : 1) * x0 * (e.slope + 1.0 / e.slope);
         }
 
-        double j = e.slon - (cubeX*16)/SCALE;
-        double k = e.elon - (cubeX*16)/SCALE;
-        double off = e.offset - (cubeZ*16)/SCALE + e.slope*(cubeX*16)/SCALE;
+        double j = e.slon - (cubeX*16);
+        double k = e.elon - (cubeX*16);
+        double off = e.offset - (cubeZ*16) + e.slope*(cubeX*16);
         
         if(j>k) {
             double t = j;
@@ -93,27 +93,27 @@ public class RoadGenerator implements ICubicPopulator {
         	j=0;
         	//ij=0;
         }
-        if(k>=16/SCALE) {
-        	k=16/SCALE;
-        	//ik = 16/SCALE;
+        if(k>=16) {
+        	k=16;
+        	//ik = 16;
         }
 
-        int is = (int)Math.floor(ij*SCALE);
-        int ie = (int)Math.floor(ik*SCALE);
+        int is = (int)Math.floor(ij);
+        int ie = (int)Math.floor(ik);
 
         for(int x=is; x<=ie; x++) {
-            double X = x/SCALE;
+            double X = x;
             double ul = bound(X, e.slope, j, k, r, x0, b, 1) + off; //TODO: save these repeated values
-            double ur = bound(X+1/SCALE, e.slope, j, k, r, x0, b, 1) + off;
+            double ur = bound(X+1, e.slope, j, k, r, x0, b, 1) + off;
             double ll = bound(X, e.slope, j, k, r, x0, b, -1) + off;
-            double lr = bound(X+1/SCALE, e.slope, j, k, r, x0, b,-1) + off;
+            double lr = bound(X+1, e.slope, j, k, r, x0, b,-1) + off;
 
             double from = Math.min(Math.min(ul,ur),Math.min(ll,lr));
             double to = Math.max(Math.max(ul,ur),Math.max(ll,lr));
             
             if(from==from) {
-                int ifrom = (int)Math.floor(from*SCALE);
-                int ito = (int)Math.floor(to*SCALE);
+                int ifrom = (int)Math.floor(from);
+                int ito = (int)Math.floor(to);
 
                 if(ifrom <= -1*16)
                     ifrom = 1 - 16;
@@ -122,7 +122,7 @@ public class RoadGenerator implements ICubicPopulator {
 
                 for(int z=ifrom; z<=ito; z++) {
                     //get the part of the center line i am tangent to (i hate high school algebra!!!)
-                    double Z = z/SCALE;
+                    double Z = z;
                     double mainX = X;
                     if(Math.abs(e.slope)>=0.000001)
                         mainX = (Z + X/e.slope - off)/(e.slope + 1/e.slope);
@@ -137,9 +137,9 @@ public class RoadGenerator implements ICubicPopulator {
                 	distance *= distance;
                 	double t = mainZ-Z;
                 	distance += t*t;
-                	distance = Math.sqrt(distance)*SCALE;
+                	distance = Math.sqrt(distance);
 
-                    double[] geo = projection.toGeo(mainX + cubeX*(16/SCALE), mainZ + cubeZ*(16/SCALE));
+                    double[] geo = projection.toGeo(mainX + cubeX*(16), mainZ + cubeZ*(16));
                     int y = (int)Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY*16);
 
                     if (y >= 0 && y < 16) { //if not in this range, someone else will handle it

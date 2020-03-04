@@ -29,10 +29,10 @@ public class OpenStreetMaps {
 
     private static final double CHUNK_SIZE = 16;
     public static final double TILE_SIZE = 1/60.0;//250*(360.0/40075000.0);
-    private static final double NOTHING = 0.1*BLOCK_SIZE;
+    private static final double NOTHING = 0.01;
     
     private static final String OVERPASS_INSTANCE = "https://overpass-api.de";//"https://overpass.kumi.systems";
-    private static final String URL_PREFACE = OVERPASS_INSTANCE+"/api/interpreter?data=[out:json];way(";
+    private static final String URL_PREFACE = TerraConfig.serverOverpass+"/api/interpreter?data=[out:json];way(";
     private static final String URL_A = ")[!\"building\"];out%20geom(";
     private static final String URL_B = ")%20tags%20qt;(._<;);out%20body%20qt;is_in(";
     private static final String URL_SUFFIX = ");area._[~\"natural|waterway\"~\"water|riverbank\"];out%20ids;";
@@ -120,15 +120,6 @@ public class OpenStreetMaps {
     public boolean regiondownload (Region region) {
         double X = region.coord.x*TILE_SIZE;
         double Y = region.coord.y*TILE_SIZE;
-
-        try {
-        	String bottomleft = Y + "," + X;
-        	String bbox = bottomleft + "," + (Y + TILE_SIZE) + "," + (X + TILE_SIZE);
-        	
-            String urltext = URL_PREFACE + bbox + URL_A + bbox + URL_B + bottomleft + URL_SUFFIX;
-    public boolean regiondownload (Coord mchunk) {
-        double X = mchunk.x*TILE_SIZE;
-        double Y = mchunk.y*TILE_SIZE;
         
         //limit extreme (a.k.a. way too frequent) requests
         if(Y>80||Y<-80)

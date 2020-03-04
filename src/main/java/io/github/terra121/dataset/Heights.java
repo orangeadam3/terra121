@@ -1,17 +1,11 @@
 package io.github.terra121.dataset;
 
-<<<<<<< HEAD
-import io.github.terra121.TerraMod;
-import io.github.terra121.projection.InvertedGeographic;
-import io.github.terra121.projection.MapsProjection;
-
-=======
->>>>>>> remotes/origin/mergeaquatic
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.io.File;
 
 import javax.imageio.ImageIO;
 
@@ -21,6 +15,7 @@ import org.apache.commons.imaging.formats.tiff.TiffImageParser;
 import org.apache.logging.log4j.LogManager;
 import io.github.terra121.TerraConfig;
 import io.github.terra121.TerraMod;
+import io.github.terra121.projection.MapsProjection;
 
 public class Heights extends TiledDataset{
     private int zoom;
@@ -29,20 +24,16 @@ public class Heights extends TiledDataset{
     private Water water;
     
     private double oceanRadius = 2.0/(60*60);
-    
-    public Heights(int zoom, Water water) {
-    	super(256, 256, 10, new MapsProjection(), 1<<(zoom+8), 1<<(zoom+8));
-	}
 	
-    public Heights(int zoom, boolean smooth) {
+    public Heights(int zoom, boolean smooth, Water water) {
     	super(256, 256, TerraConfig.cacheSize, new MapsProjection(), 1<<(zoom+8), 1<<(zoom+8), smooth);
     	this.zoom = zoom;
     	url_prefix += zoom+"/";
     	this.water = water;
     }
     
-    public Heights(int zoom) {
-    	this(zoom, false);
+    public Heights(int zoom, Water water) {
+    	this(zoom, false, water);
     }
 
     //request a mapzen tile from amazon, this should only be needed evrey 2 thousand blocks or so if the cache is large enough
@@ -119,7 +110,7 @@ public class Heights extends TiledDataset{
 		return data/256.0;
 	}
 	
-	public static void main(String args[]) {
+	/*public static void main(String args[]) {
 		TerraMod.LOGGER = LogManager.getLogger();
 		OpenStreetMaps osm = new OpenStreetMaps(new InvertedGeographic());
 		Heights h = new Heights(13, osm.water);
@@ -152,5 +143,5 @@ public class Heights extends TiledDataset{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 }

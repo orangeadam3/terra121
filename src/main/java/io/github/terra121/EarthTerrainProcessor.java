@@ -66,11 +66,9 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     	doRoads = cfg.settings.roads && world.getWorldInfo().isMapFeaturesEnabled();
         
         biomes = (EarthBiomeProvider)world.getBiomeProvider(); //TODO: make this not order dependent
-        heights = new Heights(13, cfg.settings.smoothblend);
-        depths = new Heights(10); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
 
         osm = new OpenStreetMaps(projection);
-        heights = new Heights(13, osm.water);
+        heights = new Heights(13, cfg.settings.smoothblend, osm.water);
         depths = new Heights(10, osm.water); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
         
         unnaturals = new HashSet<Block>();
@@ -146,7 +144,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             for(int z=0; z<16; z++) {
             	double Y = heightarr[x][z];      	
             	
-            	double[] projected = projection.toGeo((cubeX*16 + x)/SCALE, (cubeZ*16 + z)/SCALE);
+            	double[] projected = projection.toGeo((cubeX*16 + x), (cubeZ*16 + z));
             	double wateroff = osm.water.estimateLocal(projected[0], projected[1]);
             	
             	//ocean?
