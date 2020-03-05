@@ -67,16 +67,16 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         
         biomes = (EarthBiomeProvider)world.getBiomeProvider(); //TODO: make this not order dependent
 
-        osm = new OpenStreetMaps(projection);
-        heights = new Heights(13, cfg.settings.smoothblend, osm.water);
-        depths = new Heights(10, osm.water); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
+        osm = new OpenStreetMaps(projection, doRoads, cfg.settings.osmwater);
+        heights = new Heights(13, cfg.settings.smoothblend, cfg.settings.osmwater?osm.water:null);
+        depths = new Heights(10, cfg.settings.osmwater?osm.water:null); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
         
         unnaturals = new HashSet<Block>();
         unnaturals.add(Blocks.STONEBRICK);
         unnaturals.add(Blocks.CONCRETE);
         
         surfacePopulators = new HashSet<ICubicPopulator>();
-        if(doRoads)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
+        if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
         surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
 
@@ -145,7 +145,8 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             	double Y = heightarr[x][z];      	
             	
             	double[] projected = projection.toGeo((cubeX*16 + x), (cubeZ*16 + z));
-            	double wateroff = osm.water.estimateLocal(projected[0], projected[1]);
+            	double wateroff = 0;
+            	if(cfg.settings.osmwater)wateroff = osm.water.estimateLocal(projected[0], projected[1]);
             	
             	//ocean?
             	if(-0.001 < Y && Y < 0.001) {
@@ -183,7 +184,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                 }
                 
             	if(-5 < cubeX && cubeX < 5 && -5 < cubeZ && cubeZ < 5);//NULL ISLAND
-            	else {
+            	else if (cfg.settings.osmwater){
             		if(wateroff>1) {
             			int start = (int) (Y) - Coords.cubeToMinBlock(cubeY);
             			if(start<0)start = 0;
@@ -195,13 +196,14 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 	            		for (int y = start; y < 16 && y < Y - Coords.cubeToMinBlock(cubeY); y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
 	            	}
             	}
+            	else for (int y = 0; y < 16 && y < 0 - Coords.cubeToMinBlock(cubeY); y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
             }
         }
         
         caveGenerator.generate(world, primer, new CubePos(cubeX, cubeY, cubeZ));
 
         //spawn roads
-        if(doRoads && surface) {
+        if((doRoads || cfg.settings.osmwater) && surface) {
             Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeZ);
 
             if(edges != null) {

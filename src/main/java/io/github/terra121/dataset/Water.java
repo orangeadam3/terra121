@@ -34,6 +34,10 @@ public class Water {
 		
 		Region region = osm.regionCache(new double[] {lon,lat});
 		
+		//default if download failed
+		if(region==null)
+			return 0;
+		
 		//transform to water render res
 		lon -= region.west;
 		lat -= region.south;
@@ -51,7 +55,7 @@ public class Water {
 	//TODO: more efficient
 	public float estimateLocal(double lon, double lat) {
 		//bound check
-        if(lon > 180 || lon < -180 || lat > 85 || lat < -85) {
+        if(lon > 180 || lon < -180 || lat > 80 || lat < -80) {
             return 0;
         }
 
@@ -85,7 +89,7 @@ public class Water {
         return (1-v)*(ll*(1-u) + lr*u) + (ul*(1-u) + ur*u)*v;
 	}
 	
-	public static void main(String args[]) {
+	/*public static void main(String args[]) {
 		TerraMod.LOGGER = LogManager.getLogger();
 		
 		OpenStreetMaps osm = new OpenStreetMaps(new GeographicProjection());
@@ -121,8 +125,8 @@ public class Water {
 		}
 
 		
-		/*for(LandLine line: osm.regions.iterator().next().lines) {
+		for(LandLine line: osm.regions.iterator().next().lines) {
 			System.out.println(line.breaks);
-		}*/
-	}
+		}
+	}*/
 }

@@ -20,7 +20,7 @@ public class SnowPopulator implements ICubicPopulator {
         {
 			//this cast could fail but this function should only be called in earth anyways
 			EarthBiomeProvider ebp = (EarthBiomeProvider) world.getBiomeProvider();
-			double[] proj = ebp.projection.toGeo(pos.getX(), pos.getY());
+			double[] proj = ebp.projection.toGeo(pos.getX(), pos.getZ());
 			return ebp.climate.isSnow(proj[0], proj[1], pos.getY());
         }
 		return false;
@@ -35,7 +35,7 @@ public class SnowPopulator implements ICubicPopulator {
 		double[] proj = ebp.projection.toGeo(pos.getX()/100000.0, pos.getY()/100000.0);
 		*/
 		
-		if(canSnow(new BlockPos(baseX+8, baseZ+8, baseY+16-1), world, true)) {
+		if(canSnow(new BlockPos(baseX+8, baseY+8, baseZ+8), world, true)) {
 			IBlockState snow = Blocks.SNOW_LAYER.getDefaultState();
 			
 			for(int x=0; x<16; x++)

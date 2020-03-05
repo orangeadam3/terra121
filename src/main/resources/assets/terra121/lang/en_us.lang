@@ -7,6 +7,7 @@ terra121.gui.orientation=Orientation
 terra121.gui.roads=Spawn Roads
 terra121.gui.smoothblend=Smooth Blending
 terra121.gui.dynamicbaseheight=Elevation Based Ores
+terra121.gui.osmwater=Advanced Water (experimental)
 
 ## Projection types
 terra121.projection.web_mercator=Mercator

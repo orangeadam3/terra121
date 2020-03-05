@@ -33,9 +33,10 @@ public class OpenStreetMaps {
     
     private static final String OVERPASS_INSTANCE = "https://overpass-api.de";//"https://overpass.kumi.systems";
     private static final String URL_PREFACE = TerraConfig.serverOverpass+"/api/interpreter?data=[out:json];way(";
-    private static final String URL_A = ")[!\"building\"];out%20geom(";
-    private static final String URL_B = ")%20tags%20qt;(._<;);out%20body%20qt;is_in(";
-    private static final String URL_SUFFIX = ");area._[~\"natural|waterway\"~\"water|riverbank\"];out%20ids;";
+    private String URL_A = ")";
+    private static final String URL_B = ")%20tags%20qt;(._<;);out%20body%20qt;";
+    private static final String URL_C = "is_in(";
+    private String URL_SUFFIX = ");area._[~\"natural|waterway\"~\"water|riverbank\"];out%20ids;";
 
     private HashMap<Coord, Set<Edge>> chunks;
     public LinkedHashMap<Coord, Region> regions;
@@ -55,8 +56,11 @@ public class OpenStreetMaps {
 
     Type wayType;
     byte wayLanes;
+    
+    boolean doRoad;
+    boolean doWater;
 
-    public OpenStreetMaps (GeographicProjection proj) {
+    public OpenStreetMaps (GeographicProjection proj, boolean doRoad, boolean doWater) {
     	gson = new GsonBuilder().create();
         chunks = new LinkedHashMap<Coord, Set<Edge>>();
         allEdges = new ArrayList<Edge>();
@@ -68,6 +72,15 @@ public class OpenStreetMaps {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        
+        this.doRoad = doRoad;
+        this.doWater = doWater;
+        
+        URL_A += "[!\"building\"]";
+        
+        if(!doRoad) URL_A += "[!\"highway\"]";
+        if(!doWater) URL_A += "[!\"water\"][!\"natural\"][!\"waterway\"]";
+        URL_A += ";out%20geom(";
     }
 
     public Coord getRegion(double lon, double lat) {
@@ -93,6 +106,7 @@ public class OpenStreetMaps {
     }
     
     public Region regionCache(double[] corner) {
+    	
     	Coord coord = getRegion(corner[0], corner[1]);
 		Region region;
     	
@@ -129,7 +143,9 @@ public class OpenStreetMaps {
             String bottomleft = Y + "," + X;
         	String bbox = bottomleft + "," + (Y + TILE_SIZE) + "," + (X + TILE_SIZE);
         	
-            String urltext = URL_PREFACE + bbox + URL_A + bbox + URL_B + bottomleft + URL_SUFFIX;
+            String urltext = URL_PREFACE + bbox + URL_A + bbox + URL_B;
+            if(doWater) urltext += URL_C + bottomleft + URL_SUFFIX;
+            
             TerraMod.LOGGER.info(urltext);
 
             //kumi systems request a meaningful user-agent
@@ -187,9 +203,16 @@ public class OpenStreetMaps {
     				continue;
     			}
     			
-    			String naturalv = elem.tags.get("natural");
-    			String highway = elem.tags.get("highway");
-    			String waterway = elem.tags.get("waterway");
+    			String naturalv = null, highway = null, waterway = null;
+    			
+    			if(doWater) {
+	    			naturalv = elem.tags.get("natural");
+	    			waterway = elem.tags.get("waterway");
+    			}
+    			
+    			if(doRoad) {
+    				highway = elem.tags.get("highway");
+    			}
     			
     			if(naturalv != null && naturalv.equals("coastline"))
     				waterway(elem, -1, region, null);
@@ -243,7 +266,7 @@ public class OpenStreetMaps {
     			}
     			else unusedWays.add(elem);
     		}
-    		else if(elem.type == EType.relation && elem.members!=null && elem.tags!=null) {
+    		else if(doWater && elem.type == EType.relation && elem.members!=null && elem.tags!=null) {
     			String naturalv = elem.tags.get("natural");
 	    		String waterv = elem.tags.get("water");
 	    		String wway = elem.tags.get("waterway");
@@ -265,22 +288,25 @@ public class OpenStreetMaps {
     		}
     	}
     	
-    	for(Element way: unusedWays) {
-    		if(way.tags!=null) {
-    			String naturalv = way.tags.get("natural");
-    			String waterv = way.tags.get("water");
-    			String wway = way.tags.get("waterway");
-    			
-    			if(waterv != null || (naturalv!=null && naturalv.equals("water")) || (wway!=null && wway.equals("riverbank")))
-    				waterway(way, way.id+2400000000L, region, null);
-			}
-    	}
+    	if(doWater) {
     	
-    	if(water.grounding.state(region.coord.x, region.coord.y)==0) {
-    		ground.add(-1L);
+	    	for(Element way: unusedWays) {
+	    		if(way.tags!=null) {
+	    			String naturalv = way.tags.get("natural");
+	    			String waterv = way.tags.get("water");
+	    			String wway = way.tags.get("waterway");
+	    			
+	    			if(waterv != null || (naturalv!=null && naturalv.equals("water")) || (wway!=null && wway.equals("riverbank")))
+	    				waterway(way, way.id+2400000000L, region, null);
+				}
+	    	}
+	    	
+	    	if(water.grounding.state(region.coord.x, region.coord.y)==0) {
+	    		ground.add(-1L);
+	    	}
+	    	
+	    	region.renderWater(ground);
     	}
-    	
-    	region.renderWater(ground);
     }
     
     Geometry waterway(Element way, long id, Region region, Geometry last) {

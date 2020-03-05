@@ -93,7 +93,7 @@ public class Heights extends TiledDataset{
     	double ret = super.getOfficialHeight(coord);
     	
     	//shoreline smoothing
-        if(ret>-1 && ret < 200) {
+        if(water!=null && ret>-1 && ret < 200) {
 	        double[] proj = projection.toGeo(coord.x/scaleX, coord.y/scaleY); //another projection, i know (horrendous)
 	        double mine = water.estimateLocal(proj[0], proj[1]);
 	        
