@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import io.github.terra121.control.TerraTeleport;
 import io.github.terra121.provider.EarthWorldProvider;
 import io.github.terra121.provider.GenerationEventDenier;
+import io.github.terra121.provider.WaterDenier;
 import net.minecraft.world.DimensionType;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -42,6 +43,7 @@ public class TerraMod
     public void init(FMLInitializationEvent event)
     {
     	MinecraftForge.TERRAIN_GEN_BUS.register(GenerationEventDenier.class);
+    	MinecraftForge.EVENT_BUS.register(WaterDenier.class);
     }
     
     @EventHandler

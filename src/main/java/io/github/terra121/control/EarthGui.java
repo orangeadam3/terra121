@@ -62,6 +62,7 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 						cycleButton(6968, "orentation", GeographicProjection.Orientation.values(), e -> {projectMap(true); return I18n.format("terra121.gui.orientation")+": "+I18n.format("terra121.orientation."+e.toString());}),
 						toggleButton(6967, "smoothblend", null),
 						toggleButton(6966, "roads", null),
+						toggleButton(6965, "osmwater", null),
 						toggleButton(6965, "dynamicbaseheight", null),
 		};
 		projectMap(false);

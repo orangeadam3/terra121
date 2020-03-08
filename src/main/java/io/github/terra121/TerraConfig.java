@@ -40,4 +40,10 @@ public class TerraConfig {
 	@RangeInt(min = 1)
 	public static int osmCacheSize = 1000;
 	
+	@Name("three_water")
+	@Comment({"require 3 water in order to form a new source instead of the vanilla 2",
+			"This will make generated streams more stable but will disrupt vanilla water mechanics like 2x2 infinite water sources",
+			"Highly expiremental, use at your own risk"})
+	public static boolean threeWater = false;
+	
 }
