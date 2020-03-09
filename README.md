@@ -163,6 +163,8 @@ You will require operator or cheats power for this mod to work. This is implemen
 
 Leaving <custom height> blank will teleport you to elevation at that point, but setting it to a specific 
 
+If you are using an older version, please look to our [older instructions](CALCULATECOORDS.md) on how to convert coordinates.
+
 ## Having issues?
 
 This mod is in very early stages, and based on another mod that is also in early stages, so the possibility of issues is EXTREMELY high. However, we have some [Troubleshooting Tips](TROUBLESHOOT.md) that may help you in your endeavors to walk the earth in Minecraft.

@@ -1,6 +1,8 @@
 # These instructions are for older versions of Terra 1-to-1, to allow coordinate calculations!!!
 
-## This may not work with different projection models or orientations that are usable in newer versions of the mod, only use this if you do not have a newer usable version
+## This may not work with different projection models or orientations that are usable in newer versions of the mod, only use this if you do not have a newer usable version.
+
+### In the newer versions please utilize /tpll (lat) (long) to teleport
 
 
 The block coordinates in Minecraft are calculated by (X, Y, Z). This mod will convert these values to coordinates on a world projection:

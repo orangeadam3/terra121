@@ -1,6 +1,6 @@
 # Creations showcase
 
-We love seeing people make videos and content with our mod, this is a dedicated page to finding people 
+We love seeing people make videos, content, and creations with our mod, this is a dedicated page to those creations and showing our appreciation.
 
 Check out a mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UClbmNgZmGahCDKcs8_aMN0A), Administrator and Moderator on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), and has been interested in the development of our mod since the beginning.
 
@@ -8,3 +8,30 @@ Check out a mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UClbm
 
 
 
+Improved Null Island, including earth, moon, and sun models. Created by Terra 1-to-1 developers (shejan0, TheAtomBomb92), Wozat, MineCrak, and FyreBurns
+
+![Null Island](Pictures/UpdatedNullIsland.png)
+
+
+
+LukeMC_, Jak2000, and OverFallen starting their efforts to build Stonehenge in Minecraft 1:1 (on server)
+
+![Stonehenge step 1](Pictures/Stonehenge1.png)
+
+This is their finished version, using a base model from the user CuriousPlughole, with slight edits to fix scale. (on server)
+
+![Stonehenge step 1](Pictures/Stonehenge2.png)
+
+A Castle in Slovenia created by user ArcticKnight98
+
+![Slovenian castle](Pictures/SloveniaCastle.png)
+
+![Slovenian castle](Pictures/SloveniaCastle2.png)
+
+Tim Hortons built in Canada by FyreBurns (on server)
+
+![Tim Hortons](Pictures/TimHortonSmithers.png)
+
+Yavapai Geological Museum by shejan0
+
+![Yavapai Geological Museum](Pictures/YavapaiGeologicalMuseum.png)
