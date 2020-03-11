@@ -1,6 +1,12 @@
 # Creations showcase
 
-We love seeing people make videos, content, and creations with our mod, this is a dedicated page to those creations and showing our appreciation.
+### We love seeing people make videos, content, and creations with our mod, this is a dedicated page to those creations and showing our appreciation.
+
+Check out the mod showcase by ArcticKnight98, an avid follower of our mod, and has been investing a lot of time in our mod, working on adding new features, and giving ideas for stuff to be added.
+
+[![ArcticKnight98 Showcase](https://img.youtube.com/vi/f6p7jjWffEw/maxresdefault.jpg)](https://www.youtube.com/watch?v=f6p7jjWffEw)
+
+
 
 Check out a mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UClbmNgZmGahCDKcs8_aMN0A), Administrator and Moderator on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), and has been interested in the development of our mod since the beginning.
 

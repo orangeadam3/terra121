@@ -81,10 +81,17 @@ Soil suborder data is from the [USDA Natural Resources Conservation Service's Gl
 
 ## Creation showcase
 
+Check out the mod showcase by ArcticKnight98, an avid follower of our mod, investing a lot of time , working on adding new features, and giving ideas for stuff to be added.
+
+[![ArcticKnight98 Showcase](https://img.youtube.com/vi/f6p7jjWffEw/maxresdefault.jpg)](https://www.youtube.com/watch?v=f6p7jjWffEw)
+
+(Clicking the image will take you to the video link)
+
 Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UClbmNgZmGahCDKcs8_aMN0A), Administrator and Moderator on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), and has been interested in the development of our mod since the beginning.
 
 [![Wozat Showcase](https://img.youtube.com/vi/XJG1XXOdJcc/maxresdefault.jpg)](https://www.youtube.com/watch?v=XJG1XXOdJcc)
 
+(Clicking the image will take you to the video link)
 
 -*Much love from orangeadam3 and shejan0* 😫😤😘 (I do not support the use of suggestive emojis -orangeadam3)
 
