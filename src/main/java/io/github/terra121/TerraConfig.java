@@ -50,7 +50,7 @@ public class TerraConfig {
 	public static boolean threeWater = false;
 
 	@SubscribeEvent
-	public static void onConfigChanged﻿(ConfigChangedEvent.OnConfigChangedEvent event) {
+	public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
 		if(TerraMod.MODID.equals(event.getModID()))
 			ConfigManager.sync(TerraMod.MODID, Config.Type.INSTANCE);
 	}
