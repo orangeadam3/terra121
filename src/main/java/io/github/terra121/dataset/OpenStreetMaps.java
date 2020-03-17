@@ -116,11 +116,11 @@ public class OpenStreetMaps {
             for (i = 0; i < 5 && !regiondownload(region); i++);
             regions.put(coord, region);
             if(regions.size() > numcache) {
-            	//TODO: delete
-                /*Iterator<Region> it = regions.entrySet().iterator();
+            	//TODO: delete beter
+                Iterator<Region> it = regions.values().iterator();
                 Region delete = it.next();
                 it.remove();
-                removeRegion(delete);*/
+                removeRegion(delete);
             }
 
             if(i==5) {

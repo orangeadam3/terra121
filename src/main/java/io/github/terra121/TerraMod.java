@@ -44,6 +44,7 @@ public class TerraMod
     {
     	MinecraftForge.TERRAIN_GEN_BUS.register(GenerationEventDenier.class);
     	MinecraftForge.EVENT_BUS.register(WaterDenier.class);
+        MinecraftForge.EVENT_BUS.register(TerraConfig.class);
     }
     
     @EventHandler

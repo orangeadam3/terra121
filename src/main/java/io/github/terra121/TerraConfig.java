@@ -2,13 +2,16 @@ package io.github.terra121;
 
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.Config.*;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.common.config.ConfigManager;
 
 @Config(modid = TerraMod.MODID)
 public class TerraConfig {
 	@Name("overpass_interpreter")
 	@Comment({"overpass interpreter for road and water OpenStreetMap data",
 			  "Make sure you follow the instances guidelines",
-			  "Url be able to take interpreter input by adding a \'?\'",
+			  "Url must be able to take interpreter input by adding a \'?\'",
 			  "e.x. \"https://.../api/interpreter\""})
 	public static String serverOverpass = "https://overpass.kumi.systems/api/interpreter"; //"https://overpass-api.de/api/interpreter"
 	
@@ -45,5 +48,10 @@ public class TerraConfig {
 			"This will make generated streams more stable but will disrupt vanilla water mechanics like 2x2 infinite water sources",
 			"Highly expiremental, use at your own risk"})
 	public static boolean threeWater = false;
-	
+
+	@SubscribeEvent
+	public static void onConfigChanged﻿(ConfigChangedEvent.OnConfigChangedEvent event) {
+		if(TerraMod.MODID.equals(event.getModID()))
+			ConfigManager.sync(TerraMod.MODID, Config.Type.INSTANCE);
+	}
 }
