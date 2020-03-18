@@ -53,7 +53,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     private Map<Biome, ICubicPopulator> biomePopulators;
     private CubicCaveGenerator caveGenerator;
     private SnowPopulator snow;
-	private EarthGeneratorSettings cfg;
+	public EarthGeneratorSettings cfg;
 	private boolean doRoads;
 
     public EarthTerrainProcessor(World world) {

@@ -3,6 +3,7 @@ package io.github.terra121;
 import org.apache.logging.log4j.Logger;
 
 import io.github.terra121.control.TerraTeleport;
+import io.github.terra121.control.TerraCommand;
 import io.github.terra121.provider.EarthWorldProvider;
 import io.github.terra121.provider.GenerationEventDenier;
 import io.github.terra121.provider.WaterDenier;
@@ -55,6 +56,7 @@ public class TerraMod
     @EventHandler
     public void serverLoad(FMLServerStartingEvent event) {
         event.registerServerCommand(new TerraTeleport());
+        event.registerServerCommand(new TerraCommand());
     }
     
     //set custom provider

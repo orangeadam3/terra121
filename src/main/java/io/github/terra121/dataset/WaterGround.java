@@ -31,9 +31,18 @@ public class WaterGround {
 			int res = col==0xff0000a0?0:col==0xff00ffff?1:2;
 			data.add(bytes[res]);
 		}
+		System.out.println(data.size());
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
 	}
 	
-    private byte getOfficial(int x, int y) {
+    public byte getOfficial(int x, int y) {
         if(x>=width || x<0 || y>=height || y<0)
             return 0;
         return data.get(x + y*width);

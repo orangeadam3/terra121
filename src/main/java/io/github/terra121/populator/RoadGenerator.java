@@ -22,7 +22,7 @@ public class RoadGenerator implements ICubicPopulator {
 	
     private static final IBlockState ASPHALT = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.GRAY);
     private static final IBlockState WATER_SOURCE = Blocks.WATER.getDefaultState();
-    private static final IBlockState WATER_RAMP = Blocks.WATER.getDefaultState();
+    //private static final IBlockState WATER_RAMP = Blocks.WATER.getDefaultState().withProperty(BlockLiquid.LEVEL, );
     private static final IBlockState WATER_BEACH = Blocks.DIRT.getDefaultState();
 
     private OpenStreetMaps osm;
@@ -46,7 +46,7 @@ public class RoadGenerator implements ICubicPopulator {
         	//rivers done before roads
         	for(OpenStreetMaps.Edge e: edges) {
 	            if(e.type == OpenStreetMaps.Type.RIVER) {
-	            	placeEdge(e, world, cubeX, cubeY, cubeZ, 2*e.lanes, (dis, bpos) -> riverState(world, dis, bpos));
+	            	placeEdge(e, world, cubeX, cubeY, cubeZ, 5, (dis, bpos) -> riverState(world, dis, bpos));
 	            }
 	        }
         	
@@ -63,7 +63,7 @@ public class RoadGenerator implements ICubicPopulator {
 		if(dis>2) {
 			if(!prev.getBlock().equals(Blocks.AIR))
 				return null;
-			return null;
+			return WATER_BEACH;
 		}
 		else return WATER_SOURCE;
     }
