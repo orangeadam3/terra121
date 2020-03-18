@@ -16,6 +16,8 @@ import io.github.terra121.EarthTerrainProcessor;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.event.ClickEvent;
+import java.util.List;
+import java.util.Arrays;
 
 public class TerraCommand extends CommandBase {
 	@Override
@@ -25,8 +27,15 @@ public class TerraCommand extends CommandBase {
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "/terra [where:world:osm] [player]";
+		return "/terra [where:ou] [player]\n/terra world\n/terra osm\n/terra conv[ert] [x z]:[lat lon]";
 	}
+
+	/*@Override
+	public List addTabCompletionOptions(ICommandSender sender, String[] args) {
+		if(args.length==0)
+			return Arrays.asList("where","ou","world","osm","convert");
+		return null;
+	}*/
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
@@ -47,28 +56,58 @@ public class TerraCommand extends CommandBase {
 
 		String result = "";
 		double[] c;
+		GeographicProjection projection = ((EarthTerrainProcessor)gen).projection;
 
 		switch (args.length==0?"":args[0].toLowerCase())
 		{
 		case "": case "where": case "ou":
-			c = getPlayerCoords(sender, args.length<2?null:args[1], (EarthTerrainProcessor)gen);
+			c = getPlayerCoords(sender, args.length<2?null:args[1], projection);
 			if(c==null)result = "failed to get coords";
-			else result = "latitude:"+c[0]+" longitude:"+c[1]+", "+c[2]+" above ground";
+			else result = String.format("lat lon: %.7f %.7f", c[1], c[0]);
 			break;
+
 		case "world":
+			//TODO: specifiy what setting to get
 			result = "Generator Settings: " + ((EarthTerrainProcessor)gen).cfg.toString();
 			break;
+
 		case "osm":
-			c = getPlayerCoords(sender, args.length<2?null:args[1], (EarthTerrainProcessor)gen);
+			c = getPlayerCoords(sender, args.length<2?null:args[1], projection);
 			if(c==null)result = "failed to get coords";
 			else {
-				String url = "https://www.openstreetmap.org/#map=17/"+c[0]+"/"+c[1];
+				String url = String.format("https://www.openstreetmap.org/#map=17/%.5f/%.5f",c[1],c[0]);
 				ITextComponent out = new TextComponentString(url);
 				out.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
 				sender.sendMessage(out);
 				result = null;
 			}
 			break;
+
+		case "conv": case "convert":
+			if(args.length<3) {
+				result = "Missing argument(s)";
+				break;
+			}
+
+			double x,y;
+			try {
+				x = Double.parseDouble(args[1]);
+				y = Double.parseDouble(args[2]);
+			} catch(Exception e) {
+				result = "Arguments must be numbers";
+				break;
+			}
+
+			if(-180<=x&&x<=180&&-90<=y&&y<=90) {
+				c = projection.fromGeo(y, x);
+				result = String.format("x y: %.2f %.2f", c[0], c[1]);
+			}
+			else {
+				c = projection.toGeo(x, y);
+				result = String.format("lat lon: %.7f %.7f", c[1], c[0]);
+			}
+			break;
+
 		default:
 			result = getUsage(sender);
 		}
@@ -76,7 +115,7 @@ public class TerraCommand extends CommandBase {
 		if(result!=null)sender.sendMessage(new TextComponentString(result));
 	}
 
-	double[] getPlayerCoords(ICommandSender sender, String arg, EarthTerrainProcessor gen) {
+	double[] getPlayerCoords(ICommandSender sender, String arg, GeographicProjection projection) {
 		Vec3d pos;
 		Entity e = sender.getCommandSenderEntity();
 		if(arg!=null) {
@@ -98,9 +137,9 @@ public class TerraCommand extends CommandBase {
 			return null;
 		}
 
-		double[] proj = gen.projection.toGeo(pos.x, pos.z);
+		double[] proj = projection.toGeo(pos.x, pos.z);
 
-		return new double[]{proj[0],proj[1],pos.y-gen.heights.estimateLocal(proj[0], proj[1])};
+		return proj;
 	}
 
 	private boolean isOp(ICommandSender sender) {
