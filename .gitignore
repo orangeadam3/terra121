@@ -21,6 +21,10 @@ out
 build
 .gradle
 
+#our build stuff
+build.sh
+build.bat
+
 # other
 eclipse
 run
