@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Region {
+	public boolean failedDownload = false;
 	public OpenStreetMaps.Coord coord;
 	public Water water;
 	public LandLine southLine;

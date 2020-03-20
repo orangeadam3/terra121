@@ -124,10 +124,11 @@ public class OpenStreetMaps {
             }
 
             if(i==5) {
+                region.failedDownload = true;
                 TerraMod.LOGGER.error("OSM region" + region.coord.x + " " + region.coord.y + " failed to download several times, no structures will spawn");
                 return null;
             }
-        }
+        } else if(region.failedDownload) return null; //don't return dummy regions
     	return region;
     }
 
