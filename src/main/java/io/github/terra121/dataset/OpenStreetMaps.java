@@ -136,9 +136,11 @@ public class OpenStreetMaps {
         double X = region.coord.x*TILE_SIZE;
         double Y = region.coord.y*TILE_SIZE;
         
-        //limit extreme (a.k.a. way too frequent) requests
-        if(Y>80||Y<-80)
-        	return true;
+        //limit extreme (a.k.a. way too clustered on some projections) requests and out of bounds requests
+        if(Y>80||Y<-80 || X<-180 || X>180-TILE_SIZE) {
+            region.failedDownload = true;
+            return false;
+        }
 
         try {
             String bottomleft = Y + "," + X;

@@ -20,6 +20,8 @@ public abstract class TiledDataset {
     //TODO: scales are obsolete with new ScaleProjection type
     protected double scaleX;
     protected double scaleY;
+
+    protected double[] bounds;
     
     //enable smooth interpolation?
     public boolean smooth;
@@ -33,6 +35,12 @@ public abstract class TiledDataset {
         this.scaleX = projScaleX;
         this.scaleY = projScaleY;
         this.smooth = smooth;
+
+        bounds = proj.bounds();
+        bounds[0] *= scaleX;
+        bounds[1] *= scaleY;
+        bounds[2] *= scaleX;
+        bounds[3] *= scaleY;
     }
     
     public TiledDataset(int width, int height, int numcache, GeographicProjection proj, double projScaleX, double projScaleY) {
@@ -40,7 +48,8 @@ public abstract class TiledDataset {
     }
 	
     public double estimateLocal(double lon, double lat) {
-    	//bound check
+
+        //basic bound check
         if(lon > 180 || lon < -180 || lat > 85 || lat < -85) {
             return 0;
         }
@@ -116,7 +125,12 @@ public abstract class TiledDataset {
     }
 
 	protected double getOfficialHeight(Coord coord) {
+
         Coord tile = coord.tile();
+
+        //proper bound check for x
+        if(coord.x<=bounds[0] || coord.x>=bounds[2])
+            return 0;
 
         //is the tile that this coord lies on already downloaded?
         int[] img = cache.get(tile);

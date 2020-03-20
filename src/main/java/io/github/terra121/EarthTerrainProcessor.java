@@ -34,6 +34,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeProvider;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 //import io.github.opencubicchunks.cubicchunks.api.worldgen.structure.event.InitCubicStructureGeneratorEvent;
@@ -44,7 +45,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     public Heights depths;
     public OpenStreetMaps osm;
     public HashMap<Biome, List<IBiomeBlockReplacer>> biomeBlockReplacers;
-    public EarthBiomeProvider biomes;
+    public BiomeProvider biomes;
     public GeographicProjection projection;
 
     public Set<Block> unnaturals;
@@ -65,7 +66,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     	
     	doRoads = cfg.settings.roads && world.getWorldInfo().isMapFeaturesEnabled();
         
-        biomes = (EarthBiomeProvider)world.getBiomeProvider(); //TODO: make this not order dependent
+        biomes = world.getBiomeProvider(); //TODO: make this not order dependent
 
         osm = new OpenStreetMaps(projection, doRoads, cfg.settings.osmwater);
         heights = new Heights(13, cfg.settings.smoothblend, cfg.settings.osmwater?osm.water:null);
