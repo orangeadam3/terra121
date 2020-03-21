@@ -81,7 +81,13 @@ Soil suborder data is from the [USDA Natural Resources Conservation Service's Gl
 
 ## Creation showcase
 
-Check out the mod showcase by ArcticKnight98, an avid follower of our mod, investing a lot of time , working on adding new features, and giving ideas for stuff to be added.
+Check out the mod showcase by PippenFTS, a Minecraft ethusiast who posted a Minecraft Documentary on playing Minecraft on a 1:1 scale
+
+[![ArcticKnight98 Showcase](https://img.youtube.com/vi/8_bW3ab8YAk/maxresdefault.jpg)](https://www.youtube.com/watch?v=8_bW3ab8YAk)
+
+(Clicking the image will take you to the video link)
+
+Check out the mod showcase by [ArcticKnight98](https://www.youtube.com/channel/UCwKMsRHWwYo5SJqpNbaBG1w), an avid follower of our mod, investing a lot of time , working on adding new features, and giving ideas for stuff to be added.
 
 [![ArcticKnight98 Showcase](https://img.youtube.com/vi/f6p7jjWffEw/maxresdefault.jpg)](https://www.youtube.com/watch?v=f6p7jjWffEw)
 
@@ -95,7 +101,7 @@ Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UCl
 
 -*Much love from orangeadam3 and shejan0* 😫😤😘 (I do not support the use of suggestive emojis -orangeadam3)
 
-You can also see all the other creations in our [Full Creations showcase](CREATIONS.md)
+## 
 
 ## Public Server
 
