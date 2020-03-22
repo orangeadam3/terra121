@@ -51,7 +51,7 @@ public class OpenStreetMaps {
     private GeographicProjection projection;
     
     public static enum Type {
-        IGNORE, MINOR, ROAD, MAJOR, HIGHWAY, STREAM, RIVER, RAIL //TODO, rail
+        IGNORE, MINOR, ROAD, MAJOR, HIGHWAY, STREAM, RIVER, BUILDING, RAIL //TODO, rail
     }
 
     Type wayType;
@@ -59,8 +59,9 @@ public class OpenStreetMaps {
     
     boolean doRoad;
     boolean doWater;
+    boolean doBuildings;
 
-    public OpenStreetMaps (GeographicProjection proj, boolean doRoad, boolean doWater) {
+    public OpenStreetMaps (GeographicProjection proj, boolean doRoad, boolean doWater, boolean doBuildings) {
     	gson = new GsonBuilder().create();
         chunks = new LinkedHashMap<Coord, Set<Edge>>();
         allEdges = new ArrayList<Edge>();
@@ -75,9 +76,9 @@ public class OpenStreetMaps {
         
         this.doRoad = doRoad;
         this.doWater = doWater;
+        this.doBuildings = doBuildings;
         
-        URL_A += "[!\"building\"]";
-        
+        if(!doBuildings) URL_A += "[!\"building\"]";
         if(!doRoad) URL_A += "[!\"highway\"]";
         if(!doWater) URL_A += "[!\"water\"][!\"natural\"][!\"waterway\"]";
         URL_A += ";out%20geom(";
@@ -206,7 +207,7 @@ public class OpenStreetMaps {
     				continue;
     			}
     			
-    			String naturalv = null, highway = null, waterway = null;
+    			String naturalv = null, highway = null, waterway = null, building = null;
     			
     			if(doWater) {
 	    			naturalv = elem.tags.get("natural");
@@ -216,11 +217,15 @@ public class OpenStreetMaps {
     			if(doRoad) {
     				highway = elem.tags.get("highway");
     			}
+
+    			if(doBuildings) {
+                    building = elem.tags.get("building");
+                }
     			
     			if(naturalv != null && naturalv.equals("coastline"))
     				waterway(elem, -1, region, null);
     			
-    			else if(highway!=null || (waterway!=null && (waterway.equals("river") || waterway.equals("canal") || waterway.equals("stream")))) { //TODO: fewer equals
+    			else if(highway!=null || (waterway!=null && (waterway.equals("river") || waterway.equals("canal") || waterway.equals("stream"))) || building != null) { //TODO: fewer equals
     				Type type = Type.ROAD;
 
     				if(waterway!=null) {
@@ -228,6 +233,7 @@ public class OpenStreetMaps {
     					if(waterway.equals("river")||waterway.equals("canal"))
     						type = Type.RIVER;
     				}
+    				else if(building!=null)type = Type.BUILDING;
     				else if(highway.equals("motorway") || highway.equals("trunk"))
                         type = Type.HIGHWAY;
                     else if(highway.equals("tertiary") || highway.equals("residential") || highway.equals("primary") || highway.equals("secondary") || highway.equals("raceway") || highway.equals("motorway_link") || highway.equals("trunk_link"))

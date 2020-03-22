@@ -26,6 +26,7 @@ public class EarthGeneratorSettings {
 		public String customcubic = "";
 		public Boolean dynamicbaseheight = true;
 		public Boolean osmwater = false;
+		public Boolean buildings = false;
 	}
 	public JsonSettings settings;
 	

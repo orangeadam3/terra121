@@ -63,7 +63,8 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 						toggleButton(6967, "smoothblend", null),
 						toggleButton(6966, "roads", null),
 						toggleButton(6965, "osmwater", null),
-						toggleButton(6965, "dynamicbaseheight", null),
+						toggleButton(6964, "dynamicbaseheight", null),
+						toggleButton(6963, "buildings", null),
 		};
 		projectMap(false);
 	}

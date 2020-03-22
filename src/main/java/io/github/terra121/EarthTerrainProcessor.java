@@ -56,6 +56,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     private SnowPopulator snow;
 	public EarthGeneratorSettings cfg;
 	private boolean doRoads;
+	private boolean doBuildings;
 
     public EarthTerrainProcessor(World world) {
         super(world);
@@ -65,16 +66,18 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     	projection = cfg.getProjection();
     	
     	doRoads = cfg.settings.roads && world.getWorldInfo().isMapFeaturesEnabled();
+        doBuildings = cfg.settings.buildings && world.getWorldInfo().isMapFeaturesEnabled();
         
         biomes = world.getBiomeProvider(); //TODO: make this not order dependent
 
-        osm = new OpenStreetMaps(projection, doRoads, cfg.settings.osmwater);
+        osm = new OpenStreetMaps(projection, doRoads, cfg.settings.osmwater, doBuildings);
         heights = new Heights(13, cfg.settings.smoothblend, cfg.settings.osmwater?osm.water:null);
         depths = new Heights(10, cfg.settings.osmwater?osm.water:null); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
         
         unnaturals = new HashSet<Block>();
         unnaturals.add(Blocks.STONEBRICK);
         unnaturals.add(Blocks.CONCRETE);
+        unnaturals.add(Blocks.BRICK_BLOCK);
         
         surfacePopulators = new HashSet<ICubicPopulator>();
         if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
@@ -204,7 +207,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         caveGenerator.generate(world, primer, new CubePos(cubeX, cubeY, cubeZ));
 
         //spawn roads
-        if((doRoads || cfg.settings.osmwater) && surface) {
+        if((doRoads || doBuildings || cfg.settings.osmwater) && surface) {
             Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeZ);
 
             if(edges != null) {
@@ -218,7 +221,8 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                 }*/
 
                 //minor one block wide roads get plastered first
-                for (OpenStreetMaps.Edge e: edges) if(e.type == OpenStreetMaps.Type.ROAD || e.type == OpenStreetMaps.Type.MINOR || e.type == OpenStreetMaps.Type.STREAM) {
+                for (OpenStreetMaps.Edge e: edges) if(e.type == OpenStreetMaps.Type.ROAD || e.type == OpenStreetMaps.Type.MINOR
+                                                    || e.type == OpenStreetMaps.Type.STREAM || e.type == OpenStreetMaps.Type.BUILDING) {
                     double start = e.slon;
                     double end = e.elon;
 
@@ -261,7 +265,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                             		if(primer.getBlockState(x, y, z).getBlock()!=Blocks.WATER)
                             			primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
                             	}
-                            	else primer.setBlockState(x, y, z, ( e.type == OpenStreetMaps.Type.ROAD ? Blocks.GRASS_PATH : Blocks.STONEBRICK).getDefaultState());
+                            	else primer.setBlockState(x, y, z, ( e.type == OpenStreetMaps.Type.ROAD ? Blocks.GRASS_PATH : e.type == OpenStreetMaps.Type.BUILDING ? Blocks.BRICK_BLOCK : Blocks.STONEBRICK).getDefaultState());
                             }
                         }
                     }
