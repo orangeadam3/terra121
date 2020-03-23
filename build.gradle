@@ -24,9 +24,7 @@ shadowJar {
 	relocate "org.apache.commons.imaging", "killme.org.apache.commons.imaging"
 
 	dependencies {
-		include(dependency(files("lib/commons-imaging-1.0-alpha1.jar")))
-		//exclude(dependency(files("lib/CubicChunks.jar")))
-		//exclude(dependency(files("lib/CubicWorldGen.jar")))
+		include(dependency('org.apache.commons:commons-imaging:1.0-alpha1'))
 	}
 }
 
@@ -43,40 +41,26 @@ minecraft {
     version = "1.12.2-14.23.5.2847"
     runDir = "run"
     
-    // the mappings can be changed at any time, and must be in the following format.
-    // snapshot_YYYYMMDD   snapshot are built nightly.
-    // stable_#            stables are built at the discretion of the MCP team.
-    // Use non-default mappings at your own risk. they may not always work.
-    // simply re-run your setup task after changing the mappings to update your workspace.
     mappings = "snapshot_20171003"
-    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+}
+
+repositories {
+  mavenCentral()
+  jcenter()
+  // mixin
+  maven { url = "https://repo.spongepowered.org/maven/" }
+  // cubic chunks
+  maven { url = "https://oss.sonatype.org/content/repositories/public/" }
+  // cwg dependencies
+  maven { url = "https://minecraft.curseforge.com/api/maven/" }
+  maven { url = "https://repo.elytradev.com" }
 }
 
 dependencies {
-    // you may put jars on which you depend on in ./libs
-    // or you may define them like so..
-    //compile "some.group:artifact:version:classifier"
-    //compile "some.group:artifact:version"
-      
-    // real examples
-    //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
-    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
-
-    // the 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
-    //provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-
-    // the deobf configurations:  'deobfCompile' and 'deobfProvided' are the same as the normal compile and provided,
-    // except that these dependencies get remapped to your current MCP mappings
-    //deobfCompile 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-    //deobfProvided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-	provided files("lib/CubicChunks.jar")
-	provided files("lib/CubicWorldGen.jar")
-	compile files("lib/commons-imaging-1.0-alpha1.jar")
-
-    // for more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
-
+  deobfCompile 'io.github.opencubicchunks:cubicchunks-api:1.12.2-0.0-SNAPSHOT'
+  deobfCompile 'io.github.opencubicchunks:cubicchunks:1.12.2-0.0-SNAPSHOT'
+  deobfCompile 'io.github.opencubicchunks:cubicworldgen:1.12.2-0.0-SNAPSHOT'
+  compile 'org.apache.commons:commons-imaging:1.0-alpha1'
 }
 
 processResources {
@@ -87,11 +71,11 @@ processResources {
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-                
+
         // replace version and mcversion
         expand 'version':project.version, 'mcversion':project.minecraft.version
     }
-        
+
     // copy everything else except the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
