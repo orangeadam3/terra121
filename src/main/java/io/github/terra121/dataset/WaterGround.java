@@ -3,6 +3,7 @@ package io.github.terra121.dataset;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.DataInputStream;
 
 import javax.imageio.ImageIO;
 
@@ -13,25 +14,26 @@ public class WaterGround {
 	
 	public WaterGround(InputStream input) throws IOException {
 		data = new RandomAccessRunlength<Byte>();
-		
-		BufferedImage img = ImageIO.read(input);
-		
-		width = img.getWidth();
-		height = img.getHeight();
-		int len = width*height;
-		
+		DataInputStream in = new DataInputStream(input);
+
 		//save some memory by tying the same bytes to the same object (idk if java does this already) //TODO: static share with Soil.java
-        Byte[] bytes = new Byte[256];
-        for (int x = 0; x < bytes.length; x++) {
-            bytes[x] = (byte) x;
-        }
-		
-		for(int i=0; i<len; i++) {
-			int col = img.getRGB(i%width, height - i/width - 1);
-			int res = col==0xff0000a0?0:col==0xff00ffff?1:2;
-			data.add(bytes[res]);
+		Byte[] bytes = new Byte[256];
+		for (int x = 0; x < bytes.length; x++) {
+			bytes[x] = (byte) x;
 		}
-		System.out.println(data.size());
+
+		while(in.available()>0) {
+			int v = in.readInt();
+			data.addRun(bytes[v>>>30], v&((1<<30)-1));
+		}
+
+		in.close();
+		input.close();
+
+		height = (int)Math.sqrt(data.size()/2);
+		width = height*2;
+
+		//System.out.println(data.size()+" "+height);
 	}
 
 	public int getWidth() {

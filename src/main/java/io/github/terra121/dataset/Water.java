@@ -24,7 +24,7 @@ public class Water {
 	public int hres;
 	
 	public Water(OpenStreetMaps osm, int horizontalres) throws IOException {
-		InputStream is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/ground.png");
+		InputStream is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/ground.dat");
 		grounding = new WaterGround(is);
 		this.osm = osm;
 		this.hres = horizontalres;

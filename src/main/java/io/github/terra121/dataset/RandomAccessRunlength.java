@@ -23,6 +23,13 @@ public class RandomAccessRunlength<E> {
         size++;
     }
 
+    public void addRun(E point, int num) {
+        if(data.size()==0 || !point.equals(data.get(data.size()-1).value)) {
+            data.add(new Run(point, size));
+        }
+        size += num;
+    }
+
     private int getIdx(int idx) {
         if(idx >= size) {
             throw new IndexOutOfBoundsException(idx + " >= " + size);
