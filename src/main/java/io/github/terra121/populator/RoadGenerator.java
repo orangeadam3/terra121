@@ -11,6 +11,7 @@ import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.BlockColored;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
@@ -63,6 +64,9 @@ public class RoadGenerator implements ICubicPopulator {
 		if(dis>2) {
 			if(!prev.getBlock().equals(Blocks.AIR))
 				return null;
+            IBlockState under = world.getBlockState(pos.down());
+            if(under.getBlock() instanceof BlockLiquid)
+                return null;
 			return WATER_BEACH;
 		}
 		else return WATER_SOURCE;
