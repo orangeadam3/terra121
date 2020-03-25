@@ -18,15 +18,15 @@ public class EarthGeneratorSettings {
 	//json template to be filled by Gson
 	public static class JsonSettings {
 		public String projection = "equirectangular";
-		public GeographicProjection.Orientation orentation = GeographicProjection.Orientation.swapped;
+		public GeographicProjection.Orientation orentation = GeographicProjection.Orientation.upright;
 		public Double scaleX = 100000.0;
 		public Double scaleY = 100000.0;
 		public Boolean smoothblend = true;
 		public Boolean roads = true;
 		public String customcubic = "";
 		public Boolean dynamicbaseheight = true;
-		public Boolean osmwater = false;
-		public Boolean buildings = false;
+		public Boolean osmwater = true;
+		public Boolean buildings = true;
 	}
 	public JsonSettings settings;
 	

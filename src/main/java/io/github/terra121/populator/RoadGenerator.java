@@ -7,17 +7,18 @@ import java.util.function.Function;
 
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
+import io.github.terra121.TerraMod;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.BlockColored;
-import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 
 public class RoadGenerator implements ICubicPopulator {
 	
@@ -29,6 +30,11 @@ public class RoadGenerator implements ICubicPopulator {
     private OpenStreetMaps osm;
     private Heights heights;
     private GeographicProjection projection;
+
+    // only use for roads with markings
+    public double calculateRoadWidth(int w, int l) {
+        return Math.ceil(((1+w)*l+l)/2);
+    }
 
     public RoadGenerator(OpenStreetMaps osm, Heights heights, GeographicProjection proj) {
         this.osm = osm;
@@ -44,17 +50,34 @@ public class RoadGenerator implements ICubicPopulator {
 		
         if(edges!=null) { 
         	
-        	//rivers done before roads
+        	// rivers done before roads
         	for(OpenStreetMaps.Edge e: edges) {
 	            if(e.type == OpenStreetMaps.Type.RIVER) {
 	            	placeEdge(e, world, cubeX, cubeY, cubeZ, 5, (dis, bpos) -> riverState(world, dis, bpos));
 	            }
 	        }
-        	
+
+        	// (1+w)l+l is the equation to calculate road width, where "w" is the width and "l" is the amount of lanes
+
+            // i only use this for roads that need road markings, because if there are no road markings, the extra place is not needed,
+            // and it can simply be w*l
+
+            // TODO add generation of road markings
+
+            // TODO simplify road width
 	        for(OpenStreetMaps.Edge e: edges) {
-	            if(e.type == OpenStreetMaps.Type.MAJOR || e.type == OpenStreetMaps.Type.HIGHWAY) {
-	            	placeEdge(e, world, cubeX, cubeY, cubeZ, 1.5*e.lanes, (dis, bpos) -> ASPHALT);
-	            }
+	            assert e.attribute != OpenStreetMaps.Attributes.ISTUNNEL;
+	            if (e.type == OpenStreetMaps.Type.MINOR) {
+	                placeEdge(e, world, cubeX, cubeY, cubeZ, Math.ceil((2*e.lanes)/2), (dis, bpos) -> ASPHALT);
+                } else if (e.type == OpenStreetMaps.Type.SIDE) {
+	                placeEdge(e, world, cubeX, cubeY, cubeZ, Math.ceil((3*e.lanes+1)/2), (dis, bpos) -> ASPHALT);
+                } else if (e.type == OpenStreetMaps.Type.MAIN) {
+                    placeEdge(e, world, cubeX, cubeY, cubeZ, calculateRoadWidth(2, e.lanes), (dis, bpos) -> ASPHALT);
+	            } else if (e.type == OpenStreetMaps.Type.AUTOBAHN || e.type == OpenStreetMaps.Type.AUTOSTRASSE) {
+	                placeEdge(e, world, cubeX, cubeY, cubeZ, calculateRoadWidth(4, e.lanes)+2, (dis, bpos) -> ASPHALT);
+                } else if (e.type == OpenStreetMaps.Type.INTERCHANGE) {
+	                placeEdge(e, world, cubeX, cubeY, cubeZ, Math.ceil((3*e.lanes)/2), (dis,bpos) -> ASPHALT);
+                }
 	        }
         }
     }
@@ -64,9 +87,6 @@ public class RoadGenerator implements ICubicPopulator {
 		if(dis>2) {
 			if(!prev.getBlock().equals(Blocks.AIR))
 				return null;
-            IBlockState under = world.getBlockState(pos.down());
-            if(under.getBlock() instanceof BlockLiquid)
-                return null;
 			return WATER_BEACH;
 		}
 		else return WATER_SOURCE;
