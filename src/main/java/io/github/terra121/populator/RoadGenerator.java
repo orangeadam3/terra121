@@ -3,7 +3,6 @@ package io.github.terra121.populator;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
@@ -12,6 +11,7 @@ import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.BlockColored;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
@@ -65,31 +65,48 @@ public class RoadGenerator implements ICubicPopulator {
             // TODO add generation of road markings
 
             // TODO simplify road width
+
 	        for(OpenStreetMaps.Edge e: edges) {
-	            assert e.attribute != OpenStreetMaps.Attributes.ISTUNNEL;
-	            if (e.type == OpenStreetMaps.Type.MINOR) {
-	                placeEdge(e, world, cubeX, cubeY, cubeZ, Math.ceil((2*e.lanes)/2), (dis, bpos) -> ASPHALT);
-                } else if (e.type == OpenStreetMaps.Type.SIDE) {
-	                placeEdge(e, world, cubeX, cubeY, cubeZ, Math.ceil((3*e.lanes+1)/2), (dis, bpos) -> ASPHALT);
-                } else if (e.type == OpenStreetMaps.Type.MAIN) {
-                    placeEdge(e, world, cubeX, cubeY, cubeZ, calculateRoadWidth(2, e.lanes), (dis, bpos) -> ASPHALT);
-	            } else if (e.type == OpenStreetMaps.Type.AUTOBAHN || e.type == OpenStreetMaps.Type.AUTOSTRASSE) {
-	                placeEdge(e, world, cubeX, cubeY, cubeZ, calculateRoadWidth(4, e.lanes)+2, (dis, bpos) -> ASPHALT);
-                } else if (e.type == OpenStreetMaps.Type.INTERCHANGE) {
-	                placeEdge(e, world, cubeX, cubeY, cubeZ, Math.ceil((3*e.lanes)/2), (dis,bpos) -> ASPHALT);
+	            // this will obviously be deleted once the levels actually do something
+                // System.out.println("Generating road on level: " + e.layer_number);
+                if (e.attribute != OpenStreetMaps.Attributes.ISTUNNEL) {
+                    switch (e.type) {
+                        case MINOR:
+                            placeEdge(e, world, cubeX, cubeY, cubeZ, Math.ceil((2 * e.lanes) / 2), (dis, bpos) -> ASPHALT);
+                            break;
+                        case SIDE:
+                            placeEdge(e, world, cubeX, cubeY, cubeZ, Math.ceil((3 * e.lanes + 1) / 2), (dis, bpos) -> ASPHALT);
+                            break;
+                        case MAIN:
+                            placeEdge(e, world, cubeX, cubeY, cubeZ, calculateRoadWidth(2, e.lanes), (dis, bpos) -> ASPHALT);
+                            break;
+                        case FREEWAY:
+                        case LIMITEDACCESS:
+                            placeEdge(e, world, cubeX, cubeY, cubeZ, calculateRoadWidth(4, e.lanes) + 2, (dis, bpos) -> ASPHALT);
+                            break;
+                        case INTERCHANGE:
+                            placeEdge(e, world, cubeX, cubeY, cubeZ, Math.ceil((3 * e.lanes) / 2), (dis, bpos) -> ASPHALT);
+                            break;
+                        default:
+                            // might be a tunnel or a bridge, mainly for debugging purposes
+                            break;
+                    }
                 }
 	        }
         }
     }
-    
+
     private IBlockState riverState(World world, double dis, BlockPos pos) {
-		IBlockState prev = world.getBlockState(pos);
-		if(dis>2) {
-			if(!prev.getBlock().equals(Blocks.AIR))
-				return null;
-			return WATER_BEACH;
-		}
-		else return WATER_SOURCE;
+        IBlockState prev = world.getBlockState(pos);
+        if(dis>2) {
+            if(!prev.getBlock().equals(Blocks.AIR))
+                return null;
+            IBlockState under = world.getBlockState(pos.down());
+            if(under.getBlock() instanceof BlockLiquid)
+                return null;
+            return WATER_BEACH;
+        }
+        else return WATER_SOURCE;
     }
     
     private void placeEdge(OpenStreetMaps.Edge e, World world, int cubeX, int cubeY, int cubeZ, double r, BiFunction<Double, BlockPos, IBlockState> state) {
