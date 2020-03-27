@@ -12,8 +12,10 @@ import io.github.opencubicchunks.cubicchunks.api.util.Coords;
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.world.ICube;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.CubePrimer;
+import io.github.opencubicchunks.cubicchunks.api.worldgen.CubeGeneratorsRegistry;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.CubePopulatorEvent;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
+import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.event.PopulateCubeEvent;
 import io.github.opencubicchunks.cubicchunks.cubicgen.BasicCubeGenerator;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.BiomeBlockReplacerConfig;
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.CubicBiome;
@@ -283,7 +285,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
          * If event is not canceled we will use cube populators from registry.
          **/
         if (!MinecraftForge.EVENT_BUS.post(new CubePopulatorEvent(world, cube))) {
-            Random rand = Coords.coordsSeedRandom(cube.getWorld().getSeed(), cube.getX(), cube.getY(), cube.getZ());
+            Random rand = Coords.coordsSeedRandom(world.getSeed(), cube.getX(), cube.getY(), cube.getZ());
             
             Biome biome = cube.getBiome(Coords.getCubeCenter(cube));
 
@@ -292,16 +294,23 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 				cubiccfg.expectedBaseHeight = (float) heights.estimateLocal(proj[0], proj[1]);
             }
 
+            MinecraftForge.EVENT_BUS.post(new PopulateCubeEvent.Pre(world, rand, cube.getX(), cube.getY(), cube.getZ(), false));
+
+            CubePos pos = cube.getCoords();
+
             int surf = isSurface(world, cube);
             if(surf == 0) {
                 for(ICubicPopulator pop: surfacePopulators)
-                	pop.generate(cube.getWorld(), rand, cube.getCoords(), biome);
+                	pop.generate(world, rand, pos, biome);
             }
 			
-            biomePopulators.get(biome).generate(cube.getWorld(), rand, cube.getCoords(), biome);
+            biomePopulators.get(biome).generate(world, rand, pos, biome);
 			
             if(surf==1)
-            	snow.generate(cube.getWorld(), rand, cube.getCoords(), biome);
+            	snow.generate(world, rand, pos, biome);
+
+            MinecraftForge.EVENT_BUS.post(new PopulateCubeEvent.Post(world, rand, cube.getX(), cube.getY(), cube.getZ(), false));
+            CubeGeneratorsRegistry.generateWorld(world, rand, pos, biome);
         }
     }
 
