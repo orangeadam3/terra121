@@ -79,7 +79,7 @@ public class Trees extends TiledDataset {
             }
         }
 
-        TerraMod.LOGGER.error("Failed too many times, trees will not spawn");
+        TerraMod.LOGGER.error("Failed too many times, trees will not spawn. ");
         return out;
 	}
 

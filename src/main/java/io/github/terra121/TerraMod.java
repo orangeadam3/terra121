@@ -28,7 +28,6 @@ public class TerraMod implements ILetsEncryptMod
     public static final String NAME = "Terra 1 to 1";
     public static final String VERSION = "0.1";
     public static final String USERAGENT = TerraMod.MODID+"/"+TerraMod.VERSION;
-    
     public static final boolean CUSTOM_PROVIDER = false; //could potentially interfere with other mods and is relatively untested, leaving off for now
 
     public static Logger LOGGER;
