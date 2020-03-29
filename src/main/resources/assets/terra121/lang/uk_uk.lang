@@ -1,0 +1,42 @@
+#PARSE_ESCAPES
+
+## World Type name
+generator.EarthCubic=Планета Земля
+
+## GUI options
+terra121.gui.projection=Проєкція
+terra121.gui.orientation=Орієнтація
+terra121.gui.roads=Створити дороги
+terra121.gui.smoothblend=Гладке змішування
+terra121.gui.dynamicbaseheight=Висота руди
+terra121.gui.osmwater=Просунута вода (експериментально)
+terra121.gui.buildings=Контури будівлі OSM
+
+## Projection types
+terra121.projection.web_mercator=Меркатора
+terra121.projection.equirectangular=Рівнокутна
+terra121.projection.sinusoidal=Синусоїдальна
+terra121.projection.equal_earth=Рівна Землі
+
+## Projection orientations
+terra121.orientation.upright=Пряма
+terra121.orientation.none=Без орієнтації
+terra121.orientation.swapped=Перевернута вісь
+
+## command messages
+terra121.commands.tpll.usage=/tpll шир дов [висота]
+
+terra121.commands.terra.usage=/terra [where:ou] [гравець]\n/terra world\n/terra osm\n/terra conv[ert] [x z]:[шир дов]
+
+terra121.commands.terra.gensettings=Налаштування генератора: 
+terra121.commands.terra.latlon=шир дов: %.7f %.7f
+terra121.commands.terra.xy=x y: %.7f %.7f
+
+## command errors
+terra121.error.notcc=Повинен бути у світі Cubic Chunks!
+terra121.error.notterra=Повинен бути у світі Terra 1 to 1!
+terra121.error.numbers=Всі аргументи мають бути числами!
+terra121.error.getcoords=Не вдалось отримати координати!
+terra121.error.notplayer=Ви не гравець, будь ласка вкажіть такого!
+terra121.error.unknownplayer=Невідомий гравець!
+terra121.error.notopothers=Необхідне OP для інформації про інших гравців!
