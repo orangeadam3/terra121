@@ -8,11 +8,11 @@ generator.EarthCubic=地球
 
 terra121.gui.projection=投影方式
 
-terra121.gui.orientation=方向
+terra121.gui.orientation=投影方向
 
 terra121.gui.roads=生成道路
 
-terra121.gui.smoothblend=平滑地过渡
+terra121.gui.smoothblend=平滑过渡
 
 terra121.gui.dynamicbaseheight=高海拔生成矿物
 
