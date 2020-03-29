@@ -340,36 +340,40 @@ public class OpenStreetMaps {
                     if (lanes > 2 && type == Type.MINOR)
                         type = Type.MAIN;
 
-                    double[] lastProj = null;
-                    for (Geometry geom : elem.geometry) {
-                        if (geom == null) lastProj = null;
-                        else {
-                            double[] proj = projection.fromGeo(geom.lon, geom.lat);
-
-                            if (lastProj != null) { //register as a road edge
-                                allEdges.add(new Edge(lastProj[0], lastProj[1], proj[0], proj[1], type, lanes, region, attributes, layer));
-                            }
-
-                            lastProj = proj;
-                        }
-                    }
+                    addWay(elem, type, lanes, region, attributes, layer);
                 } else unusedWays.add(elem);
-            } else if (doWater && elem.type == EType.relation && elem.members != null && elem.tags != null) {
-                String naturalv = elem.tags.get("natural");
-                String waterv = elem.tags.get("water");
-                String wway = elem.tags.get("waterway");
+            } else if (elem.type == EType.relation && elem.members != null && elem.tags != null) {
 
-                if (waterv != null || (naturalv != null && naturalv.equals("water")) || (wway != null && wway.equals("riverbank"))) {
+                if(doWater) {
+                    String naturalv = elem.tags.get("natural");
+                    String waterv = elem.tags.get("water");
+                    String wway = elem.tags.get("waterway");
+
+                    if (waterv != null || (naturalv != null && naturalv.equals("water")) || (wway != null && wway.equals("riverbank"))) {
+                        for (Member member : elem.members) {
+                            if (member.type == EType.way) {
+                                Element way = allWays.get(member.ref);
+                                if (way != null) {
+                                    waterway(way, elem.id + 3600000000L, region, null);
+                                    unusedWays.remove(way);
+                                }
+                            }
+                        }
+                        continue;
+                    }
+                }
+                if(doBuildings && elem.tags.get("building")!=null) {
                     for (Member member : elem.members) {
                         if (member.type == EType.way) {
                             Element way = allWays.get(member.ref);
                             if (way != null) {
-                                waterway(way, elem.id + 3600000000L, region, null);
+                                addWay(way, Type.BUILDING, (byte) 1, region, Attributes.NONE, (byte) 0);
                                 unusedWays.remove(way);
                             }
                         }
                     }
                 }
+
             } else if (elem.type == EType.area) {
                 ground.add(elem.id);
             }
@@ -393,6 +397,23 @@ public class OpenStreetMaps {
             }
 
             region.renderWater(ground);
+        }
+    }
+
+    void addWay(Element elem, Type type, byte lanes, Region region, Attributes attributes, byte layer) {
+        double[] lastProj = null;
+        if(elem.geometry != null)
+        for (Geometry geom : elem.geometry) {
+            if (geom == null) lastProj = null;
+            else {
+                double[] proj = projection.fromGeo(geom.lon, geom.lat);
+
+                if (lastProj != null) { //register as a road edge
+                    allEdges.add(new Edge(lastProj[0], lastProj[1], proj[0], proj[1], type, lanes, region, attributes, layer));
+                }
+
+                lastProj = proj;
+            }
         }
     }
 

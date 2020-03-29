@@ -5,7 +5,7 @@ import io.github.opencubicchunks.cubicchunks.core.server.CubeProviderServer;
 import net.minecraft.command.CommandBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.CommandTP;
+import net.minecraft.command.WrongUsageException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
@@ -18,6 +18,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.event.ClickEvent;
 import java.util.List;
 import java.util.Arrays;
+import net.minecraft.client.resources.I18n;
 
 public class TerraCommand extends CommandBase {
 	@Override
@@ -27,7 +28,7 @@ public class TerraCommand extends CommandBase {
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "/terra [where:ou] [player]\n/terra world\n/terra osm\n/terra conv[ert] [x z]:[lat lon]";
+		return "terra121.commands.terra.usage";
 	}
 
 	/*@Override
@@ -43,15 +44,13 @@ public class TerraCommand extends CommandBase {
 		IChunkProvider cp = world.getChunkProvider();
 
 		if(!(cp instanceof CubeProviderServer)) {
-			sender.sendMessage(new TextComponentString("This is not a cubic chunks world"));
-			return;
+			throw new CommandException("terra121.error.notcc", new Object[0]);
 		}
 
 		ICubeGenerator gen = ((CubeProviderServer)cp).getCubeGenerator();
 
 		if(!(gen instanceof EarthTerrainProcessor)) {
-			sender.sendMessage(new TextComponentString("This is not a Terra 1-1 world"));
-			return;
+			throw new CommandException("terra121.error.notterra", new Object[0]);
 		}
 
 		String result = "";
@@ -62,31 +61,29 @@ public class TerraCommand extends CommandBase {
 		{
 		case "": case "where": case "ou":
 			c = getPlayerCoords(sender, args.length<2?null:args[1], projection);
-			if(c==null)result = "failed to get coords";
-			else result = String.format("lat lon: %.7f %.7f", c[1], c[0]);
+			if(c==null)throw new CommandException("terra121.error.getcoords", new Object[0]);
+			else result = I18n.format("terra121.commands.terra.latlon", c[1], c[0]);
 			break;
 
 		case "world":
 			//TODO: specifiy what setting to get
-			result = "Generator Settings: " + ((EarthTerrainProcessor)gen).cfg.toString();
+			result = I18n.format("terra121.commands.terra.gensettings") + ((EarthTerrainProcessor)gen).cfg.toString();
 			break;
 
 		case "osm":
 			c = getPlayerCoords(sender, args.length<2?null:args[1], projection);
-			if(c==null)result = "failed to get coords";
-			else {
-				String url = String.format("https://www.openstreetmap.org/#map=17/%.5f/%.5f",c[1],c[0]);
-				ITextComponent out = new TextComponentString(url);
-				out.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
-				sender.sendMessage(out);
-				result = null;
-			}
+			if(c==null)throw new CommandException("terra121.error.getcoords", new Object[0]);
+
+			String url = String.format("https://www.openstreetmap.org/#map=17/%.5f/%.5f",c[1],c[0]);
+			ITextComponent out = new TextComponentString(url);
+			out.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
+			sender.sendMessage(out);
+			result = null;
 			break;
 
 		case "conv": case "convert":
 			if(args.length<3) {
-				result = "Missing argument(s)";
-				break;
+				throw new WrongUsageException(getUsage(sender), new Object[0]);
 			}
 
 			double x,y;
@@ -94,47 +91,44 @@ public class TerraCommand extends CommandBase {
 				x = Double.parseDouble(args[1]);
 				y = Double.parseDouble(args[2]);
 			} catch(Exception e) {
-				result = "Arguments must be numbers";
+				result = I18n.format("terra121.error.numbers");
 				break;
 			}
 
 			if(-180<=x&&x<=180&&-90<=y&&y<=90) {
 				c = projection.fromGeo(y, x);
-				result = String.format("x y: %.2f %.2f", c[0], c[1]);
+				result = I18n.format("terra121.commands.terra.xy", c[0], c[1]);
 			}
 			else {
 				c = projection.toGeo(x, y);
-				result = String.format("lat lon: %.7f %.7f", c[1], c[0]);
+				result = I18n.format("terra121.commands.terra.latlon", c[1], c[0]);
 			}
 			break;
 
 		default:
-			result = getUsage(sender);
+			throw new WrongUsageException(getUsage(sender), new Object[0]);
 		}
 
 		if(result!=null)sender.sendMessage(new TextComponentString(result));
 	}
 
-	double[] getPlayerCoords(ICommandSender sender, String arg, GeographicProjection projection) {
+	double[] getPlayerCoords(ICommandSender sender, String arg, GeographicProjection projection) throws CommandException {
 		Vec3d pos;
 		Entity e = sender.getCommandSenderEntity();
 		if(arg!=null) {
 			if(!isOp(sender)) {
-				sender.sendMessage(new TextComponentString("OP required for info on other players"));
-				return null;
+				throw new CommandException("terra121.error.notopothers", new Object[0]);
 			}
 			e = sender.getEntityWorld().getPlayerEntityByName(arg);
 			if(e==null) {
-				sender.sendMessage(new TextComponentString("Unknown player"));
-				return null;
+				throw new CommandException("terra121.error.unknownplayer", new Object[0]);
 			}
 			pos = e.getPositionVector();
 		}
 		else if(e!=null)
 			pos = sender.getPositionVector();
 		else {
-			sender.sendMessage(new TextComponentString("you are not a player, please specify one"));
-			return null;
+			throw new CommandException("terra121.error.notplayer", new Object[0]);
 		}
 
 		double[] proj = projection.toGeo(pos.x, pos.z);

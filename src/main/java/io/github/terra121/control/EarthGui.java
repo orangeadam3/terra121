@@ -153,8 +153,8 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 			mapsize = 0;*/
 
 		settings = new DynamicOptions(mc, width-mapsize, height-32, 32, height-32, 32, this, settingElems);
-		done = new GuiButton(69, width-106, height-26, 100, 20, "Done");
-		cancel = new GuiButton(69, 6, height-26, 100, 20, "Cancel");
+		done = new GuiButton(69, width-106, height-26, 100, 20, I18n.format("gui.done"));
+		cancel = new GuiButton(69, 6, height-26, 100, 20, I18n.format("gui.cancel"));
     }
 	
 	@Override
