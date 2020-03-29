@@ -5,6 +5,7 @@ import io.github.opencubicchunks.cubicchunks.core.server.CubeProviderServer;
 import io.github.terra121.EarthTerrainProcessor;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
+import net.minecraft.command.WrongUsageException;
 import net.minecraft.command.CommandTP;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
@@ -21,7 +22,7 @@ public class TerraTeleport extends CommandBase {
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "/tpll lat lon [altitude]";
+		return "terra121.commands.tpll.usage";
 	}
 	
 	public int getRequiredPermissionLevel() {
@@ -36,22 +37,19 @@ public class TerraTeleport extends CommandBase {
 			IChunkProvider cp = world.getChunkProvider();
 			
 			if(!(cp instanceof CubeProviderServer)) {
-				sender.sendMessage(new TextComponentString("Must be in a cubic chunks world"));
-				return;
+				throw new CommandException("terra121.error.notcc", new Object[0]);
 			}
 
 			ICubeGenerator gen = ((CubeProviderServer)cp).getCubeGenerator();
 			
 			if(!(gen instanceof EarthTerrainProcessor)) {
-				sender.sendMessage(new TextComponentString("Must be in a Terra 1-1 world!"));
-				return;
+				throw new CommandException("terra121.error.notterra", new Object[0]);
 			}
 			
 			EarthTerrainProcessor terrain = (EarthTerrainProcessor)gen;
 			
 			if(args.length!=2&&args.length!=3) {
-				sender.sendMessage(new TextComponentString("Usage: "+getUsage(sender)));
-				return;
+				throw new WrongUsageException(getUsage(sender), new Object[0]);
 			}
 			
 			double lon, lat;
@@ -64,8 +62,7 @@ public class TerraTeleport extends CommandBase {
 					alt = args[2];
 				}
 			} catch(Exception e) {
-				sender.sendMessage(new TextComponentString("All arguments must be numbers"));
-				return;
+				throw new CommandException("terra121.error.numbers", new Object[0]);
 			}
 			
 			double proj[] = terrain.projection.fromGeo(lon, lat);

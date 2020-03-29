@@ -1,3 +1,5 @@
+#PARSE_ESCAPES
+
 ## World Type name
 
 generator.EarthCubic=Planet Earth
@@ -39,5 +41,3 @@ terra121.projection.equal_earth=Equal Earth
 terra121.orientation.upright=Upright
 
 terra121.orientation.none=No Orientation
-
-terra121.orientation.swapped=Flipped Axis
