@@ -1,0 +1,22 @@
+## World Type name
+generator.EarthCubic=Планета Земля
+
+## GUI options
+terra121.gui.projection=Проекция
+terra121.gui.orientation=Ориентация
+terra121.gui.roads=Создать дороги
+terra121.gui.smoothblend=Гладкое смешивание
+terra121.gui.dynamicbaseheight=Высота руды
+terra121.gui.osmwater=Продвинутая вода (экспериментально)
+terra121.gui.buildings=Контуры здания OSM
+
+## Projection types
+terra121.projection.web_mercator=Меркатор
+terra121.projection.equirectangular=Равнопромежуточно
+terra121.projection.sinusoidal=Синусоидальный
+terra121.projection.equal_earth=Равный Земле
+
+## Projection orientations
+terra121.orientation.upright=Прямо
+terra121.orientation.none=Нет ориентации
+terra121.orientation.swapped=Перевернутая ось
