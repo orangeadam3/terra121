@@ -202,7 +202,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 	            		for (int y = start; y < 16 && y < Y - Coords.cubeToMinBlock(cubeY); y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
 	            	}
             	}
-            	else for (int y = 0; y < 16 && y < 0 - Coords.cubeToMinBlock(cubeY); y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
+            	else for (int y = Math.max(Y - Coords.cubeToMinBlock(cubeY),0); y < 16 && y < 0 - Coords.cubeToMinBlock(cubeY); y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
             }
         }
         
