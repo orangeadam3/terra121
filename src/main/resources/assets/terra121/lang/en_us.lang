@@ -20,3 +20,37 @@ terra121.projection.equal_earth=Equal Earth
 terra121.orientation.upright=Upright
 terra121.orientation.none=No Orientation
 terra121.orientation.swapped=Flipped Axis
+
+## command messages
+
+terra121.commands.tpll.usage=/tpll lat lon [altitude]
+
+
+
+terra121.commands.terra.usage=/terra [where:ou] [player]\n/terra world\n/terra osm\n/terra conv[ert] [x z]:[lat lon]
+
+
+
+terra121.commands.terra.gensettings=Generator Settings: 
+
+terra121.commands.terra.latlon=lat lon: %.7f %.7f
+
+terra121.commands.terra.xy=x y: %.7f %.7f
+
+
+
+## command errors
+
+terra121.error.notcc=Must be in a Cubic Chunks world!
+
+terra121.error.notterra=Must be in a Terra 1 to 1 world!
+
+terra121.error.numbers=All arguments must be numbers!
+
+terra121.error.getcoords=Failed to get Coordinates!
+
+terra121.error.notplayer=You are not a player, please specify one!
+
+terra121.error.unknownplayer=Unknown player!
+
+terra121.error.notopothers=OP required for info on other players!
