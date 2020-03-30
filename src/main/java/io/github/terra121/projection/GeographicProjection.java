@@ -18,6 +18,7 @@ public class GeographicProjection {
 		projections.put("equirectangular", new GeographicProjection());
 		projections.put("sinusoidal", new SinusoidalProjection());
 		projections.put("equal_earth", new EqualEarth());
+		projections.put("airocean", new Airocean());
 	}
 	
 	public static enum Orientation {
