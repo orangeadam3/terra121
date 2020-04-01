@@ -9,7 +9,7 @@ terra121.gui.orientation=Orientacja
 terra121.gui.roads=Generuj drogi
 terra121.gui.smoothblend=Gładkie przejścia
 terra121.gui.dynamicbaseheight=Wypiętrzone rudy
-terra121.gui.osmwater=Więcej zbiorników wodnych (experymentalne)
+terra121.gui.osmwater=Więcej zbiorników wodnych (eksperymentalne)
 terra121.gui.buildings=Krawędzie budynków z OSM
 
 ## Projection types
