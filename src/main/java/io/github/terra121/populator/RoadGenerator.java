@@ -20,7 +20,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 
-public class RoadGenerator implements ICubicPopulator {
+public class RoadGenerator implements ICubicPopulator, Comparable<Object> {
+    
+    private static HashSet<CubePos> roadChunks = new HashSet<>();
 	
     private static final IBlockState ASPHALT = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.GRAY);
     private static final IBlockState WATER_SOURCE = Blocks.WATER.getDefaultState();
@@ -93,6 +95,8 @@ public class RoadGenerator implements ICubicPopulator {
                     }
                 }
 	        }
+            
+            roadChunks.add(new CubePos(cubeX, cubeY, cubeZ));
         }
     }
 
@@ -213,5 +217,17 @@ public class RoadGenerator implements ICubicPopulator {
             return slope*k + sign*Math.sqrt(r*r-(x-k)*(x-k));
         }
         return slope*x + sign*b;
+    }
+    
+    public static boolean isRoad(int cubeX, int cubeY, int cubeZ) {
+        CubePos pos = new CubePos(cubeX, cubeY, cubeZ);
+        boolean isRoad = roadChunks.contains(pos);
+        roadChunks.remove(pos);
+        return isRoad;
+    }
+    
+    @Override
+    public int compareTo(Object o) {
+        return 0;
     }
 }
