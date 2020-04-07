@@ -17,6 +17,7 @@ import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.IBiomeBlockRe
 import io.github.opencubicchunks.cubicchunks.cubicgen.common.biome.IBiomeBlockReplacerProvider;
 import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.CustomGeneratorSettings;
 import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.structure.CubicCaveGenerator;
+import io.github.terra121.dataset.HeightmapModel;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
 import io.github.terra121.populator.CliffReplacer;
@@ -54,6 +55,8 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 	private boolean doRoads;
 	private boolean doBuildings;
 
+	public static final int spawnSize = 5;
+
     public EarthTerrainProcessor(World world) {
         super(world);
         
@@ -75,7 +78,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         unnaturals.add(Blocks.CONCRETE);
         unnaturals.add(Blocks.BRICK_BLOCK);
         
-        surfacePopulators = new TreeSet<ICubicPopulator>();
+        surfacePopulators = new TreeSet<>();
         if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
         surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
@@ -118,7 +121,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         boolean surface = false;
         
        //null island
-    	if(-5 < cubeX && cubeX < 5 && -5 < cubeZ && cubeZ < 5) {
+    	if(-spawnSize < cubeX && cubeX < spawnSize && -spawnSize < cubeZ && cubeZ < spawnSize) {
     		for(int x=0; x<16; x++)
                 for(int z=0; z<16; z++)
                 	heightarr[x][z] = 1;
@@ -138,6 +141,11 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 	            }
 	        }
     	}
+
+    	CubePos pos = new CubePos(cubeX, cubeY, cubeZ);
+        HeightmapModel model = new HeightmapModel(surface, heightarr);
+
+        HeightmapModel.add(pos, model);
 
     	//fill in the world
         for(int x=0; x<16; x++) {
