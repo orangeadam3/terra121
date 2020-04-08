@@ -94,14 +94,12 @@ public class Airocean extends GeographicProjection {
     protected static final double[] CENTROID = new double[66];
     protected static final double[] ROTATION_MATRIX = new double[198];
     protected static final double[] INVERSE_ROTATION_MATRIX = new double[198];
-
-
-    protected static double vUnit = ARC*ROOT3/12;
+    
     static {
 
         for(int i=0; i<22; i++) {
             CENTER_MAP[2*i] *= 0.5*ARC;
-            CENTER_MAP[2*i+1] *= vUnit;
+            CENTER_MAP[2*i+1] *= ARC*ROOT3/12;
         }
     }
 
@@ -527,8 +525,6 @@ public class Airocean extends GeographicProjection {
 
     /*public static void main(String[] args) throws IOException{
         Airocean projection = new Airocean();
-
-        System.out.println(vUnit);
 
         BufferedImage base;
 
