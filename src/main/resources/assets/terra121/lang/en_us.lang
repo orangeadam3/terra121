@@ -17,6 +17,7 @@ terra121.projection.web_mercator=Mercator
 terra121.projection.equirectangular=Equirectangular
 terra121.projection.sinusoidal=Sinusoidal
 terra121.projection.equal_earth=Equal Earth
+terra121.projection.transverse_mercator=Transverse Mercator
 
 ## Projection orientations
 terra121.orientation.upright=Upright
