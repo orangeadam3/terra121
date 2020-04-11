@@ -12,9 +12,9 @@ import javax.imageio.ImageIO;
 
 public class Airocean extends GeographicProjection {
 
-    private static double ARC = 2*Math.asin(Math.sqrt(5-Math.sqrt(5))/Math.sqrt(10));
+    protected static double ARC = 2*Math.asin(Math.sqrt(5-Math.sqrt(5))/Math.sqrt(10));
 
-    private static final double TO_RADIANS = Math.PI/180.0;
+    protected static final double TO_RADIANS = Math.PI/180.0;
     protected static final double ROOT3 = Math.sqrt(3);
 
     private int newton = 5;
@@ -94,7 +94,7 @@ public class Airocean extends GeographicProjection {
     protected static final double[] CENTROID = new double[66];
     protected static final double[] ROTATION_MATRIX = new double[198];
     protected static final double[] INVERSE_ROTATION_MATRIX = new double[198];
-    
+
     static {
 
         for(int i=0; i<22; i++) {
@@ -256,7 +256,7 @@ public class Airocean extends GeographicProjection {
     protected static final double DVE = Math.sqrt(3 + Math.sqrt(5)) / Math.sqrt(5 + Math.sqrt(5));
     protected static final double R = -3*EL6/DVE;
 
-    protected static double[] triangleTransform(double x, double y, double z) {
+    protected double[] triangleTransform(double x, double y, double z) {
 
         double S = Z/z;
 
@@ -395,6 +395,10 @@ public class Airocean extends GeographicProjection {
         return new double[] {z*xpoZ, z*ypoZ, z};
     }
 
+    protected double[] inverseTriangleTransform(double x, double y) {
+        return inverseTriangleTransformNewton(x,y);
+    }
+
     static double[] yRot(double lambda, double phi, double rot) {
         double c[] = cart(lambda, phi);
 
@@ -439,21 +443,12 @@ public class Airocean extends GeographicProjection {
             out[1] = - out[1];
         }
 
+        x = out[0];
         //deal with special snowflakes (child faces 20, 21)
-        if(face == 15) {
-            x = out[0];
-            if(x>0 && x > out[1]*ROOT3) { //TODO: why dis
+        if(((face == 15 && x > out[1]*ROOT3) || face == 14) && x > 0) {
                 out[0] = 0.5*x - 0.5*ROOT3*out[1];
                 out[1] = 0.5*ROOT3*x + 0.5*out[1];
-                face = 21;
-
-                //return new double[] {0,0};
-            }
-        } else if(face == 14 && out[0]>0) {
-            x = out[0];
-            out[0] = 0.5*x - 0.5*ROOT3*out[1];
-            out[1] = 0.5*ROOT3*x + 0.5*out[1];
-            face = 20;
+                face += 6; //shift 14->20 & 15->21
         }
 
         out[0] += CENTER_MAP[face * 2];
@@ -499,7 +494,7 @@ public class Airocean extends GeographicProjection {
         }
 
         //invert triangle transform
-        double[] c = inverseTriangleTransformNewton(x, y);
+        double[] c = inverseTriangleTransform(x, y);
         x = c[0];
         y = c[1];
         double z = c[2];
@@ -518,44 +513,57 @@ public class Airocean extends GeographicProjection {
         return new double[] {-3*ARC, -0.75*ARC*ROOT3, 2.5*ARC, 0.75*ARC*ROOT3};
     }
 
+    public boolean upright() {return false;}
+
     public double metersPerUnit() {
 
-        return 40075017/Math.sqrt(Math.PI*(20*ROOT3*ARC*ARC/4));
+        return 40075017/Math.sqrt(Math.PI*20*ROOT3*ARC*ARC/4);
     }
 
-    /*public static void main(String[] args) throws IOException{
-        Airocean projection = new Airocean();
+    /*public static void main(String[] args) throws IOException {
+        Airocean projection = new ModifiedAirocean();
+
+        double[] c = projection.fromGeo(12.4900422, 41.8902102);//-73.985821, 40.723241);
+        System.out.println(c[0] + " " + c[1]);
+        c = projection.toGeo(c[0], c[1]);
+        System.out.println(c[0] + " " + c[1]);
+
+
+        System.out.println((new ConformalEstimate()).fromGeo(170.185772, 53.611924)[0]);
+        System.out.println((new ConformalEstimate()).fromGeo(170.185772, 53.611924)[1]);
+
+        System.out.println(ARC);
 
         BufferedImage base;
 
         InputStream is = new FileInputStream("../../../../../resources/assets/terra121/data/map.png");
         base = ImageIO.read(is);
 
-        BufferedImage img = new BufferedImage(1024,1024,BufferedImage.TYPE_INT_ARGB);
+        BufferedImage img = new BufferedImage(1024, 1024, BufferedImage.TYPE_INT_ARGB);
 
         //scale should be able to fit whole earth inside texture
         double[] bounds = projection.bounds();
-        double scale = Math.max(Math.abs(bounds[2]-bounds[0]), Math.abs(bounds[3]-bounds[1]));
+        double scale = Math.max(Math.abs(bounds[2] - bounds[0]), Math.abs(bounds[3] - bounds[1]));
 
         int w = img.getWidth();
         int h = img.getHeight();
 
-        for(int lon=0;lon<base.getWidth();lon++) {
-            for(int lat=0;lat<base.getHeight();lat++) {
+        for (int lon = 0; lon < base.getWidth(); lon++) {
+            for (int lat = 0; lat < base.getHeight(); lat++) {
 
-                    //lat lon to reference image coords
-                    double Lon = (lon/(double)base.getWidth() - 0.5)*360;
-                    double Lat = (lat/(double)base.getHeight() - 0.5)*180;
+                //lat lon to reference image coords
+                double Lon = (lon / (double) base.getWidth() - 0.5) * 360;
+                double Lat = (lat / (double) base.getHeight() - 0.5) * 180;
 
-                    double proj[] = projection.fromGeo(Lon, Lat); //projection coords to x y
+                double proj[] = projection.fromGeo(Lon, Lat); //projection coords to x y
 
-                    int x = (int)(w*(proj[0] - bounds[0])/scale);
-                    int y = (int)(h*(proj[1] - bounds[1])/scale);
+                int x = (int) (w * (proj[0] - bounds[0]) / scale);
+                int y = (int) (h * (proj[1] - bounds[1]) / scale);
 
-                    //get pixel from reference image if possible
-                    if(x>=0 && y>=0 && x < img.getHeight() && y < img.getWidth()) {
-                        img.setRGB(x, h-y-1, base.getRGB(lon, base.getHeight()-lat-1));
-                    }
+                //get pixel from reference image if possible
+                if (x >= 0 && y >= 0 && x < img.getHeight() && y < img.getWidth()) {
+                    img.setRGB(x, h - y - 1, base.getRGB(lon, base.getHeight() - lat - 1));
+                }
             }
         }
 
@@ -563,15 +571,15 @@ public class Airocean extends GeographicProjection {
     }*/
 
 public static void main(String[] args) throws IOException {
-    Airocean projection = new Airocean();
+    Airocean projection = new ModifiedAirocean();
 
-        System.out.println(projection.metersPerUnit());
-    System.out.println((projection.bounds()[0])*projection.metersPerUnit());
-        System.out.println((projection.bounds()[2]-projection.bounds()[0])*projection.metersPerUnit());
-        System.out.println((projection.bounds()[3]-projection.bounds()[1])*projection.metersPerUnit());
+        //System.out.println(projection.metersPerUnit());
+        //System.out.println((projection.bounds()[0])*projection.metersPerUnit());
+        //System.out.println((projection.bounds()[2]-projection.bounds()[0])*projection.metersPerUnit());
+        //System.out.println((projection.bounds()[3]-projection.bounds()[1])*projection.metersPerUnit());
 
-        double[] f = projection.fromGeo(-74.0153496, 40.7129987);
-        f = projection.toGeo(f[0], f[1]);
+        double[] f = (new ConformalEstimate()).fromGeo(-169.245937, 65.865726);
+        //f = projection.toGeo(f[0], f[1]);
 
         System.out.println(f[0] + " " + f[1]);
 
@@ -580,7 +588,7 @@ public static void main(String[] args) throws IOException {
         InputStream is = new FileInputStream("../../../../../resources/assets/terra121/data/map.png");
         base = ImageIO.read(is);
 
-        BufferedImage img = new BufferedImage(2048,2048,BufferedImage.TYPE_INT_ARGB);
+        BufferedImage img = new BufferedImage(4096,4096,BufferedImage.TYPE_INT_ARGB);
 
         //scale should be able to fit whole earth inside texture
         double[] bounds = projection.bounds();
@@ -602,11 +610,13 @@ public static void main(String[] args) throws IOException {
 
         double proj[] = projection.toGeo(X, Y); //projection coords to lon lat
 
-        if(proj[0]!=proj[0] || proj[1]!=proj[1]) continue;
-
         //lat lon to reference image coords
         int lon = (int)((proj[0]/360 + 0.5)*base.getWidth());
         int lat = (int)((0.5 + proj[1]/180)*base.getHeight());
+
+            if(proj[0]!=proj[0] || proj[1]!=proj[1]){
+                lon = 0; lat=0;
+            }
 
         //get pixel from reference image if possible
         if(lon>=0 && lat>=0 && lat < base.getHeight() && lon < base.getWidth()) {

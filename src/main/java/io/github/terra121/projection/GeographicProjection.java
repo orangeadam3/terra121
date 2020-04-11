@@ -20,6 +20,9 @@ public class GeographicProjection {
 		projections.put("equal_earth", new EqualEarth());
 		projections.put("airocean", new Airocean());
 		projections.put("transverse_mercator", new TransverseMercatorProjection());
+		projections.put("airocean", new Airocean());
+		projections.put("conformal", new ConformalEstimate());
+		projections.put("bteairocean", new ModifiedAirocean());
 	}
 	
 	public static enum Orientation {
