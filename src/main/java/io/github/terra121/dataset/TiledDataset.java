@@ -50,8 +50,8 @@ public abstract class TiledDataset {
     public double estimateLocal(double lon, double lat) {
 
         //basic bound check
-        if(lon > 180 || lon < -180 || lat > 85 || lat < -85) {
-            return 0;
+        if(!(lon <= 180 && lon >= -180 && lat <= 85 && lat >= -85)) {
+            return -2;
         }
 
         //project coords

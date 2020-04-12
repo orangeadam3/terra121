@@ -116,6 +116,10 @@ public class OpenStreetMaps {
 
     public Region regionCache(double[] corner) {
 
+        //bound check
+        if(!(corner[0]>=-180 && corner[0]<=180 && corner[1]>=-90 && corner[1]<=90))
+            return null;
+
         Coord coord = getRegion(corner[0], corner[1]);
         Region region;
 
