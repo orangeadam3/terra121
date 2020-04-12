@@ -8,47 +8,37 @@ public class ConformalEstimate extends Airocean {
     InvertableVectorField forward;
     InvertableVectorField inverse;
 
+    double SCALE_FACTOR = 1/1.1473979730192934;
+
     public ConformalEstimate () {
-            //InputStream is = new FileInputStream("../../../../../resources/assets/terra121/data/conformal.txt");
-            InputStream is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/conformal.txt");
-            Scanner sc = new Scanner(is);
+        InputStream is = null;
+        //try {is = new FileInputStream("../resources/assets/terra121/data/conformal.txt");} catch(Exception e){}
+        is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/conformal.txt");
+        Scanner sc = new Scanner(is);
 
-            int sideLength = 256;
+        int sideLength = 256;
 
-            double[][] xs = new double[sideLength + 1][];
-            double[][] ys = new double[xs.length][];
+        double[][] xs = new double[sideLength + 1][];
+        double[][] ys = new double[xs.length][];
 
-            for (int u = 0; u < xs.length; u++) {
-                double[] px = new double[xs.length - u];
-                double[] py = new double[xs.length - u];
-                xs[u] = px;
-                ys[u] = py;
+        for (int u = 0; u < xs.length; u++) {
+            double[] px = new double[xs.length - u];
+            double[] py = new double[xs.length - u];
+            xs[u] = px;
+            ys[u] = py;
+        }
+
+        for (int v = 0; v < xs.length; v++) {
+            for (int u = 0; u < xs.length - v; u++) {
+                String line = sc.nextLine();
+                line = line.substring(1,line.length()-3);
+                String[] split = line.split(", ");
+                xs[u][v] = Double.parseDouble(split[0])*SCALE_FACTOR;
+                ys[u][v] = Double.parseDouble(split[1])*SCALE_FACTOR;
             }
+        }
 
-            for (int v = 0; v < xs.length; v++) {
-                for (int u = 0; u < xs.length - v; u++) {
-                    String line = sc.nextLine();
-                    line = line.substring(1,line.length()-3);
-                    String[] split = line.split(", ");
-                    xs[u][v] = Double.parseDouble(split[0])/1.1473979730192934;
-                    ys[u][v] = Double.parseDouble(split[1])/1.1473979730192934;
-
-                    double y0 = v*0.5;
-                    double x0 = u + y0;
-                    y0 *= ROOT3;
-
-                    x0 /= sideLength;
-                    y0 /= sideLength;
-
-                    x0 -= 0.5;
-                    y0 -= ROOT3/6;
-
-                    x0 *= ARC;
-                    y0 *= ARC;
-                }
-            }
-
-            inverse = new InvertableVectorField(xs, ys);
+        inverse = new InvertableVectorField(xs, ys);
     }
 
     /*public ConformalEstimate () {
@@ -188,5 +178,9 @@ public class ConformalEstimate extends Airocean {
         //System.out.println(c[0]+" "+c[1]);
 
         return  super.inverseTriangleTransform(c[0],c[1]);
+    }
+
+    public double metersPerUnit() {
+        return super.metersPerUnit()*SCALE_FACTOR;
     }
 }

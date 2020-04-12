@@ -579,13 +579,13 @@ public static void main(String[] args) throws IOException {
         //System.out.println((projection.bounds()[3]-projection.bounds()[1])*projection.metersPerUnit());
 
         double[] f = (new ConformalEstimate()).fromGeo(-169.245937, 65.865726);
-        //f = projection.toGeo(f[0], f[1]);
+        f = projection.toGeo(f[0], f[1]);
 
-        System.out.println(f[0] + " " + f[1]);
+        //System.out.println(f[0] + " " + f[1]);
 
         BufferedImage base;
 
-        InputStream is = new FileInputStream("../../../../../resources/assets/terra121/data/map.png");
+        InputStream is = new FileInputStream("../resources/assets/terra121/data/map.png");
         base = ImageIO.read(is);
 
         BufferedImage img = new BufferedImage(4096,4096,BufferedImage.TYPE_INT_ARGB);
@@ -598,6 +598,16 @@ public static void main(String[] args) throws IOException {
         int h = img.getHeight();
 
         long og = System.nanoTime();
+
+        for(int x=0; x<1000000; x++) {
+            f = projection.fromGeo(-169.245937, 65.865726);
+            f = projection.toGeo(f[0], f[1]);
+        }
+
+        f = projection.toGeo(0,0.001);
+        System.out.println(f[0] + " " + f[1]);
+
+        System.out.println((System.nanoTime()-og)/1000000000.0);
 
         for(int x=0;x<w;x++) {
         for(int y=0;y<h;y++) {
