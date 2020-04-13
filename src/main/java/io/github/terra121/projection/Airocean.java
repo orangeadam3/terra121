@@ -516,8 +516,7 @@ public class Airocean extends GeographicProjection {
     public boolean upright() {return false;}
 
     public double metersPerUnit() {
-
-        return 40075017/Math.sqrt(Math.PI*20*ROOT3*ARC*ARC/4);
+        return Math.sqrt(510100000000000.0/(20*ROOT3*ARC*ARC/4));
     }
 
     /*public static void main(String[] args) throws IOException {
@@ -599,13 +598,15 @@ public static void main(String[] args) throws IOException {
 
         long og = System.nanoTime();
 
-        for(int x=0; x<1000000; x++) {
-            f = projection.fromGeo(-169.245937, 65.865726);
-            f = projection.toGeo(f[0], f[1]);
-        }
+        ConformalEstimate cp = new ConformalEstimate();
 
-        f = projection.toGeo(0,0.001);
-        System.out.println(f[0] + " " + f[1]);
+        double[] oc = cp.toGeo(0,ARC*ROOT3/12);
+        f = cp.fromGeo(oc[0],oc[1]+360.0*0.001/40075017);
+        double[] g = cp.fromGeo(oc[0], oc[1]);
+        System.out.println(Math.sqrt((f[0]-g[0])*(f[0]-g[0]) + (f[1]-g[1])*(f[1]-g[1]))*cp.metersPerUnit());
+
+        System.out.println(cp.metersPerUnit()/40075017);
+        System.out.println(ARC);
 
         System.out.println((System.nanoTime()-og)/1000000000.0);
 
