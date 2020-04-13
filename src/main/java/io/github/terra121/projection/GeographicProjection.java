@@ -9,6 +9,7 @@ import java.util.Map;
 public class GeographicProjection {
 	
 	public static double EARTH_CIRCUMFERENCE = 40075017;
+	public static double EARTH_POLAR_CIRCUMFERENCE = 40008000;
 	
 	public static Map<String, GeographicProjection> projections;
 	
@@ -84,5 +85,30 @@ public class GeographicProjection {
 	
 	public boolean upright() {
 		return fromGeo(0,90)[1]<=fromGeo(0,-90)[1];
+	}
+
+	public double[] vector(double x, double y, double north, double east) {
+		double geo[] = toGeo(x,y);
+
+		//TODO: east may be slightly off because earth not a sphere
+		double off[] = fromGeo(geo[0] + east*360.0/(Math.cos(geo[1]*Math.PI/180.0)*EARTH_CIRCUMFERENCE),
+				geo[1] + north*360.0/EARTH_POLAR_CIRCUMFERENCE);
+
+		return new double[] {off[0]-x,off[1]-y};
+	}
+
+	public double[] distortion(double x, double y) {
+		double[] north = vector(x,y,1,0);
+		double[] east = vector(x,y,0,1);
+
+		double geo[] = toGeo(x,y);
+
+		double magn = Math.sqrt(north[0]*north[0] + north[1]*north[1]);
+		double mage = Math.sqrt(east[0]*east[0] + east[1]*east[1]);
+
+
+		double coslat = Math.cos(geo[1]*Math.PI/180);
+
+		return new double[] {magn,mage, east[0]/(Math.cos(coslat)*north[1]), -north[0]/(Math.cos(coslat)*east[1])};
 	}
 }
