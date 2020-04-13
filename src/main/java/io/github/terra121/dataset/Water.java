@@ -55,8 +55,10 @@ public class Water {
 	//TODO: more efficient
 	public float estimateLocal(double lon, double lat) {
 		//bound check
-        if(lon > 180 || lon < -180 || lat > 80 || lat < -80) {
-            return 0;
+        if(!(lon <= 180 && lon >= -180 && lat <= 80 && lat >= -80)) {
+            if(lat<-80) //antartica is land
+            	return 0;
+        	return 2; //all other out of bounds is water
         }
 
         double oshift = osm.TILE_SIZE / hres;
