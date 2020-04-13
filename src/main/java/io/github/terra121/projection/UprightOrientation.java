@@ -19,4 +19,9 @@ public class UprightOrientation extends ProjectionTransform {
 	public boolean upright() {
 		return !input.upright();
 	}
+
+	public double[] bounds() {
+		double[] b = input.bounds();
+		return new double[] {b[0],-b[3],b[2],-b[1]};
+	}
 }

@@ -105,6 +105,8 @@ public class TerraCommand extends CommandBase {
 			}
 			break;
 
+			case "distortion": case "tessot": //TODO
+
 		default:
 			throw new WrongUsageException(getUsage(sender), new Object[0]);
 		}
