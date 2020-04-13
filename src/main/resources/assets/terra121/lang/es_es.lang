@@ -18,9 +18,9 @@ terra121.projection.equirectangular=Equirectangular
 terra121.projection.sinusoidal=Sinusoidal
 terra121.projection.equal_earth=Equal Earth
 terra121.projection.transverse_mercator=Mercator Transversal
-terra121.projection.airocean=Airocean
+terra121.projection.airocean=Airocean (no BTE)
 terra121.projection.bteairocean=BTE Airocean
-terra121.projection.conformal=Conformal
+terra121.projection.conformal=Conformal (no BTE)
 
 ## Projection orientations
 terra121.orientation.upright=Derecha
