@@ -161,7 +161,8 @@ public class OpenStreetMaps {
             String urltext = URL_PREFACE + bbox + URL_A + bbox + URL_B;
             if (doWater) urltext += URL_C + bottomleft + URL_SUFFIX;
 
-            TerraMod.LOGGER.info(urltext);
+            // todo this got a bit slow when developing the extended render, maybe re-enable
+            // TerraMod.LOGGER.info(urltext);
 
             //kumi systems request a meaningful user-agent
             URL url = new URL(urltext);

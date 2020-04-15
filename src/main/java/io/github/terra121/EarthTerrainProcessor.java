@@ -30,6 +30,7 @@ import io.github.terra121.populator.EarthTreePopulator;
 import io.github.terra121.populator.VectorPathGenerator;
 import io.github.terra121.populator.RoadGenerator;
 import io.github.terra121.populator.ExtendedRenderer;
+import io.github.terra121.populator.ExtendedRenderManager;
 import io.github.terra121.populator.SnowPopulator;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.Block;
@@ -314,8 +315,11 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             MinecraftForge.EVENT_BUS.post(new PopulateCubeEvent.Pre(world, rand, cube.getX(), cube.getY(), cube.getZ(), false));
 
             CubePos pos = cube.getCoords();
-            if (cfg.settings.advancedRoads) extendedRenderer = new ExtendedRenderer(world, projection, pos);
-            extendedRenderer.run();
+
+            // we only wanna do all that pregen if the current cubepos is on the edge of the previous cache
+            extendedRenderer = new ExtendedRenderer(world, projection, pos);
+            if (ExtendedRenderManager.covered.isEmpty()) extendedRenderer.start();
+            if (cfg.settings.advancedRoads && !ExtendedRenderManager.covered.contains(pos)) extendedRenderer.start();
 
             int surf = isSurface(world, cube);
             if (surf == 0) {

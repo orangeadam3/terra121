@@ -56,7 +56,8 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		}
 		
 		String[] projs = (String[])GeographicProjection.projections.keySet().toArray(new String[GeographicProjection.projections.size()]);
-		
+		// todo languages
+
 		settingElems = new DynamicOptions.Element[] {
 						cycleButton(6969, "projection", projs, e -> {projectMap(true); return I18n.format("terra121.gui.projection")+": "+I18n.format("terra121.projection."+e);}),
 						cycleButton(6968, "orentation", GeographicProjection.Orientation.values(), e -> {projectMap(true); return I18n.format("terra121.gui.orientation")+": "+I18n.format("terra121.orientation."+e.toString());}),
@@ -65,6 +66,7 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 						toggleButton(6965, "osmwater", null),
 						toggleButton(6964, "dynamicbaseheight", null),
 						toggleButton(6963, "buildings", null),
+						toggleButton(6962, "vectorpath", null),
 		};
 		projectMap(false);
 	}

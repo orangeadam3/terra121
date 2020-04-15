@@ -2,9 +2,9 @@ package io.github.terra121.projection;
 
 import java.io.*;
 import java.util.Scanner;
-
+/*
 public class ConformalEstimate extends Airocean {
-
+/*
     InvertableVectorField forward;
     InvertableVectorField inverse;
 
@@ -125,7 +125,7 @@ public class ConformalEstimate extends Airocean {
 
         inverse = new InvertableVectorField(xs, ys);
     }*/
-
+/*
     protected double[] triangleTransform(double x, double y, double z) {
         double[] c = super.triangleTransform(x,y,z);
 
@@ -159,7 +159,7 @@ public class ConformalEstimate extends Airocean {
 
         c[0] = Math.cos(theta * TO_RADIANS) * c[0] + Math.sin(theta * TO_RADIANS) * c[1];
         c[1] = Math.cos(theta * TO_RADIANS) * c[1] - Math.sin(theta * TO_RADIANS) * x;*/
-
+/*
         return c;
     }
 
@@ -184,11 +184,11 @@ public class ConformalEstimate extends Airocean {
         c[1] = Math.cos(-theta * TO_RADIANS) * c[1] - Math.sin(-theta * TO_RADIANS) * x;*/
 
         //System.out.println(c[0]+" "+c[1]);
-
+/*
         return  super.inverseTriangleTransform(c[0],c[1]);
     }
 
     public double metersPerUnit() {
         return (40075017/(2*Math.PI))/VECTOR_SCALE_FACTOR;
     }
-}
+}*/

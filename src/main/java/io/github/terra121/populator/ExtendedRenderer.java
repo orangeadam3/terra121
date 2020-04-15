@@ -12,13 +12,11 @@ import net.minecraft.world.World;
 import java.util.*;
 
 /**
- *  This class contains the methods and subclasses necessary to make tunnels possible.
- *  In essence, it allows structures to be generated and stored in memory until their respective chunks are loaded
- *  into the game. Think of it as preloading the structures.
- *
- * */
+ * Preload roads out to set distance. This is a quick implementation of tunnel gen but it should work for most tunnels.
+ * I do however plan to replace this with something more elegant/resource conscious.
+ * I know it doesn't actually <i>render</i> anything, but I couldn't think of a better name.
+ */
 public class ExtendedRenderer extends Thread {
-
 
     public EarthGeneratorSettings cfg;
     int extendedGen;
@@ -26,6 +24,7 @@ public class ExtendedRenderer extends Thread {
     CubePos local;
     OpenStreetMaps osm;
     GeographicProjection projection;
+    public static List<CubePos> chunks = new ArrayList<>();
 
     public ExtendedRenderer(World world, GeographicProjection projection, CubePos local) {
 
@@ -41,29 +40,33 @@ public class ExtendedRenderer extends Thread {
         this.osm = new OpenStreetMaps(projection, true, false, false);
     }
 
-    static class renderFar implements Runnable {
+    static class Renderer implements Runnable {
 
+        int quad;
         static OpenStreetMaps osm;
         CubePos localCube;
         int start;
-        int stop;
+        int dist;
 
-        public renderFar(OpenStreetMaps osm, CubePos localCube, int start, int stop) {
-            renderFar.osm = osm;
+        public Renderer(OpenStreetMaps osm, CubePos localCube, int start, int dist, int quad) {
+            Renderer.osm = osm;
             this.localCube = localCube;
             this.start = start;
-            this.stop = stop;
+            this.dist = dist;
+            this.quad = quad;
         }
 
         /**
          * Pre-load roads into memory. Returns all roads within the given limit.
          * This can obviously impact performance. The worlds longest road tunnel is no longer than
          * about 25 kilometers, so no more than 25000/16=1562 is necessary (could also be rounded to next 2 exponent, which is 2048).<br>
-         * The theoretical upper limit of chunkCount is a bit less than 1.1M Kilometers, but that's unrealistic.
-         * */
-
+         * The theoretical upper limit is a bit less than 1.1M Kilometers, but that's unrealistic.
+         * I use multithreading to speed it up and for maximum CPU utilization.
+         */
         @Override
         public void run() {
+
+            ExtendedRenderManager.covered = new ArrayList<>();
 
             Set<Pathway.ChunkWithStructures> osmStrc = new HashSet<>();
 
@@ -75,39 +78,59 @@ public class ExtendedRenderer extends Thread {
             int z = (int) local.z;
             int y = (int) local.y;
 
+            // offset begin of processing
+            switch (quad) {
+                case 1:
+                    x -= dist;
+                    z -= dist;
+                case 2:
+                    x += dist;
+                    z -= dist;
+                case 3:
+                    x -= dist;
+                    z += dist;
+                case 4:
+                    x += dist;
+                    z += dist;
+            }
+
             int sqr = start; // the dimension of the spiral square
             int i = 1;
-            while (i <= stop) {
-                int e = 1;
+            while (i <= dist) {
+                int e = 0;
                 while (e <= sqr) {
                     // counterclockwise rotation, south -> east -> north -> west
                     z--;
                     Pathway.ChunkWithStructures st = new Pathway.ChunkWithStructures(new CubePos(x, y, z), osm.chunkStructures(x, z));
-                    if (st.structures!=null) osmStrc.add(st);
+                    if (st.structures != null) osmStrc.add(st);
+                    chunks.add(new CubePos(x, y, z));
                     e++;
                 }
                 e = 1;
                 while (e <= sqr) {
                     x++;
                     Pathway.ChunkWithStructures st = new Pathway.ChunkWithStructures(new CubePos(x, y, z), osm.chunkStructures(x, z));
-                    if (st.structures!=null) osmStrc.add(st);
+                    if (st.structures != null) osmStrc.add(st);
+                    chunks.add(new CubePos(x, y, z));
                     e++;
                 }
                 e = 1;
                 while (e <= sqr) {
                     z++;
                     Pathway.ChunkWithStructures st = new Pathway.ChunkWithStructures(new CubePos(x, y, z), osm.chunkStructures(x, z));
-                    if (st.structures!=null) osmStrc.add(st);
+                    if (st.structures != null) osmStrc.add(st);
+                    chunks.add(new CubePos(x, y, z));
                     e++;
                 }
                 e = 1;
                 while (e <= sqr) {
                     x--;
                     Pathway.ChunkWithStructures st = new Pathway.ChunkWithStructures(new CubePos(x, y, z), osm.chunkStructures(x, z));
-                    if (st.structures!=null) osmStrc.add(st);
+                    if (st.structures != null) osmStrc.add(st);
+                    chunks.add(new CubePos(x, y, z));
                     e++;
                 }
-                sqr += 2;
+                sqr -= 2;
                 i++;
             }
 
@@ -119,41 +142,26 @@ public class ExtendedRenderer extends Thread {
                 }
             }
 
-            List<Pathway.ChunkWithStructures> osmStrcL = new ArrayList<>(osmStrc);
-            TerraMod.LOGGER.info("Pre-generation of chunks (counterclockwise rotation) {} to {} finished successfully.",
-                    osmStrcL.get(0).chunk, osmStrcL.get(osmStrcL.size() - 1).chunk);
-
         }
     }
 
     public static Set<Pathway.ChunkWithStructures> osmStructures = new HashSet<>();
 
     public void run() {
+        int dist = chunkCount / 4;
 
-        // this is arbitrary
-        int threadCount = 4;
-        if (extendedGen > 512 && extendedGen < 1024) {
-            threadCount = 8;
-        } else if (extendedGen > 1024) {
-            threadCount = 16;
+        // using 4 threads is arbitrary
+        for (int i = 1; i <= 4; i++) {
+
+            Renderer e = new Renderer(osm, local, 0, dist, i);
+            Thread thread = new Thread(e);
+            thread.start();
+            TerraMod.LOGGER.info("Started thread {} of {} (thread id {})", i, 4, thread.getId());
+
         }
 
-        renderFar e = new renderFar(osm, local, 0, extendedGen);
-        Thread thread = new Thread(e);
-        thread.start();
+        ExtendedRenderManager.covered = chunks;
 
-        /*int blocksPerThread = extendedGen / threadCount;
-        int dis = extendedGen / blocksPerThread;
-        int stspDis = chunkCount / threadCount;
-        int lastStep = stspDis;
-        for (int i = 0; i <= threadCount; i++) {
-
-            ExtendedRenderer e = new ExtendedRenderer(osm, local, lastStep + 1, dis);
-            Thread thread = new Thread(e);
-            lastStep += stspDis;
-            thread.start();
-
-        }*/
     }
 }
 

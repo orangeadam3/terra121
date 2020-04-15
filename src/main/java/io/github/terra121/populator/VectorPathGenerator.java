@@ -34,13 +34,13 @@ public class VectorPathGenerator implements ICubicPopulator {
         int cubeZ = cubePos.getZ();
         Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeY);
         Set<Pathway.ChunkWithStructures> farEdges = ExtendedRenderer.osmStructures;
+        // avoid ConcurrentModificationException??? (hopefully...)
+        Set<Pathway.ChunkWithStructures> test = farEdges;
         if (edges == null) edges = new HashSet<>();
 
-        TerraMod.LOGGER.info("size: {}", edges.size());
-
         // add far edges to be processed
-        if (farEdges != null) {
-            for (Pathway.ChunkWithStructures e : farEdges) {
+        if (test != null) {
+            for (Pathway.ChunkWithStructures e : test) {
                 if (e.chunk != null && e.structures != null) {
                     if (e.chunk != cubePos) {
                         edges.addAll(e.structures);
@@ -48,6 +48,8 @@ public class VectorPathGenerator implements ICubicPopulator {
                 }
             }
         }
+        // todo delete
+        TerraMod.LOGGER.info("size: {}", edges.size());
 
         List<Pathway.VectorPathGroup> paths = Pathway.chunkStructuresAsVectors(edges, world, cubeX, cubeY, cubeZ, heights, projection, null, null);
         List<Pathway.VectorPathGroup> sPaths = new ArrayList<>();

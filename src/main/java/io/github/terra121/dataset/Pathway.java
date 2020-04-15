@@ -11,11 +11,11 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BiFunction;
 
+import static io.github.terra121.dataset.OpenStreetMaps.Type;
 import static io.github.terra121.populator.VectorPathGenerator.bound;
 
 /**
@@ -103,18 +103,26 @@ public class Pathway {
         List<VectorPath> air = new ArrayList<>();
         List<VectorPathGroup> allPaths = new ArrayList<>();
 
+        List<OpenStreetMaps.Edge> lEdges = new ArrayList<>(edges);
 
-        for (Iterator<OpenStreetMaps.Edge> iterator = edges.iterator(); iterator.hasNext(); ) {
-            OpenStreetMaps.Edge e = iterator.next();
+//      for (int e = 0; e <= currentVp.size() - 1; e++) {
+
+        for (int i = 0; i <= lEdges.size() - 1; i++) {
+            OpenStreetMaps.Edge e = lEdges.get(i);
+            OpenStreetMaps.Edge eN;
+            try {
+                eN = lEdges.get(i + 1);
+            } catch (IndexOutOfBoundsException ignore) {
+                eN = null;
+            }
+
             if (e.type != OpenStreetMaps.Type.BUILDING) {
 
                 if (start == null && end == null) {
                     if (e.attributes == OpenStreetMaps.Attributes.TUNNEL || e.attributes == OpenStreetMaps.Attributes.BRIDGE) {
-
                         // we only need the edge to process the tunnel or bridge later
                         tunnel.add(new VectorPath(null, null, null, null, e));
                         break;
-
                     }
                 }
 
@@ -129,116 +137,126 @@ public class Pathway {
 
                 List<VectorPath> relationMatchingPath = new ArrayList<>();
 
+                String nref;
+                if (eN != null) nref = eN.ref; else nref = "Not_Avaliable";
+                if (e.type == Type.RIVER || e.type == Type.STREAM) {
+                    e.ref = "waterway";
+                    nref = "waterway2";
+                }
+
+                TerraMod.LOGGER.info("ref {}, nref {}, size {}", e.ref, nref, edges.size());
+
                 int r;
                 // process edges into vec3d
-                while (e.ref.equals(iterator.next().ref)) {
+                if (e.ref != null) {
+                    while (e.ref.equals(nref)) {
 
-                    switch (e.type) {
-                        case STREAM:
-                            state = ((dis, bpos) -> riverState(world, dis, bpos));
-                            r = 1;
-                            break;
-                        case RIVER:
-                            state = ((dis, bpos) -> riverState(world, dis, bpos));
-                            r = 5;
-                            break;
-                        case PATH:
-                            state = (dis, bpos) -> PATH;
-                            r = 1;
-                            break;
-                        default:
-                            state = (dis, bpos) -> ASPHALT;
-                            r = (int) Pathway.calculateRoadWidth(e.lanes, e.type);
-                            break;
-                    }
+                        switch (e.type) {
+                            case STREAM:
+                                state = ((dis, bpos) -> riverState(world, dis, bpos));
+                                r = 1;
+                                break;
+                            case RIVER:
+                                state = ((dis, bpos) -> riverState(world, dis, bpos));
+                                r = 5;
+                                break;
+                            case PATH:
+                                state = (dis, bpos) -> PATH;
+                                r = 1;
+                                break;
+                            default:
+                                state = (dis, bpos) -> ASPHALT;
+                                r = (int) Pathway.calculateRoadWidth(e.lanes, e.type);
+                                break;
+                        }
 
-                    double x0 = 0;
-                    double b = r;
-                    if (Math.abs(e.slope) >= 0.000001) {
-                        x0 = r / Math.sqrt(1 + 1 / (e.slope * e.slope));
-                        b = (e.slope < 0 ? -1 : 1) * x0 * (e.slope + 1.0 / e.slope);
-                    }
+                        double x0 = 0;
+                        double b = r;
+                        if (Math.abs(e.slope) >= 0.000001) {
+                            x0 = r / Math.sqrt(1 + 1 / (e.slope * e.slope));
+                            b = (e.slope < 0 ? -1 : 1) * x0 * (e.slope + 1.0 / e.slope);
+                        }
 
-                    double j = e.slon - (cubeX * 16);
-                    double k = e.elon - (cubeX * 16);
+                        double j = e.slon - (cubeX * 16);
+                        double k = e.elon - (cubeX * 16);
 
-                    if (j > k) {
-                        double t = j;
-                        j = k;
-                        k = t;
-                    }
+                        if (j > k) {
+                            double t = j;
+                            j = k;
+                            k = t;
+                        }
 
-                    double ij = j - r;
-                    double ik = k + r;
+                        double ij = j - r;
+                        double ik = k + r;
 
-                    if (j <= 0) {
-                        j = 0;
-                        //ij=0;
-                    }
-                    if (k >= 16) {
-                        k = 16;
-                        //ik = 16;
-                    }
+                        if (j <= 0) {
+                            j = 0;
+                            //ij=0;
+                        }
+                        if (k >= 16) {
+                            k = 16;
+                            //ik = 16;
+                        }
 
-                    double off = e.offset - (cubeZ * 16) + e.slope * (cubeX * 16);
+                        double off = e.offset - (cubeZ * 16) + e.slope * (cubeX * 16);
 
-                    int is = (int) Math.floor(ij);
-                    int ie = (int) Math.floor(ik);
+                        int is = (int) Math.floor(ij);
+                        int ie = (int) Math.floor(ik);
 
-                    for (int x = is; x <= ie; x++) {
+                        for (int x = is; x <= ie; x++) {
 
-                        double ul = bound(x, e.slope, j, k, r, x0, b, 1) + off; //TODO: save these repeated values
-                        double ur = bound((double) x + 1, e.slope, j, k, r, x0, b, 1) + off;
-                        double ll = bound(x, e.slope, j, k, r, x0, b, -1) + off;
-                        double lr = bound((double) x + 1, e.slope, j, k, r, x0, b, -1) + off;
+                            double ul = bound(x, e.slope, j, k, r, x0, b, 1) + off; //TODO: save these repeated values
+                            double ur = bound((double) x + 1, e.slope, j, k, r, x0, b, 1) + off;
+                            double ll = bound(x, e.slope, j, k, r, x0, b, -1) + off;
+                            double lr = bound((double) x + 1, e.slope, j, k, r, x0, b, -1) + off;
 
-                        double from = Math.min(Math.min(ul, ur), Math.min(ll, lr));
-                        double to = Math.max(Math.max(ul, ur), Math.max(ll, lr));
+                            double from = Math.min(Math.min(ul, ur), Math.min(ll, lr));
+                            double to = Math.max(Math.max(ul, ur), Math.max(ll, lr));
 
-                        if (from == from) {
+                            if (from == from) {
 
-                            int ifrom = (int) Math.floor(from);
-                            int ito = (int) Math.floor(to);
+                                int ifrom = (int) Math.floor(from);
+                                int ito = (int) Math.floor(to);
 
-                            if (ifrom <= -16)
-                                ifrom = -15;
-                            if (ito >= 32)
-                                ito = 31;
+                                if (ifrom <= -16)
+                                    ifrom = -15;
+                                if (ito >= 32)
+                                    ito = 31;
 
-                            for (int z = ifrom; z <= ito; z++) {
-                                //get the part of the center line i am tangent to (i hate high school algebra!!!)
-                                double mainX = x;
-                                if (Math.abs(e.slope) >= 0.000001)
-                                    mainX = ((double) z + (double) x / e.slope - off) / (e.slope + 1 / e.slope);
+                                for (int z = ifrom; z <= ito; z++) {
+                                    //get the part of the center line i am tangent to (i hate high school algebra!!!)
+                                    double mainX = x;
+                                    if (Math.abs(e.slope) >= 0.000001)
+                                        mainX = ((double) z + (double) x / e.slope - off) / (e.slope + 1 / e.slope);
 
-                                double mainZ = e.slope * mainX + off;
+                                    double mainZ = e.slope * mainX + off;
 
-                                //get distance to closest point
-                                double distance = mainX - (double) x;
-                                distance *= distance;
-                                double t = mainZ - (double) z;
-                                distance += t * t;
-                                distance = Math.sqrt(distance);
+                                    //get distance to closest point
+                                    double distance = mainX - (double) x;
+                                    distance *= distance;
+                                    double t = mainZ - (double) z;
+                                    distance += t * t;
+                                    distance = Math.sqrt(distance);
 
-                                double[] geo = projection.toGeo(mainX + cubeX * (16), mainZ + cubeZ * (16));
-                                int y = (int) Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY * 16);
+                                    double[] geo = projection.toGeo(mainX + cubeX * (16), mainZ + cubeZ * (16));
+                                    int y = (int) Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY * 16);
 
-                                // if not in this range, someone else will handle it
-                                if (y >= 0 && y < 16) {
+                                    // if not in this range, someone else will handle it
+                                    if (y >= 0 && y < 16) {
 
-                                    allX.add((double) (x + cubeX * 16));
-                                    allY.add((double) (y + cubeY * 16));
-                                    allZ.add((double) (z + cubeZ * 16));
+                                        allX.add((double) (x + cubeX * 16));
+                                        allY.add((double) (y + cubeY * 16));
+                                        allZ.add((double) (z + cubeZ * 16));
 
-                                    BlockPos pathPos = new BlockPos(x + cubeX * 16, y + cubeY * 16, z + cubeZ * 16);
-                                    IBlockState bstate = state.apply(distance, pathPos);
+                                        BlockPos pathPos = new BlockPos(x + cubeX * 16, y + cubeY * 16, z + cubeZ * 16);
+                                        IBlockState bstate = state.apply(distance, pathPos);
 
-                                    if (bstate != null) {
+                                        if (bstate != null) {
 
-                                        try {
+                                            try {
 
-                                            v = VectorPathFromValues(allX, allY, allZ, e.ref, bstate, e.attributes, null);
-                                            relationMatchingPath.add(v);
+                                                v = VectorPathFromValues(allX, allY, allZ, e.ref, bstate, e.attributes, null);
+                                                relationMatchingPath.add(v);
 
                                             /*
                                             switch (e.type) {
@@ -255,28 +273,29 @@ public class Pathway {
                                             }
                                             */
 
-                                        } catch (IOException ex) {
-                                            TerraMod.LOGGER.error("An IOException has occured while trying to call VectorPathFromValues(). Are all coordinate lists equal in size?");
-                                            ex.printStackTrace();
-                                        }
+                                            } catch (IOException ex) {
+                                                TerraMod.LOGGER.error("An IOException has occured while trying to call VectorPathFromValues(). Are all coordinate lists equal in size?");
+                                                ex.printStackTrace();
+                                            }
 
-                                        // clear the above blocks (to a point, we don't want to be here all day)
-                                        List<Double> abX = new ArrayList<>();
-                                        List<Double> abY = new ArrayList<>();
-                                        List<Double> abZ = new ArrayList<>();
-                                        IBlockState defState = Blocks.AIR.getDefaultState();
-                                        for (int ay = y + 1;
-                                             ay < 32 && world.getBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16)) != defState;
-                                             ay++) {
-                                            abX.add((double) x + cubeX * 16);
-                                            abY.add((double) ay + cubeY * 16);
-                                            abZ.add((double) z + cubeZ * 16);
-                                        }
-                                        try {
-                                            air.add(VectorPathFromValues(abX, abY, abZ, e.ref, defState, OpenStreetMaps.Attributes.NONE, null));
-                                        } catch (IOException ex) {
-                                            TerraMod.LOGGER.error("An IOException has occured while trying to call VectorPathFromValues(). Are all coordinate lists equal in size?");
-                                            ex.printStackTrace();
+                                            // clear the above blocks (to a point, we don't want to be here all day)
+                                            List<Double> abX = new ArrayList<>();
+                                            List<Double> abY = new ArrayList<>();
+                                            List<Double> abZ = new ArrayList<>();
+                                            IBlockState defState = Blocks.AIR.getDefaultState();
+                                            for (int ay = y + 1;
+                                                 ay < 32 && world.getBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16)) != defState;
+                                                 ay++) {
+                                                abX.add((double) x + cubeX * 16);
+                                                abY.add((double) ay + cubeY * 16);
+                                                abZ.add((double) z + cubeZ * 16);
+                                            }
+                                            try {
+                                                air.add(VectorPathFromValues(abX, abY, abZ, e.ref, defState, OpenStreetMaps.Attributes.NONE, null));
+                                            } catch (IOException ex) {
+                                                TerraMod.LOGGER.error("An IOException has occured while trying to call VectorPathFromValues(). Are all coordinate lists equal in size?");
+                                                ex.printStackTrace();
+                                            }
                                         }
                                     }
                                 }
@@ -423,9 +442,9 @@ public class Pathway {
     public static OpenStreetMaps getOSM(GeographicProjection projection, OpenStreetMaps.Type t) {
         OpenStreetMaps osm;
 
-        if (t == OpenStreetMaps.Type.RIVER || t == OpenStreetMaps.Type.STREAM) {
+        if (t == Type.RIVER || t == Type.STREAM) {
             osm = new OpenStreetMaps(projection, false, true, false);
-        } else if (t == OpenStreetMaps.Type.ROAD) {
+        } else if (t == Type.ROAD) {
             osm = new OpenStreetMaps(projection, true, false, false);
         } else {
             osm = new OpenStreetMaps(projection, true, true, false);
