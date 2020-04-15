@@ -23,6 +23,8 @@ public class EarthGeneratorSettings {
 		public Double scaleY = 100000.0;
 		public Boolean smoothblend = true;
 		public Boolean roads = true;
+		public Boolean advancedRoads = true; // todo default is false
+		public Integer extendedRender = 64;
 		public String customcubic = "";
 		public Boolean dynamicbaseheight = true;
 		public Boolean osmwater = false;

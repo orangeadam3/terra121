@@ -50,17 +50,16 @@ public class OpenStreetMaps {
     private GeographicProjection projection;
 
     public static enum Type {
-        IGNORE, ROAD, MINOR, SIDE, MAIN, INTERCHANGE, LIMITEDACCESS, FREEWAY, STREAM, RIVER, BUILDING, RAIL
+        IGNORE, PATH, ROAD, MINOR, SIDE, MAIN, INTERCHANGE, LIMITEDACCESS, FREEWAY, STREAM, RIVER, BUILDING, RAIL
         // ranges from minor to freeway for roads, use road if not known
     }
 
     public static enum Attributes {
-        ISBRIDGE, ISTUNNEL, NONE
+        BRIDGE, TUNNEL, ROAD, STANDARD, NONE
     }
 
-    public static class noneBoolAttributes {
-        public static String layer;
-    }
+    public String ref;
+    public String name;
 
     Type wayType;
     byte wayLanes;
@@ -204,14 +203,14 @@ public class OpenStreetMaps {
         IOUtils.copy(is, writer, StandardCharsets.UTF_8);
         String str = writer.toString();
 
-        Data data = gson.fromJson(str.toString(), Data.class);
+        Data data = gson.fromJson(str, Data.class);
 
         Map<Long, Element> allWays = new HashMap<Long, Element>();
         Set<Element> unusedWays = new HashSet<Element>();
         Set<Long> ground = new HashSet<Long>();
 
         for (Element elem : data.elements) {
-            Attributes attributes = Attributes.NONE;
+            Attributes attributes = Attributes.STANDARD;
             if (elem.type == EType.way) {
                 allWays.put(elem.id, elem);
 
@@ -230,8 +229,9 @@ public class OpenStreetMaps {
                 if (doRoad) {
                     highway = elem.tags.get("highway");
                     istunnel = elem.tags.get("tunnel");
-                    // to be implemented
                     isbridge = elem.tags.get("bridge");
+                    ref = elem.tags.get("ref");
+                    name = elem.tags.get("name");
                 }
 
                 if (doBuildings) {
@@ -256,48 +256,55 @@ public class OpenStreetMaps {
 
                     if (istunnel != null && istunnel.equals("yes")) {
 
-                        attributes = Attributes.ISTUNNEL;
+                        attributes = Attributes.TUNNEL;
 
                     } else if (isbridge != null && isbridge.equals("yes")) {
 
-                        attributes = Attributes.ISBRIDGE;
+                        attributes = Attributes.BRIDGE;
 
-                    } else {
+                    } else if (highway!=null) {
 
-                        // totally skip classification if it's a tunnel or bridge. this should make it more efficient.
-                        if (highway != null && attributes == Attributes.NONE) {
-                            switch (highway) {
-                                case "motorway":
-                                    type = Type.FREEWAY;
-                                    break;
-                                case "trunk":
-                                    type = Type.LIMITEDACCESS;
-                                    break;
-                                case "motorway_link":
-                                case "trunk_link":
-                                    type = Type.INTERCHANGE;
-                                    break;
-                                case "secondary":
+                        attributes = Attributes.ROAD;
+
+                    }
+
+                    if (highway != null) {
+
+                        switch (highway) {
+                            case "foodway":
+                            case "path":
+                                type = Type.PATH;
+                                break;
+                            case "motorway":
+                                type = Type.FREEWAY;
+                                break;
+                            case "trunk":
+                                type = Type.LIMITEDACCESS;
+                                break;
+                            case "motorway_link":
+                            case "trunk_link":
+                                type = Type.INTERCHANGE;
+                                break;
+                            case "secondary":
+                                type = Type.SIDE;
+                                break;
+                            case "primary":
+                            case "raceway":
+                                type = Type.MAIN;
+                                break;
+                            case "tertiary":
+                            case "residential":
+                                type = Type.MINOR;
+                                break;
+                            default:
+                                if (highway.equals("primary_link") ||
+                                        highway.equals("secondary_link") ||
+                                        highway.equals("living_street") ||
+                                        highway.equals("bus_guideway") ||
+                                        highway.equals("service") ||
+                                        highway.equals("unclassified"))
                                     type = Type.SIDE;
-                                    break;
-                                case "primary":
-                                case "raceway":
-                                    type = Type.MAIN;
-                                    break;
-                                case "tertiary":
-                                case "residential":
-                                    type = Type.MINOR;
-                                    break;
-                                default:
-                                    if (highway.equals("primary_link") ||
-                                            highway.equals("secondary_link") ||
-                                            highway.equals("living_street") ||
-                                            highway.equals("bus_guideway") ||
-                                            highway.equals("service") ||
-                                            highway.equals("unclassified"))
-                                        type = Type.SIDE;
-                                    break;
-                            }
+                                break;
                         }
                     }
                     //get lane number (default is 2)
@@ -340,15 +347,12 @@ public class OpenStreetMaps {
                         lanes = 2;
                     }
 
-                    // upgrade road type if many lanes (and the road was important enough to include a lanes tag)
-                    if (lanes > 2 && type == Type.MINOR)
-                        type = Type.MAIN;
-
                     addWay(elem, type, lanes, region, attributes, layer);
+
                 } else unusedWays.add(elem);
             } else if (elem.type == EType.relation && elem.members != null && elem.tags != null) {
 
-                if(doWater) {
+                if (doWater) {
                     String naturalv = elem.tags.get("natural");
                     String waterv = elem.tags.get("water");
                     String wway = elem.tags.get("waterway");
@@ -366,12 +370,12 @@ public class OpenStreetMaps {
                         continue;
                     }
                 }
-                if(doBuildings && elem.tags.get("building")!=null) {
+                if (doBuildings && elem.tags.get("building") != null) {
                     for (Member member : elem.members) {
                         if (member.type == EType.way) {
                             Element way = allWays.get(member.ref);
                             if (way != null) {
-                                addWay(way, Type.BUILDING, (byte) 1, region, Attributes.NONE, (byte) 0);
+                                addWay(way, Type.BUILDING, (byte) 1, region, Attributes.STANDARD, (byte) 0);
                                 unusedWays.remove(way);
                             }
                         }
@@ -406,19 +410,22 @@ public class OpenStreetMaps {
 
     void addWay(Element elem, Type type, byte lanes, Region region, Attributes attributes, byte layer) {
         double[] lastProj = null;
-        if(elem.geometry != null)
-        for (Geometry geom : elem.geometry) {
-            if (geom == null) lastProj = null;
-            else {
-                double[] proj = projection.fromGeo(geom.lon, geom.lat);
+        if (elem.geometry != null)
+            for (Geometry geom : elem.geometry) {
+                if (geom == null) lastProj = null;
+                else {
+                    double[] proj = projection.fromGeo(geom.lon, geom.lat);
 
-                if (lastProj != null) { //register as a road edge
-                    allEdges.add(new Edge(lastProj[0], lastProj[1], proj[0], proj[1], type, lanes, region, attributes, layer));
+                    if (lastProj != null) { //register as a road edge
+                        if (ref == null) {
+                            ref = name;
+                        }
+                        allEdges.add(new Edge(lastProj[0], lastProj[1], proj[0], proj[1], type, lanes, region, attributes, layer, ref, name));
+                    }
+
+                    lastProj = proj;
                 }
-
-                lastProj = proj;
             }
-        }
     }
 
     Geometry waterway(Element way, long id, Region region, Geometry last) {
@@ -537,11 +544,12 @@ public class OpenStreetMaps {
         public double slon;
         public double elat;
         public double elon;
-        public Attributes attribute;
+        public Attributes attributes;
         public byte layer_number;
         public double slope;
         public double offset;
-
+        public String ref;
+        public String name;
         public byte lanes;
 
         Region region;
@@ -552,7 +560,7 @@ public class OpenStreetMaps {
             return dlat * dlat + dlon * dlon;
         }
 
-        private Edge(double slon, double slat, double elon, double elat, Type type, byte lanes, Region region, Attributes att, byte ly) {
+        private Edge(double slon, double slat, double elon, double elat, Type type, byte lanes, Region region, Attributes att, byte ly, String ref, String name) {
             //slope must not be infinity, slight inaccuracy shouldn't even be noticible unless you go looking for it
             double dif = elon - slon;
             if (-NOTHING <= dif && dif <= NOTHING) {
@@ -563,15 +571,18 @@ public class OpenStreetMaps {
                 }
             }
 
+            // s = start, e = end
             this.slat = slat;
             this.slon = slon;
             this.elat = elat;
             this.elon = elon;
             this.type = type;
-            this.attribute = att;
+            this.attributes = att;
             this.lanes = lanes;
             this.region = region;
             this.layer_number = ly;
+            this.ref = ref;
+            this.name = name;
 
             slope = (elat - slat) / (elon - slon);
             offset = slat - slope * slon;
@@ -620,8 +631,5 @@ public class OpenStreetMaps {
         String generator;
         Map<String, String> osm3s;
         List<Element> elements;
-    }
-
-    public static void main(String[] args) {
     }
 }

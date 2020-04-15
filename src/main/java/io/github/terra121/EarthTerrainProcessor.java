@@ -27,7 +27,9 @@ import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
 import io.github.terra121.populator.CliffReplacer;
 import io.github.terra121.populator.EarthTreePopulator;
+import io.github.terra121.populator.VectorPathGenerator;
 import io.github.terra121.populator.RoadGenerator;
+import io.github.terra121.populator.ExtendedRenderer;
 import io.github.terra121.populator.SnowPopulator;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.Block;
@@ -56,43 +58,55 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     private Map<Biome, ICubicPopulator> biomePopulators;
     private CubicCaveGenerator caveGenerator;
     private SnowPopulator snow;
-	public EarthGeneratorSettings cfg;
-	private boolean doRoads;
-	private boolean doBuildings;
+    public EarthGeneratorSettings cfg;
+    private boolean doRoads;
+    private boolean doBuildings;
+    ExtendedRenderer extendedRenderer;
 
     public EarthTerrainProcessor(World world) {
         super(world);
-        
+
 
         cfg = new EarthGeneratorSettings(world.getWorldInfo().getGeneratorOptions());
-    	projection = cfg.getProjection();
-    	
-    	doRoads = cfg.settings.roads && world.getWorldInfo().isMapFeaturesEnabled();
+        projection = cfg.getProjection();
+
+        doRoads = cfg.settings.roads && world.getWorldInfo().isMapFeaturesEnabled();
         doBuildings = cfg.settings.buildings && world.getWorldInfo().isMapFeaturesEnabled();
-        
+
         biomes = world.getBiomeProvider(); //TODO: make this not order dependent
 
         osm = new OpenStreetMaps(projection, doRoads, cfg.settings.osmwater, doBuildings);
-        heights = new Heights(13, cfg.settings.smoothblend, cfg.settings.osmwater?osm.water:null);
-        depths = new Heights(10, cfg.settings.osmwater?osm.water:null); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
-        
+        heights = new Heights(13, cfg.settings.smoothblend, cfg.settings.osmwater ? osm.water : null);
+        depths = new Heights(10, cfg.settings.osmwater ? osm.water : null); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
+
         unnaturals = new HashSet<Block>();
         unnaturals.add(Blocks.STONEBRICK);
         unnaturals.add(Blocks.CONCRETE);
         unnaturals.add(Blocks.BRICK_BLOCK);
-        
+
         surfacePopulators = new HashSet<ICubicPopulator>();
-        if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
+
+        // option to enable advanced roads w/ tunnels + bridges
+        if (cfg.settings.advancedRoads) {
+
+            if (doRoads) surfacePopulators.add(new VectorPathGenerator(OpenStreetMaps.Type.ROAD, heights, projection));
+            if (cfg.settings.osmwater) surfacePopulators.add(new VectorPathGenerator(OpenStreetMaps.Type.RIVER, heights, projection));
+
+        } else {
+
+            if (doRoads || cfg.settings.osmwater) surfacePopulators.add(new RoadGenerator(osm, heights, projection));
+
+        }
         surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
 
         cubiccfg = cfg.getCustomCubic();
-        
+
         //InitCubicStructureGeneratorEvent caveEvent = new InitCubicStructureGeneratorEvent(EventType.CAVE, new CubicCaveGenerator());
         caveGenerator = new CubicCaveGenerator();
-        
+
         biomePopulators = new HashMap<Biome, ICubicPopulator>();
-        
+
         for (Biome biome : ForgeRegistries.BIOMES) {
             CubicBiome cubicBiome = CubicBiome.getCubic(biome);
             biomePopulators.put(biome, cubicBiome.getDecorator(cubiccfg));
@@ -101,7 +115,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         biomeBlockReplacers = new HashMap<Biome, List<IBiomeBlockReplacer>>();
         BiomeBlockReplacerConfig conf = cubiccfg.replacerConfig;
         CliffReplacer cliffs = new CliffReplacer();
-        
+
         for (Biome biome : ForgeRegistries.BIOMES) {
             CubicBiome cubicBiome = CubicBiome.getCubic(biome);
             Iterable<IBiomeBlockReplacerProvider> providers = cubicBiome.getReplacerProviders();
@@ -122,97 +136,99 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
         double heightarr[][] = new double[16][16];
         boolean surface = false;
-        
-       //null island
-    	if(-5 < cubeX && cubeX < 5 && -5 < cubeZ && cubeZ < 5) {
-    		for(int x=0; x<16; x++)
-                for(int z=0; z<16; z++)
-                	heightarr[x][z] = 1;
-    	} else {
-        
-	        //get heights before hand
-	        for(int x=0; x<16; x++) {
-	            for(int z=0; z<16; z++) {
-	            	
-	            	double[] projected = projection.toGeo((cubeX*16 + x), (cubeZ*16 + z));
-	                double Y = heights.estimateLocal(projected[0], projected[1]);
-	                heightarr[x][z] = Y;
-	                
-	                if(Coords.cubeToMinBlock(cubeY)<Y && Coords.cubeToMinBlock(cubeY)+16>Y) {
-	                    surface = true;
-	                }
-	            }
-	        }
-    	}
 
-    	//fill in the world
-        for(int x=0; x<16; x++) {
-            for(int z=0; z<16; z++) {
-            	double Y = heightarr[x][z];      	
-            	
-            	double[] projected = projection.toGeo((cubeX*16 + x), (cubeZ*16 + z));
-            	double wateroff = 0;
-            	if(cfg.settings.osmwater)wateroff = osm.water.estimateLocal(projected[0], projected[1]);
-            	
-            	//ocean?
-            	if(-0.001 < Y && Y < 0.001) {
-                    double depth = depths.estimateLocal(projected[0], projected[1]);
-                    
-                    if(depth < 0) {
-                    	Y = depth;
+        //null island
+        if (-5 < cubeX && cubeX < 5 && -5 < cubeZ && cubeZ < 5) {
+            for (int x = 0; x < 16; x++)
+                for (int z = 0; z < 16; z++)
+                    heightarr[x][z] = 1;
+        } else {
+
+            //get heights before hand
+            for (int x = 0; x < 16; x++) {
+                for (int z = 0; z < 16; z++) {
+
+                    double[] projected = projection.toGeo((cubeX * 16 + x), (cubeZ * 16 + z));
+                    double Y = heights.estimateLocal(projected[0], projected[1]);
+                    heightarr[x][z] = Y;
+
+                    if (Coords.cubeToMinBlock(cubeY) < Y && Coords.cubeToMinBlock(cubeY) + 16 > Y) {
+                        surface = true;
                     }
-            	}
+                }
+            }
+        }
+
+        //fill in the world
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                double Y = heightarr[x][z];
+
+                double[] projected = projection.toGeo((cubeX * 16 + x), (cubeZ * 16 + z));
+                double wateroff = 0;
+                if (cfg.settings.osmwater) wateroff = osm.water.estimateLocal(projected[0], projected[1]);
+
+                //ocean?
+                if (-0.001 < Y && Y < 0.001) {
+                    double depth = depths.estimateLocal(projected[0], projected[1]);
+
+                    if (depth < 0) {
+                        Y = depth;
+                    }
+                }
             	
             	/*if(-5 < cubeX && cubeX < 5 && -5 < cubeZ && cubeZ < 5);
             	else if(wateroff>=1.4&&Y>=0) { //drop above sea level areas that are in the ocean
             		Y = -1;
             	}*/
-            	
+
                 for (int y = 0; y < 16 && y < Y - Coords.cubeToMinBlock(cubeY); y++) {
-                	
-                	//estimate slopes
-                	double dx, dz;
-                	if(x == 16-1)
-                		dx = heightarr[x][z]-heightarr[x-1][z];
-                	else dx = heightarr[x+1][z]-heightarr[x][z];
-                	
-                	if(z == 16-1)
-                		dz = heightarr[x][z]-heightarr[x][z-1];
-                	else dz = heightarr[x][z+1]-heightarr[x][z];
-                	
-                    List<IBiomeBlockReplacer> reps = biomeBlockReplacers.get(biomes.getBiome(new BlockPos(cubeX*16 + x, 0, cubeZ*16 + z)));
+
+                    //estimate slopes
+                    double dx, dz;
+                    if (x == 16 - 1)
+                        dx = heightarr[x][z] - heightarr[x - 1][z];
+                    else dx = heightarr[x + 1][z] - heightarr[x][z];
+
+                    if (z == 16 - 1)
+                        dz = heightarr[x][z] - heightarr[x][z - 1];
+                    else dz = heightarr[x][z + 1] - heightarr[x][z];
+
+                    List<IBiomeBlockReplacer> reps = biomeBlockReplacers.get(biomes.getBiome(new BlockPos(cubeX * 16 + x, 0, cubeZ * 16 + z)));
                     IBlockState block = Blocks.STONE.getDefaultState();
-                    for(IBiomeBlockReplacer rep : reps) {
-                        block = rep.getReplacedBlock(block, cubeX*16 + x, cubeY*16 + y + 63, cubeZ*16 + z, dx, -1, dz, Y - (cubeY*16 + y));
+                    for (IBiomeBlockReplacer rep : reps) {
+                        block = rep.getReplacedBlock(block, cubeX * 16 + x, cubeY * 16 + y + 63, cubeZ * 16 + z, dx, -1, dz, Y - (cubeY * 16 + y));
                     }
 
                     primer.setBlockState(x, y, z, block);
                 }
-                
-            	if(-5 < cubeX && cubeX < 5 && -5 < cubeZ && cubeZ < 5);//NULL ISLAND
-            	else if (cfg.settings.osmwater){
-            		if(wateroff>1) {
-            			int start = (int) (Y) - Coords.cubeToMinBlock(cubeY);
-            			if(start<0)start = 0;
-            			for (int y = start; y < 16 && y <= -1-Coords.cubeToMinBlock(cubeY); y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
-            		}
-            		else if(wateroff>0.4) {
-	            		int start = (int) (Y - (wateroff-0.4)*4) - Coords.cubeToMinBlock(cubeY);
-	            		if(start<0)start = 0;
-	            		for (int y = start; y < 16 && y < Y - Coords.cubeToMinBlock(cubeY); y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
-	            	}
-            	}
-            	else for (int y = (int)Math.max(Y - Coords.cubeToMinBlock(cubeY),0); y < 16 && y < 0 - Coords.cubeToMinBlock(cubeY); y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
+
+                if (-5 < cubeX && cubeX < 5 && -5 < cubeZ && cubeZ < 5) ;//NULL ISLAND
+                else if (cfg.settings.osmwater) {
+                    if (wateroff > 1) {
+                        int start = (int) (Y) - Coords.cubeToMinBlock(cubeY);
+                        if (start < 0) start = 0;
+                        for (int y = start; y < 16 && y <= -1 - Coords.cubeToMinBlock(cubeY); y++)
+                            primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
+                    } else if (wateroff > 0.4) {
+                        int start = (int) (Y - (wateroff - 0.4) * 4) - Coords.cubeToMinBlock(cubeY);
+                        if (start < 0) start = 0;
+                        for (int y = start; y < 16 && y < Y - Coords.cubeToMinBlock(cubeY); y++)
+                            primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
+                    }
+                } else
+                    for (int y = (int) Math.max(Y - Coords.cubeToMinBlock(cubeY), 0); y < 16 && y < 0 - Coords.cubeToMinBlock(cubeY); y++)
+                        primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
             }
         }
-        
+
         caveGenerator.generate(world, primer, new CubePos(cubeX, cubeY, cubeZ));
 
         //spawn roads
-        if((doRoads || doBuildings || cfg.settings.osmwater) && surface) {
+        if ((doRoads || doBuildings || cfg.settings.osmwater) && surface) {
             Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeZ);
 
-            if(edges != null) {
+            if (edges != null) {
 
                 /*for(int x=0; x<16; x++) {
                     for(int z=0; z<16; z++) {
@@ -223,55 +239,56 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                 }*/
 
                 //minor one block wide roads get plastered first
-                for (OpenStreetMaps.Edge e: edges) if(e.type == OpenStreetMaps.Type.ROAD || e.type == OpenStreetMaps.Type.MINOR
-                                                    || e.type == OpenStreetMaps.Type.STREAM || e.type == OpenStreetMaps.Type.BUILDING) {
-                    double start = e.slon;
-                    double end = e.elon;
+                for (OpenStreetMaps.Edge e : edges)
+                    if (e.type == OpenStreetMaps.Type.ROAD || e.type == OpenStreetMaps.Type.MINOR
+                            || e.type == OpenStreetMaps.Type.STREAM || e.type == OpenStreetMaps.Type.BUILDING) {
+                        double start = e.slon;
+                        double end = e.elon;
 
-                    if(start > end) {
-                        double tmp = start;
-                        start = end;
-                        end = tmp;
-                    }
-
-                    int sx = (int)Math.floor(start) - cubeX*16;
-                    int ex = (int)Math.floor(end) - cubeX*16;
-
-                    if(ex >= 16)ex = 16-1;
-
-                    for(int x=sx>0?sx:0; x<=ex; x++) {
-                        double realx = (x+cubeX*16);
-                        if(realx < start)
-                            realx = start;
-
-                        double nextx = realx + 1;
-                        if(nextx > end)
-                            nextx = end;
-
-                        int from = (int)Math.floor((e.slope*realx + e.offset)) - cubeZ*16;
-                        int to = (int)Math.floor((e.slope*nextx + e.offset)) - cubeZ*16;
-
-                        if(from > to) {
-                            int tmp = from;
-                            from = to;
-                            to = tmp;
+                        if (start > end) {
+                            double tmp = start;
+                            start = end;
+                            end = tmp;
                         }
 
-                        if(to >= 16)to = 16-1;
+                        int sx = (int) Math.floor(start) - cubeX * 16;
+                        int ex = (int) Math.floor(end) - cubeX * 16;
 
-                        for(int z=from>0?from:0; z<=to; z++) {
-                            int y = (int)Math.floor(heightarr[x][z]) - Coords.cubeToMinBlock(cubeY);
+                        if (ex >= 16) ex = 16 - 1;
 
-                            if(y >= 0 && y < 16) {
-                            	if(e.type == OpenStreetMaps.Type.STREAM) {
-                            		if(primer.getBlockState(x, y, z).getBlock()!=Blocks.WATER)
-                            			primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
-                            	}
-                            	else primer.setBlockState(x, y, z, ( e.type == OpenStreetMaps.Type.ROAD ? Blocks.GRASS_PATH : e.type == OpenStreetMaps.Type.BUILDING ? Blocks.BRICK_BLOCK : Blocks.STONEBRICK).getDefaultState());
+                        for (int x = sx > 0 ? sx : 0; x <= ex; x++) {
+                            double realx = (x + cubeX * 16);
+                            if (realx < start)
+                                realx = start;
+
+                            double nextx = realx + 1;
+                            if (nextx > end)
+                                nextx = end;
+
+                            int from = (int) Math.floor((e.slope * realx + e.offset)) - cubeZ * 16;
+                            int to = (int) Math.floor((e.slope * nextx + e.offset)) - cubeZ * 16;
+
+                            if (from > to) {
+                                int tmp = from;
+                                from = to;
+                                to = tmp;
+                            }
+
+                            if (to >= 16) to = 16 - 1;
+
+                            for (int z = from > 0 ? from : 0; z <= to; z++) {
+                                int y = (int) Math.floor(heightarr[x][z]) - Coords.cubeToMinBlock(cubeY);
+
+                                if (y >= 0 && y < 16) {
+                                    if (e.type == OpenStreetMaps.Type.STREAM) {
+                                        if (primer.getBlockState(x, y, z).getBlock() != Blocks.WATER)
+                                            primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
+                                    } else
+                                        primer.setBlockState(x, y, z, (e.type == OpenStreetMaps.Type.ROAD ? Blocks.GRASS_PATH : e.type == OpenStreetMaps.Type.BUILDING ? Blocks.BRICK_BLOCK : Blocks.STONEBRICK).getDefaultState());
+                                }
                             }
                         }
                     }
-                }
             }
         }
 
@@ -286,28 +303,30 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
          **/
         if (!MinecraftForge.EVENT_BUS.post(new CubePopulatorEvent(world, cube))) {
             Random rand = Coords.coordsSeedRandom(world.getSeed(), cube.getX(), cube.getY(), cube.getZ());
-            
+
             Biome biome = cube.getBiome(Coords.getCubeCenter(cube));
 
-            if(cfg.settings.dynamicbaseheight) {
-				double[] proj = projection.toGeo((cube.getX()*16 + 8), (cube.getZ()*16 + 8));
-				cubiccfg.expectedBaseHeight = (float) heights.estimateLocal(proj[0], proj[1]);
+            if (cfg.settings.dynamicbaseheight) {
+                double[] proj = projection.toGeo((cube.getX() * 16 + 8), (cube.getZ() * 16 + 8));
+                cubiccfg.expectedBaseHeight = (float) heights.estimateLocal(proj[0], proj[1]);
             }
 
             MinecraftForge.EVENT_BUS.post(new PopulateCubeEvent.Pre(world, rand, cube.getX(), cube.getY(), cube.getZ(), false));
 
             CubePos pos = cube.getCoords();
+            if (cfg.settings.advancedRoads) extendedRenderer = new ExtendedRenderer(world, projection, pos);
+            extendedRenderer.run();
 
             int surf = isSurface(world, cube);
-            if(surf == 0) {
-                for(ICubicPopulator pop: surfacePopulators)
-                	pop.generate(world, rand, pos, biome);
+            if (surf == 0) {
+                for (ICubicPopulator pop : surfacePopulators)
+                    pop.generate(world, rand, pos, biome);
             }
-			
+
             biomePopulators.get(biome).generate(world, rand, pos, biome);
-			
-            if(surf==1)
-            	snow.generate(world, rand, pos, biome);
+
+            if (surf == 1)
+                snow.generate(world, rand, pos, biome);
 
             MinecraftForge.EVENT_BUS.post(new PopulateCubeEvent.Post(world, rand, cube.getX(), cube.getY(), cube.getZ(), false));
             CubeGeneratorsRegistry.generateWorld(world, rand, pos, biome);
@@ -319,14 +338,14 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     private int isSurface(World world, ICube cube) {
         IBlockState defState = Blocks.AIR.getDefaultState();
         IBlockState type = null;
-        for(int x=0; x<16; x++)
-            for(int z=0; z<16; z++) {
-            	type = world.getBlockState(new BlockPos(x + cube.getX()*16, 16 + cube.getY()*16, z + cube.getZ()*16));
-                if(type == defState &&
-                		cube.getBlockState(x, 0, z) != defState && !unnaturals.contains(cube.getBlockState(x, 0, z).getBlock()))
+        for (int x = 0; x < 16; x++)
+            for (int z = 0; z < 16; z++) {
+                type = world.getBlockState(new BlockPos(x + cube.getX() * 16, 16 + cube.getY() * 16, z + cube.getZ() * 16));
+                if (type == defState &&
+                        cube.getBlockState(x, 0, z) != defState && !unnaturals.contains(cube.getBlockState(x, 0, z).getBlock()))
                     return 0;
             }
-        return type==defState?1:-1;
+        return type == defState ? 1 : -1;
     }
 
     @Override
