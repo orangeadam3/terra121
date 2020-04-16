@@ -161,8 +161,7 @@ public class OpenStreetMaps {
             String urltext = URL_PREFACE + bbox + URL_A + bbox + URL_B;
             if (doWater) urltext += URL_C + bottomleft + URL_SUFFIX;
 
-            // todo this got a bit slow when developing the extended render, maybe re-enable
-            // TerraMod.LOGGER.info(urltext);
+            TerraMod.LOGGER.info(urltext);
 
             //kumi systems request a meaningful user-agent
             URL url = new URL(urltext);
@@ -339,6 +338,10 @@ public class OpenStreetMaps {
                         } //default to 2, if bad format
                     }
 
+                    // upgrade road type if many lanes (and the road was important enough to include a lanes tag)
+                    if (lanes > 2 && type == Type.MINOR)
+                        type = Type.MAIN;
+
                     //prevent super high # of lanes to prevent ridiculous results (prly a mistake if its this high anyways)
                     if (lanes > 8)
                         lanes = 8;
@@ -348,7 +351,7 @@ public class OpenStreetMaps {
                         lanes = 2;
                     }
 
-                    addWay(elem, type, lanes, region, attributes, layer);
+                    addWay(elem, type, lanes, region, attributes, layer, ref, name);
 
                 } else unusedWays.add(elem);
             } else if (elem.type == EType.relation && elem.members != null && elem.tags != null) {
@@ -376,7 +379,7 @@ public class OpenStreetMaps {
                         if (member.type == EType.way) {
                             Element way = allWays.get(member.ref);
                             if (way != null) {
-                                addWay(way, Type.BUILDING, (byte) 1, region, Attributes.STANDARD, (byte) 0);
+                                addWay(way, Type.BUILDING, (byte) 1, region, Attributes.STANDARD, (byte) 0, ref, name);
                                 unusedWays.remove(way);
                             }
                         }
@@ -409,7 +412,7 @@ public class OpenStreetMaps {
         }
     }
 
-    void addWay(Element elem, Type type, byte lanes, Region region, Attributes attributes, byte layer) {
+    void addWay(Element elem, Type type, byte lanes, Region region, Attributes attributes, byte layer, String ref, String name) {
         double[] lastProj = null;
         if (elem.geometry != null)
             for (Geometry geom : elem.geometry) {
@@ -632,5 +635,7 @@ public class OpenStreetMaps {
         String generator;
         Map<String, String> osm3s;
         List<Element> elements;
+    }
+    public static void main(String[] args) {
     }
 }

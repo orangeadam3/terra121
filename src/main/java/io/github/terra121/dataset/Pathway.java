@@ -20,18 +20,28 @@ import static io.github.terra121.populator.VectorPathGenerator.bound;
 
 /**
  * dataset.Pathway holds most of the nessisary methods and classes to
- * generate pathways using the vectors (Vec3d). Generating pathways with
+ * generate pathways using 3 dimentional vectors (Vec3d). Generating pathways with
  * special features (e.g. tunnels, bridges) requires use of these
- * methods and classes.<br>
+ * methods and classes.
+ * The main advantage of generating pathways with VectorPath is that it allows for Pathways to be
+ * grouped together. Which allows for the aformentioned generation of relation dependent features.
  * The best way to convert the data used in generating pathways block by block
  * as in populator.RoadGenerator is by using Pathway.VectorPathFromEdge().
+ * There are a lot of "space saving" classes and methods, but I mainly use them to make sure the
+ * more surface code is easier to read and understand.<br>
+ * If you don't understand something, don't hessitate to reach out to me (the same goes for all VectorPath generation stuff):
+ * taeko-chan, Github
  */
 public class Pathway {
 
+    // classwide constants
     private static final IBlockState ASPHALT = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.GRAY);
     private static final IBlockState PATH = Blocks.GRASS_PATH.getDefaultState();
     private static final IBlockState WATER_SOURCE = Blocks.WATER.getDefaultState();
     private static final IBlockState WATER_BEACH = Blocks.DIRT.getDefaultState();
+
+
+    // CLASS METHODS
 
     /**
      * Calculates width of a road based on number of lanes and OSM type. Returns the width as double.
@@ -93,7 +103,7 @@ public class Pathway {
      * Returns List of VectorPathGroup. Do not use for buildings.
      */
     public static List<VectorPathGroup> chunkStructuresAsVectors(Set<OpenStreetMaps.Edge> edges, World world, int cubeX, int cubeY, int cubeZ,
-                                                                 Heights heights, GeographicProjection projection, VectorPoint start, VectorPoint end) {
+                                                                 Heights heights, GeographicProjection projection, boolean spro) {
         BiFunction<Double, BlockPos, IBlockState> state;
         VectorPath v;
         List<Double> allX = new ArrayList<>();
@@ -104,8 +114,7 @@ public class Pathway {
         List<VectorPathGroup> allPaths = new ArrayList<>();
 
         List<OpenStreetMaps.Edge> lEdges = new ArrayList<>(edges);
-
-//      for (int e = 0; e <= currentVp.size() - 1; e++) {
+        //      for (int e = 0; e <= currentVp.size() - 1; e++) {
 
         for (int i = 0; i <= lEdges.size() - 1; i++) {
             OpenStreetMaps.Edge e = lEdges.get(i);
@@ -118,21 +127,16 @@ public class Pathway {
 
             if (e.type != OpenStreetMaps.Type.BUILDING) {
 
-                if (start == null && end == null) {
+                if (spro) {
                     if (e.attributes == OpenStreetMaps.Attributes.TUNNEL || e.attributes == OpenStreetMaps.Attributes.BRIDGE) {
-                        // we only need the edge to process the tunnel or bridge later
-                        tunnel.add(new VectorPath(null, null, null, null, e));
-                        break;
+
+                        e.slope = getIncline(new Vec3d(e.elon, getElevation(world, e.elon, e.elat), e.elat),
+                                new Vec3d(e.slon, getElevation(world, e.slon, e.slat), e.slat));
+
+                        TerraMod.LOGGER.info("elevation: {}", getElevation(world, e.slon, e.slat));
+                        TerraMod.LOGGER.info("elevation e: {}", getElevation(world, e.elon, e.elat));
+                        TerraMod.LOGGER.info("e.slope: {}", e.slope);
                     }
-                }
-
-                if (start != null && end != null) {
-
-                    e.slope = getIncline(end.point, start.point);
-                    // todo: remove slope logging
-                    TerraMod.LOGGER.info("start: {} {} {}, end: {} {} {}", start.point.x, start.point.y, start.point.z, end.point.x, end.point.y, end.point.z);
-                    TerraMod.LOGGER.info("e.slope: {}", e.slope);
-
                 }
 
                 List<VectorPath> relationMatchingPath = new ArrayList<>();
@@ -316,6 +320,10 @@ public class Pathway {
 
     }
 
+    /**
+     * Converts x, y and z doubles into VectorPath objects and passes through other values belonging
+     * to said x, y and z values and returns a VectorPath.
+     */
     public static VectorPath VectorPathFromValues(List<Double> x, List<Double> y, List<Double> z, String relations,
                                                   IBlockState material, OpenStreetMaps.Attributes attribute, OpenStreetMaps.Edge e) throws IOException {
 
@@ -339,6 +347,58 @@ public class Pathway {
         return new VectorPath(relations, vectors, material, attribute, e);
 
     }
+
+    /***
+     * Required for processing rivers
+     */
+    private static IBlockState riverState(World world, double dis, BlockPos pos) {
+        IBlockState prev = world.getBlockState(pos);
+        if (dis > 2) {
+            if (!prev.getBlock().equals(Blocks.AIR))
+                return null;
+            IBlockState under = world.getBlockState(pos.down());
+            if (under.getBlock() instanceof BlockLiquid)
+                return null;
+            return WATER_BEACH;
+        } else return WATER_SOURCE;
+    }
+
+    /**
+     * Return OSM based on OSM.Type, makes me not have to check for the type every time.
+     * */
+    public static OpenStreetMaps getOSM(GeographicProjection projection, OpenStreetMaps.Type t) {
+        OpenStreetMaps osm;
+
+        if (t == Type.RIVER || t == Type.STREAM) {
+            osm = new OpenStreetMaps(projection, false, true, false);
+        } else if (t == Type.ROAD) {
+            osm = new OpenStreetMaps(projection, true, false, false);
+        } else {
+            osm = new OpenStreetMaps(projection, true, true, false);
+        }
+        return osm;
+    }
+
+    /**
+     * An inefficient throw-together kind of method to avoid pregeneration. Gets the Y value in World world at
+     * Integer X and Integer Z.
+     * */
+    public static int getElevation(World world, double x, double z) {
+        boolean surf = false;
+        int y = 0;
+        // mt everest, i'm sorry, this method is very inefficient
+        for (int i = 8848; !surf; i--) {
+            IBlockState p = world.getBlockState(new BlockPos(x, i, z));
+            // don't count logs or leaves as a surface
+            if (p!=Blocks.AIR.getDefaultState() || p!=Blocks.LEAVES.getDefaultState() || p!=Blocks.LOG.getDefaultState()) {
+                y = i;
+                surf = true;
+            }
+        }
+        return y;
+    }
+
+    // CLASS SUBCLASSES
 
     /**
      * Class used to group multiple VectorPaths together.
@@ -384,18 +444,6 @@ public class Pathway {
             this.edge = e;
         }
 
-        public void addBlockPos(List<Vec3d> blockLocs) {
-
-            this.path.addAll(blockLocs);
-
-        }
-
-        public void addBlockPos(Vec3d blockLoc) {
-
-            this.path.add(blockLoc);
-
-        }
-
     }
 
     /**
@@ -414,6 +462,9 @@ public class Pathway {
         }
     }
 
+    /**
+     * Stores a CubePos with its respective structures.
+     * */
     public static class ChunkWithStructures {
 
         public CubePos chunk;
@@ -427,42 +478,18 @@ public class Pathway {
         }
     }
 
-    private static IBlockState riverState(World world, double dis, BlockPos pos) {
-        IBlockState prev = world.getBlockState(pos);
-        if (dis > 2) {
-            if (!prev.getBlock().equals(Blocks.AIR))
-                return null;
-            IBlockState under = world.getBlockState(pos.down());
-            if (under.getBlock() instanceof BlockLiquid)
-                return null;
-            return WATER_BEACH;
-        } else return WATER_SOURCE;
-    }
-
-    public static OpenStreetMaps getOSM(GeographicProjection projection, OpenStreetMaps.Type t) {
-        OpenStreetMaps osm;
-
-        if (t == Type.RIVER || t == Type.STREAM) {
-            osm = new OpenStreetMaps(projection, false, true, false);
-        } else if (t == Type.ROAD) {
-            osm = new OpenStreetMaps(projection, true, false, false);
-        } else {
-            osm = new OpenStreetMaps(projection, true, true, false);
-        }
-        return osm;
-    }
-
-    // The following methods and classes are deprecated.
+    // NOTE: The following methods and classes are deprecated.
+    // DEPRECATED/OLD CLASS METHODS/SUBCLASSES
 
     /**
      * This was one of my earlier ideas to implement alternative path generation to make tunnels/bridges possible, <br>
      * but I could never get it to work properly. While it may still be useful/interesting for testing, it should be replaced by
-     * the methods and classes that use extended rendering and vec3d.
+     * the methods and classes that use extended rendering and vec3d. Some of it is probably broken =D .
      */
     @Deprecated
     public static class Road {
 
-        // old road generation object. use VectorPath instead. leaving it in for testing, however, along with previousRoad
+        // old road generation object. use VectorPath instead. leaving it in for testing, however, along with previousRoad.
 
         public static OpenStreetMaps.Edge e;
         public static BlockPos loc;
@@ -489,6 +516,7 @@ public class Pathway {
             this.state = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.GRAY);
             this.e = e;
 
+            // what even is this
             if (refs != null && !refs.equals("norefnum@315OpenStreetMaps.java")) {
                 this.refs = refs;
                 this.useRefs = true;

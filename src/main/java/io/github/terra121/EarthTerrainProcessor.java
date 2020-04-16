@@ -29,8 +29,6 @@ import io.github.terra121.populator.CliffReplacer;
 import io.github.terra121.populator.EarthTreePopulator;
 import io.github.terra121.populator.VectorPathGenerator;
 import io.github.terra121.populator.RoadGenerator;
-import io.github.terra121.populator.ExtendedRenderer;
-import io.github.terra121.populator.ExtendedRenderManager;
 import io.github.terra121.populator.SnowPopulator;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.Block;
@@ -62,7 +60,6 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     public EarthGeneratorSettings cfg;
     private boolean doRoads;
     private boolean doBuildings;
-    ExtendedRenderer extendedRenderer;
 
     public EarthTerrainProcessor(World world) {
         super(world);
@@ -89,14 +86,9 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
         // option to enable advanced roads w/ tunnels + bridges
         if (cfg.settings.advancedRoads) {
-
-            if (doRoads) surfacePopulators.add(new VectorPathGenerator(OpenStreetMaps.Type.ROAD, heights, projection));
-            if (cfg.settings.osmwater) surfacePopulators.add(new VectorPathGenerator(OpenStreetMaps.Type.RIVER, heights, projection));
-
+            if (doRoads || cfg.settings.osmwater) surfacePopulators.add(new VectorPathGenerator(heights, projection, osm));
         } else {
-
             if (doRoads || cfg.settings.osmwater) surfacePopulators.add(new RoadGenerator(osm, heights, projection));
-
         }
         surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
@@ -315,11 +307,6 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             MinecraftForge.EVENT_BUS.post(new PopulateCubeEvent.Pre(world, rand, cube.getX(), cube.getY(), cube.getZ(), false));
 
             CubePos pos = cube.getCoords();
-
-            // we only wanna do all that pregen if the current cubepos is on the edge of the previous cache
-            extendedRenderer = new ExtendedRenderer(world, projection, pos);
-            if (ExtendedRenderManager.covered.isEmpty()) extendedRenderer.start();
-            if (cfg.settings.advancedRoads && !ExtendedRenderManager.covered.contains(pos)) extendedRenderer.start();
 
             int surf = isSurface(world, cube);
             if (surf == 0) {

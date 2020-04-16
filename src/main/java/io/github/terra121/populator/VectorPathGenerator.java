@@ -20,10 +20,10 @@ public class VectorPathGenerator implements ICubicPopulator {
     Heights heights;
     GeographicProjection projection;
 
-    public VectorPathGenerator(OpenStreetMaps.Type type, Heights heights, GeographicProjection proj) {
+    public VectorPathGenerator(Heights heights, GeographicProjection proj, OpenStreetMaps osm) {
         this.heights = heights;
         projection = proj;
-        this.osm = Pathway.getOSM(proj, type);
+        this.osm = osm;
     }
 
     @Override
@@ -32,80 +32,53 @@ public class VectorPathGenerator implements ICubicPopulator {
         int cubeX = cubePos.getX();
         int cubeY = cubePos.getY();
         int cubeZ = cubePos.getZ();
+
+        TerraMod.LOGGER.info("generate");
         Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeY);
-        Set<Pathway.ChunkWithStructures> farEdges = ExtendedRenderer.osmStructures;
-        // avoid ConcurrentModificationException??? (hopefully...)
-        Set<Pathway.ChunkWithStructures> test = farEdges;
-        if (edges == null) edges = new HashSet<>();
 
-        // add far edges to be processed
-        if (test != null) {
-            for (Pathway.ChunkWithStructures e : test) {
-                if (e.chunk != null && e.structures != null) {
-                    if (e.chunk != cubePos) {
-                        edges.addAll(e.structures);
-                    }
-                }
-            }
-        }
-        // todo delete
-        TerraMod.LOGGER.info("size: {}", edges.size());
+        if (edges != null) {
 
-        List<Pathway.VectorPathGroup> paths = Pathway.chunkStructuresAsVectors(edges, world, cubeX, cubeY, cubeZ, heights, projection, null, null);
-        List<Pathway.VectorPathGroup> sPaths = new ArrayList<>();
-        List<Pathway.VectorPathGroup> secondProcessPaths;
-        List<OpenStreetMaps.Edge> edgeCache = new ArrayList<>();
-        Pathway.VectorPoint startCache = null;
-        Pathway.VectorPoint endCache;
+            TerraMod.LOGGER.info("size: {}", edges.size());
+            List<Pathway.VectorPathGroup> paths = Pathway.chunkStructuresAsVectors(edges, world, cubeX, cubeY, cubeZ, heights, projection, false);
+            List<Pathway.VectorPathGroup> sPaths = new ArrayList<>();
+            List<Pathway.VectorPathGroup> secondProcessPaths;
+            List<OpenStreetMaps.Edge> edgeCache = new ArrayList<>();
 
-        if (!paths.isEmpty()) {
+            if (!paths.isEmpty()) {
 
-            // iterate over VectorPathGroups
-            for (Pathway.VectorPathGroup vpg : paths) {
+                // iterate over VectorPathGroups
+                for (Pathway.VectorPathGroup vpg : paths) {
 
-                List<VectorPath> currentVp = vpg.paths;
+                    List<VectorPath> currentVp = vpg.paths;
 
-                for (int e = 0; e <= currentVp.size() - 1; e++) {
+                    for (int e = 0; e <= currentVp.size() - 1; e++) {
 
-                    VectorPath current = currentVp.get(e);
-                    VectorPath next;
+                        VectorPath current = currentVp.get(e);
 
-                    try {
-                        next = currentVp.get(e + 1);
-                    } catch (IndexOutOfBoundsException ignore) {
-                        next = current;
-                    }
+                        if (current.edge != null) {
 
-                    if (current.edge != null) {
+                            edgeCache.add(current.edge);
 
-                        edgeCache.add(current.edge);
+                        } else if (!current.path.isEmpty()) {
 
-                    } else if (!current.path.isEmpty()) {
+                            if (!edgeCache.isEmpty()) {
 
-                        if (next.edge != null) {
+                                Set<OpenStreetMaps.Edge> tunnels = new HashSet<>(edgeCache);
+                                secondProcessPaths = Pathway.chunkStructuresAsVectors(tunnels, world, cubeX, cubeY, cubeZ, heights, projection, true);
+                                sPaths.addAll(secondProcessPaths);
 
-                            startCache = new Pathway.VectorPoint(current.path.get(current.path.size() - 1), current.relations);
-
-                        }
-
-                        if (!edgeCache.isEmpty()) {
-
-                            endCache = new Pathway.VectorPoint(current.path.get(0), current.relations);
-                            Set<OpenStreetMaps.Edge> tunnels = new HashSet<>(edgeCache);
-                            secondProcessPaths = Pathway.chunkStructuresAsVectors(tunnels, world, cubeX, cubeY, cubeZ, heights, projection, startCache, endCache);
-                            sPaths.addAll(secondProcessPaths);
-
+                            }
                         }
                     }
                 }
+
+                sPaths.addAll(paths);
+
+                for (Pathway.VectorPathGroup g : sPaths) {
+                    placeVectorPaths(g.paths, world);
+                }
+
             }
-
-            sPaths.addAll(paths);
-
-            for (Pathway.VectorPathGroup g : sPaths) {
-                placeVectorPaths(g.paths, world);
-            }
-
         }
     }
 

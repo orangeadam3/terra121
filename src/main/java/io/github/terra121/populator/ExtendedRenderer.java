@@ -12,10 +12,9 @@ import net.minecraft.world.World;
 import java.util.*;
 
 /**
- * Preload roads out to set distance. This is a quick implementation of tunnel gen but it should work for most tunnels.
- * I do however plan to replace this with something more elegant/resource conscious.
- * I know it doesn't actually <i>render</i> anything, but I couldn't think of a better name.
+ * ExtendedRenderer is deprecated because of its inherent resource hogging. Do not use ExtendedRenderer.
  */
+@Deprecated
 public class ExtendedRenderer extends Thread {
 
     public EarthGeneratorSettings cfg;
@@ -24,6 +23,7 @@ public class ExtendedRenderer extends Thread {
     CubePos local;
     OpenStreetMaps osm;
     GeographicProjection projection;
+
     public static List<CubePos> chunks = new ArrayList<>();
 
     public ExtendedRenderer(World world, GeographicProjection projection, CubePos local) {
@@ -66,9 +66,7 @@ public class ExtendedRenderer extends Thread {
         @Override
         public void run() {
 
-            ExtendedRenderManager.covered = new ArrayList<>();
-
-            Set<Pathway.ChunkWithStructures> osmStrc = new HashSet<>();
+            Set<Pathway.ChunkWithStructures> threadCache = new HashSet<>();
 
             // google is a weird place. i wanted to find the greatest height difference between two ends of a tunnel in the world,
             // but for some reason "greatest height difference of married couple" came up :P
@@ -102,7 +100,7 @@ public class ExtendedRenderer extends Thread {
                     // counterclockwise rotation, south -> east -> north -> west
                     z--;
                     Pathway.ChunkWithStructures st = new Pathway.ChunkWithStructures(new CubePos(x, y, z), osm.chunkStructures(x, z));
-                    if (st.structures != null) osmStrc.add(st);
+                    if (st.structures != null) threadCache.add(st);
                     chunks.add(new CubePos(x, y, z));
                     e++;
                 }
@@ -110,7 +108,7 @@ public class ExtendedRenderer extends Thread {
                 while (e <= sqr) {
                     x++;
                     Pathway.ChunkWithStructures st = new Pathway.ChunkWithStructures(new CubePos(x, y, z), osm.chunkStructures(x, z));
-                    if (st.structures != null) osmStrc.add(st);
+                    if (st.structures != null) threadCache.add(st);
                     chunks.add(new CubePos(x, y, z));
                     e++;
                 }
@@ -118,7 +116,7 @@ public class ExtendedRenderer extends Thread {
                 while (e <= sqr) {
                     z++;
                     Pathway.ChunkWithStructures st = new Pathway.ChunkWithStructures(new CubePos(x, y, z), osm.chunkStructures(x, z));
-                    if (st.structures != null) osmStrc.add(st);
+                    if (st.structures != null) threadCache.add(st);
                     chunks.add(new CubePos(x, y, z));
                     e++;
                 }
@@ -126,7 +124,7 @@ public class ExtendedRenderer extends Thread {
                 while (e <= sqr) {
                     x--;
                     Pathway.ChunkWithStructures st = new Pathway.ChunkWithStructures(new CubePos(x, y, z), osm.chunkStructures(x, z));
-                    if (st.structures != null) osmStrc.add(st);
+                    if (st.structures != null) threadCache.add(st);
                     chunks.add(new CubePos(x, y, z));
                     e++;
                 }
@@ -134,7 +132,7 @@ public class ExtendedRenderer extends Thread {
                 i++;
             }
 
-            for (Pathway.ChunkWithStructures c : osmStrc) {
+            for (Pathway.ChunkWithStructures c : threadCache) {
                 for (OpenStreetMaps.Edge e : c.structures) {
                     if (e.type != OpenStreetMaps.Type.RIVER && e.type != OpenStreetMaps.Type.BUILDING && e.type != OpenStreetMaps.Type.STREAM) {
                         osmStructures.add(c);
@@ -147,6 +145,7 @@ public class ExtendedRenderer extends Thread {
 
     public static Set<Pathway.ChunkWithStructures> osmStructures = new HashSet<>();
 
+    @Override
     public void run() {
         int dist = chunkCount / 4;
 
