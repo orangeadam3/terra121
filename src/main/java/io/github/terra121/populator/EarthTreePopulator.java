@@ -17,7 +17,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.WorldGenAbstractTree;
 
-public class EarthTreePopulator implements ICubicPopulator {
+public class EarthTreePopulator implements ICubicPopulator, Comparable<Object> {
 
 	Trees trees;
 	
@@ -105,6 +105,11 @@ public class EarthTreePopulator implements ICubicPopulator {
         }
 
         return low;
+    }
+    
+    @Override
+    public int compareTo(Object o) {
+        return 1;
     }
 
 }
