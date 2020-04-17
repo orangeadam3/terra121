@@ -20,7 +20,7 @@ public class VectorPathGenerator implements ICubicPopulator {
     Heights heights;
     GeographicProjection projection;
 
-    public VectorPathGenerator(Heights heights, GeographicProjection proj, OpenStreetMaps osm) {
+    public VectorPathGenerator(OpenStreetMaps osm, Heights heights, GeographicProjection proj) {
         this.heights = heights;
         projection = proj;
         this.osm = osm;
@@ -33,13 +33,13 @@ public class VectorPathGenerator implements ICubicPopulator {
         int cubeY = cubePos.getY();
         int cubeZ = cubePos.getZ();
 
-        TerraMod.LOGGER.info("generate");
-        Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeY);
+        Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeZ);
 
         if (edges != null) {
 
             TerraMod.LOGGER.info("size: {}", edges.size());
             List<Pathway.VectorPathGroup> paths = Pathway.chunkStructuresAsVectors(edges, world, cubeX, cubeY, cubeZ, heights, projection, false);
+
             List<Pathway.VectorPathGroup> sPaths = new ArrayList<>();
             List<Pathway.VectorPathGroup> secondProcessPaths;
             List<OpenStreetMaps.Edge> edgeCache = new ArrayList<>();
@@ -51,9 +51,7 @@ public class VectorPathGenerator implements ICubicPopulator {
 
                     List<VectorPath> currentVp = vpg.paths;
 
-                    for (int e = 0; e <= currentVp.size() - 1; e++) {
-
-                        VectorPath current = currentVp.get(e);
+                    for (VectorPath current : currentVp) {
 
                         if (current.edge != null) {
 
