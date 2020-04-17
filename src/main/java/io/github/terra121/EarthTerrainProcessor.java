@@ -202,7 +202,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 	            		for (int y = start; y < 16 && y < Y - Coords.cubeToMinBlock(cubeY); y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
 	            	}
             	}
-            	else for (int y = 0; y < 16 && y < 0 - Coords.cubeToMinBlock(cubeY); y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
+            	else for (int y = (int)Math.max(Y - Coords.cubeToMinBlock(cubeY),0); y < 16 && y < 0 - Coords.cubeToMinBlock(cubeY); y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
             }
         }
         
@@ -331,7 +331,19 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
     @Override
     public BlockPos getClosestStructure(String name, BlockPos pos, boolean findUnexplored) {
-        // eyes of ender are the new F3 for finding the origin :P
-        return name.equals("Stronghold") ? new BlockPos(0, 0, 0) : null;
+        // eyes of ender are now compasses
+        if(name.equals("Stronghold")) {
+            double[] vec = projection.vector(pos.getX(), pos.getZ(), 1, 0); //direction's to one meter north of here
+
+            //System.out.println(vec[0] + " " + vec[1]);
+
+            //normalize vector
+            double mag = Math.sqrt(vec[0]*vec[0] + vec[1]*vec[1]);
+            vec[0] /= mag; vec[1] /= mag;
+
+            //project vector 100 blocks out to get "stronghold" position 30000000/6939490
+            return new BlockPos((int)(pos.getX() + vec[0]*100.0), pos.getY(), (int)(pos.getZ() + vec[1]*100.0));
+        }
+        return null;
     }
 }

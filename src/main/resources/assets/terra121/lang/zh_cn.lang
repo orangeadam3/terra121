@@ -1,0 +1,72 @@
+#PARSE_ESCAPES
+
+## World Type name
+
+generator.EarthCubic=地球
+
+
+
+## GUI options
+
+terra121.gui.projection=投影方式
+
+terra121.gui.orientation=投影方向
+
+terra121.gui.roads=生成道路
+
+terra121.gui.smoothblend=平滑过渡
+
+terra121.gui.dynamicbaseheight=高海拔生成矿物
+
+terra121.gui.osmwater=高级水面（实验性）
+
+terra121.gui.buildings=OSM建筑轮廓
+
+
+
+## Projection types
+
+terra121.projection.web_mercator=墨卡托投影
+
+terra121.projection.equirectangular=等矩投影
+
+terra121.projection.sinusoidal=正弦投影
+
+terra121.projection.equal_earth=Equal Earth
+
+
+
+## Projection orientations
+
+terra121.orientation.upright=定向
+
+terra121.orientation.none=无方向
+
+terra121.orientation.swapped=翻转坐标轴
+
+## command messages
+
+terra121.commands.tpll.usage=/tpll <纬度> <经度> [海拔高度]
+
+terra121.commands.terra.usage=/terra [where:ou] [玩家]\n/terra world\n/terra osm\n/terra conv[ert] [x z]:[纬度 经度]
+
+terra121.commands.terra.gensettings=Generator Settings: 
+
+terra121.commands.terra.latlon=纬度 经度: %.7f %.7f
+
+terra121.commands.terra.xy=x y: %.7f %.7f
+
+## command errors
+terra121.error.notcc=必须在Cubic Chunks世界中执行！
+
+terra121.error.notterra=必须在Terra 1 to 1世界中执行！
+
+terra121.error.numbers=所有参数必须是数字！
+
+terra121.error.getcoords=无法获取坐标！
+
+terra121.error.notplayer=你不是玩家，必须指定一个！
+
+terra121.error.unknownplayer=未知玩家！
+
+terra121.error.notopothers=需要OP权限以获得其他玩家信息！

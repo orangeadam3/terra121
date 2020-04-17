@@ -45,7 +45,7 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		
 		this.mc = mc;
 		this.guiCreateWorld = guiCreateWorld;
-		
+
 		InputStream is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/map.png");
 		try {
 			base = ImageIO.read(is);
@@ -124,6 +124,8 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 				if(bounds[0]<=X&&X<=bounds[2]&&bounds[1]<=Y&&Y<=bounds[3]) {
 					
 					double proj[] = projection.toGeo(X, Y); //projection coords to lon lat
+
+					if(proj[0]!=proj[0] || proj[1]!=proj[1])continue;
 					
 					//lat lon to reference image coords
 					int lon = (int)((proj[0]/360 + 0.5)*base.getWidth());
@@ -153,8 +155,8 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 			mapsize = 0;*/
 
 		settings = new DynamicOptions(mc, width-mapsize, height-32, 32, height-32, 32, this, settingElems);
-		done = new GuiButton(69, width-106, height-26, 100, 20, "Done");
-		cancel = new GuiButton(69, 6, height-26, 100, 20, "Cancel");
+		done = new GuiButton(69, width-106, height-26, 100, 20, I18n.format("gui.done"));
+		cancel = new GuiButton(69, 6, height-26, 100, 20, I18n.format("gui.cancel"));
     }
 	
 	@Override

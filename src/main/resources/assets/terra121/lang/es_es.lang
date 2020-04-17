@@ -1,0 +1,43 @@
+#PARSE_ESCAPES
+
+## World Type name
+generator.EarthCubic=Planeta Tierra
+
+## GUI options
+terra121.gui.projection=Proyección
+terra121.gui.orientation=Orientación
+terra121.gui.roads=Crear Calles
+terra121.gui.smoothblend=Suavizado
+terra121.gui.dynamicbaseheight=Altura de Minerales Dinámica
+terra121.gui.osmwater=Agua Avanzada (experimental)
+terra121.gui.buildings=Guías de Construcciones
+
+## Projection types
+terra121.projection.web_mercator=Mercator
+terra121.projection.equirectangular=Equirectangular
+terra121.projection.sinusoidal=Sinusoidal
+terra121.projection.equal_earth=Equal Earth
+terra121.projection.transverse_mercator=Mercator Transversal
+
+## Projection orientations
+terra121.orientation.upright=Derecha
+terra121.orientation.none=Ninguna
+terra121.orientation.swapped=Eje Invertido
+
+## command messages
+terra121.commands.tpll.usage=/tpll latitud longitud [altitud]
+
+terra121.commands.terra.usage=/terra [where:ou] [jugador]\n/terra world\n/terra osm\n/terra conv[ert] [x z]:[latitud longitud]
+
+terra121.commands.terra.gensettings=Configuración del Generador: 
+terra121.commands.terra.latlon=latitud longitud: %.7f %.7f
+terra121.commands.terra.xy=x y: %.7f %.7f
+
+## command errors
+terra121.error.notcc=¡Tienes que estar en un mundo Cubic Chunks!
+terra121.error.notterra=¡Tienes que estar en un mundo Terra!
+terra121.error.numbers=¡Todos los argumentos tienen que ser números!
+terra121.error.getcoords=¡No se pudieron obtener las coordenadas!
+terra121.error.notplayer=¡No eres un jugador, por favor especifica uno!
+terra121.error.unknownplayer=¡Jugador desconocido!
+terra121.error.notopothers=¡Necesitas OP para obtener información de otros jugadores!
