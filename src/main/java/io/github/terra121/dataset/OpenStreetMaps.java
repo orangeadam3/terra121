@@ -36,6 +36,9 @@ public class OpenStreetMaps {
     private static final String URL_B = ")%20tags%20qt;(._<;);out%20body%20qt;";
     private static final String URL_C = "is_in(";
     private String URL_SUFFIX = ");area._[~\"natural|waterway\"~\"water|riverbank\"];out%20ids;";
+    // get all elements by id
+    private static final String URL_ID = "[out:json][timeout:25](way(";
+    private static final String URL_ID_SUFFIX = "););out;>;out skel qt;";
 
     private HashMap<Coord, Set<Edge>> chunks;
     public LinkedHashMap<Coord, Region> regions;
@@ -58,8 +61,8 @@ public class OpenStreetMaps {
         ISBRIDGE, ISTUNNEL, NONE, ROAD
     }
 
-    public static class noneBoolAttributes {
-        public static String layer;
+    public enum Surface {
+        ASPHALT, CONCRETE, COBBLE, WOOD, GRAVEL, DIRT, GRASS_PATH, IGNORE
     }
 
     Type wayType;
@@ -145,6 +148,35 @@ public class OpenStreetMaps {
         return region;
     }
 
+    public Data regiondownload(Long id) {
+
+        try {
+
+            String urltext = URL_PREFACE + URL_ID + id + URL_ID_SUFFIX;
+
+            TerraMod.LOGGER.info(urltext);
+
+            //kumi systems request a meaningful user-agent
+            URL url = new URL(urltext);
+            URLConnection c = url.openConnection();
+            c.addRequestProperty("User-Agent", TerraMod.USERAGENT);
+            InputStream is = c.getInputStream();
+
+            StringWriter writer = new StringWriter();
+            IOUtils.copy(is, writer, StandardCharsets.UTF_8);
+            String str = writer.toString();
+
+            return gson.fromJson(str, Data.class);
+
+        } catch (Exception e) {
+
+            TerraMod.LOGGER.error("OSM download failed while trying to generate tunnel or bridge. Feature will not spawn, " + e);
+            e.printStackTrace();
+            return null;
+
+        }
+    }
+
     public boolean regiondownload(Region region) {
         double X = region.coord.x * TILE_SIZE;
         double Y = region.coord.y * TILE_SIZE;
@@ -198,6 +230,24 @@ public class OpenStreetMaps {
         return true;
     }
 
+    private List<Double> getStartAndEndPoints(Data data) throws IOException {
+
+        List<Double> coords = new ArrayList<>();
+        byte i = 0;
+        for (Element element : data.elements) {
+            // first element is the start, second is the end
+            if (i <= 2) {
+                if (element.tags.get("lat") != null && element.tags.get("lon") != null) {
+                    coords.add(Double.parseDouble(element.tags.get("lat")));
+                    coords.add(Double.parseDouble(element.tags.get("lon")));
+                    i++;
+                }
+            }
+        }
+        TerraMod.LOGGER.info("size of coords {}", coords.size());
+        if (coords.size() == 4) return coords; else throw new IOException(); // todo for testing
+    }
+
     private void doGson(InputStream is, Region region) throws IOException {
 
         StringWriter writer = new StringWriter();
@@ -220,7 +270,8 @@ public class OpenStreetMaps {
                     continue;
                 }
 
-                String naturalv = null, highway = null, waterway = null, building = null, istunnel = null, isbridge = null, ref = null, name = null;
+                String naturalv = null, highway = null, waterway = null, building = null, istunnel = null, isbridge = null, ref = null, name = null, surface = null;
+                List<Double> wholePath = null;
 
                 if (doWater) {
                     naturalv = elem.tags.get("natural");
@@ -233,6 +284,7 @@ public class OpenStreetMaps {
                     isbridge = elem.tags.get("bridge");
                     ref = elem.tags.get("ref");
                     name = elem.tags.get("name");
+                    surface = elem.tags.get("surface");
                 }
 
                 if (doBuildings) {
@@ -245,6 +297,7 @@ public class OpenStreetMaps {
                         waterway.equals("canal") || waterway.equals("stream"))) || building != null) { //TODO: fewer equals
 
                     Type type = Type.PATH;
+                    Surface surf = Surface.GRASS_PATH;
 
                     if (waterway != null) {
                         type = Type.STREAM;
@@ -258,10 +311,12 @@ public class OpenStreetMaps {
                     if (istunnel != null && istunnel.equals("yes")) {
 
                         attributes = Attributes.ISTUNNEL;
+                        wholePath = getStartAndEndPoints(regiondownload(elem.id));
 
                     } else if (isbridge != null && isbridge.equals("yes")) {
 
                         attributes = Attributes.ISBRIDGE;
+                        wholePath = getStartAndEndPoints(regiondownload(elem.id));
 
                     } else if (highway!=null) {
 
@@ -271,6 +326,7 @@ public class OpenStreetMaps {
 
                     if (highway != null) {
 
+                        if (surface == null) surface = "asphalt";
                         attributes = Attributes.ROAD;
                         switch (highway) {
                             case "motorway":
@@ -309,11 +365,46 @@ public class OpenStreetMaps {
                                     type = Type.SIDE;
                                 break;
                         }
+                        // one could match surfaces to blocks all day, but this should do
+                        switch (surface) {
+                            case "paved":
+                            case "asphalt":
+                                surf = Surface.ASPHALT;
+                                break;
+                            case "concrete":
+                                surf = Surface.CONCRETE;
+                                break;
+                            case "paving_stones":
+                            case "sett":
+                            case "cobblestone":
+                            case "unhewn_cobblestone":
+                                surf = Surface.COBBLE;
+                                break;
+                            case "unpaved":
+                            case "compacted":
+                            case "fine_gravel":
+                            case "gravel":
+                            case "pebblestone":
+                                surf = Surface.GRAVEL;
+                                break;
+                            case "wood":
+                                surf = Surface.WOOD;
+                                break;
+                            case "dirt":
+                            case "ground":
+                                surf = Surface.DIRT;
+                                break;
+                            case "mud":
+                            case "earth":
+                                surf = Surface.GRASS_PATH;
+
+                        }
                     }
 
                     //get lane number (default is 2)
                     String slanes = elem.tags.get("lanes");
                     String slayer = elem.tags.get("layers");
+                    long id = elem.id;
                     byte lanes = 2;
                     byte layer = 1;
 
@@ -355,7 +446,7 @@ public class OpenStreetMaps {
                     if (lanes > 2 && type == Type.MINOR)
                         type = Type.MAIN;
 
-                    addWay(elem, type, lanes, region, attributes, layer, ref, name);
+                    addWay(elem, type, lanes, region, attributes, layer, ref, name, id, surf, wholePath);
                 } else unusedWays.add(elem);
 
             } else if (elem.type == EType.relation && elem.members != null && elem.tags != null) {
@@ -383,7 +474,7 @@ public class OpenStreetMaps {
                         if (member.type == EType.way) {
                             Element way = allWays.get(member.ref);
                             if (way != null) {
-                                addWay(way, Type.BUILDING, (byte) 1, region, Attributes.NONE, (byte) 0, null, null);
+                                addWay(way, Type.BUILDING, (byte) 1, region, Attributes.NONE, (byte) 0, null, null, null, Surface.IGNORE, null);
                                 unusedWays.remove(way);
                             }
                         }
@@ -416,7 +507,7 @@ public class OpenStreetMaps {
         }
     }
 
-    void addWay(Element elem, Type type, byte lanes, Region region, Attributes attributes, byte layer, String reference, String rname) {
+    void addWay(Element elem, Type type, byte lanes, Region region, Attributes attributes, byte layer, String reference, String rname, Long id, Surface surf, List<Double> wp) {
         double[] lastProj = null;
         if(elem.geometry != null)
         for (Geometry geom : elem.geometry) {
@@ -425,7 +516,7 @@ public class OpenStreetMaps {
                 double[] proj = projection.fromGeo(geom.lon, geom.lat);
 
                 if (lastProj != null) { //register as a road edge
-                    allEdges.add(new Edge(lastProj[0], lastProj[1], proj[0], proj[1], type, lanes, region, attributes, layer, reference, rname));
+                    allEdges.add(new Edge(lastProj[0], lastProj[1], proj[0], proj[1], type, lanes, region, attributes, layer, reference, rname, id, surf, wp));
                 }
 
                 lastProj = proj;
@@ -555,6 +646,9 @@ public class OpenStreetMaps {
         public double offset;
         public String reference;
         public String roadName;
+        public Long id;
+        public Surface surf;
+        public List<Double> wp;
 
         public byte lanes;
 
@@ -566,7 +660,8 @@ public class OpenStreetMaps {
             return dlat * dlat + dlon * dlon;
         }
 
-        private Edge(double slon, double slat, double elon, double elat, Type type, byte lanes, Region region, Attributes att, byte ly, String reference, String roadName) {
+        private Edge(double slon, double slat, double elon, double elat, Type type, byte lanes, Region region, Attributes att, byte ly,
+                     String reference, String roadName, Long id, Surface surf, List<Double> wp) {
             //slope must not be infinity, slight inaccuracy shouldn't even be noticible unless you go looking for it
             double dif = elon - slon;
             if (-NOTHING <= dif && dif <= NOTHING) {
@@ -588,6 +683,9 @@ public class OpenStreetMaps {
             this.layer_number = ly;
             this.reference = reference;
             this.roadName = roadName;
+            this.id = id;
+            this.surf = surf;
+            this.wp = wp;
 
             slope = (elat - slat) / (elon - slon);
             offset = slat - slope * slon;

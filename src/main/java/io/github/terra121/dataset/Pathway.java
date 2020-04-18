@@ -40,6 +40,11 @@ public class Pathway {
     private static final IBlockState PATH = Blocks.GRASS_PATH.getDefaultState();
     private static final IBlockState WATER_SOURCE = Blocks.WATER.getDefaultState();
     private static final IBlockState WATER_BEACH = Blocks.DIRT.getDefaultState();
+    private static final IBlockState DIRT = Blocks.DIRT.getDefaultState();
+    private static final IBlockState GRAVEL = Blocks.GRAVEL.getDefaultState();
+    private static final IBlockState WOOD = Blocks.PLANKS.getDefaultState();
+    private static final IBlockState CONCRETE = Blocks.CONCRETE.getDefaultState();
+    private static final IBlockState COBBLE = Blocks.COBBLESTONE.getDefaultState();
 
 
     // CLASS METHODS
@@ -74,6 +79,32 @@ public class Pathway {
             width = 2;
         }
         return width / 2;
+    }
+
+    public static BiFunction<Double, BlockPos, IBlockState> getMaterial(OpenStreetMaps.Surface s) {
+
+        if (s != null) {
+            switch (s) {
+                case ASPHALT:
+                    return (dis, bpos) -> ASPHALT;
+                case DIRT:
+                    return (dis, bpos) -> DIRT;
+                case WOOD:
+                    return (dis, bpos) -> WOOD;
+                case COBBLE:
+                    return (dis, bpos) -> COBBLE;
+                case GRAVEL:
+                    return (dis, bpos) -> GRAVEL;
+                case CONCRETE:
+                    return (dis, bpos) -> CONCRETE;
+                case GRASS_PATH:
+                    return (dis, bpos) -> PATH;
+            }
+        } else {
+            return (dis, bpos) -> ASPHALT;
+        }
+        // this should never happen
+        return null;
     }
 
     /**
@@ -180,10 +211,14 @@ public class Pathway {
 
                     // second processing
                     if (spro) {
-                        if (e.attribute == OpenStreetMaps.Attributes.ISTUNNEL || e.attribute == OpenStreetMaps.Attributes.ISBRIDGE) {
+                        if ((e.attribute == OpenStreetMaps.Attributes.ISTUNNEL || e.attribute == OpenStreetMaps.Attributes.ISBRIDGE) && e.wp != null) {
 
-                            e.slope = getIncline(new Vec3d(e.elon, getElevation(world, e.elon, e.elat), e.elat),
-                                    new Vec3d(e.slon, getElevation(world, e.slon, e.slat), e.slat));
+                            Double[] start = {e.wp.get(0), e.wp.get(1)};
+                            Double[] end = {e.wp.get(2), e.wp.get(3)};
+
+                            // todo use estimateLocal instead of getElevation
+                            e.slope = getIncline(new Vec3d(end[0], getElevation(world, end[0], end[1]), end[1]),
+                                    new Vec3d(start[0], getElevation(world, start[0], start[1]), start[1]));
 
                             TerraMod.LOGGER.info("elevation: {}", getElevation(world, e.slon, e.slat));
                             TerraMod.LOGGER.info("elevation e: {}", getElevation(world, e.elon, e.elat));
@@ -218,11 +253,11 @@ public class Pathway {
                             r = 5;
                             break;
                         case PATH:
-                            state = (dis, bpos) -> PATH;
+                            state = getMaterial(OpenStreetMaps.Surface.GRASS_PATH);
                             r = 1;
                             break;
                         default:
-                            state = (dis, bpos) -> ASPHALT;
+                            state = getMaterial(e.surf);
                             r = (int) Pathway.calculateRoadWidth(e.lanes, e.type);
                             break;
                     }
