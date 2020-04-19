@@ -14,6 +14,9 @@ import net.minecraft.world.biome.Biome;
 import io.github.terra121.dataset.Pathway.VectorPath;
 import java.util.*;
 
+/**
+ * Generates what Pathway processes
+ * */
 public class VectorPathGenerator implements ICubicPopulator {
 
     OpenStreetMaps osm;
@@ -37,13 +40,9 @@ public class VectorPathGenerator implements ICubicPopulator {
 
         if (edges != null) {
 
-            TerraMod.LOGGER.info("size: {}", edges.size());
             List<Pathway.VectorPathGroup> paths = Pathway.chunkStructuresAsVectors(edges, world, cubeX, cubeY, cubeZ, heights, projection, false);
 
             List<Pathway.VectorPathGroup> sPaths = new ArrayList<>();
-            List<Pathway.VectorPathGroup> secondProcessPaths;
-            List<OpenStreetMaps.Edge> edgeCache = new ArrayList<>();
-
             if (!paths.isEmpty()) {
 
                 // iterate over VectorPathGroups
@@ -55,17 +54,11 @@ public class VectorPathGenerator implements ICubicPopulator {
 
                         if (current.edge != null) {
 
-                            edgeCache.add(current.edge);
+                            List<OpenStreetMaps.Edge> t = new ArrayList<>();
+                            t.add(current.edge);
+                            Set<OpenStreetMaps.Edge> tunnels = new HashSet<>(t);
+                            sPaths.addAll(Pathway.chunkStructuresAsVectors(tunnels, world, cubeX, cubeY, cubeZ, heights, projection, true));
 
-                        } else if (!current.path.isEmpty()) {
-
-                            if (!edgeCache.isEmpty()) {
-
-                                Set<OpenStreetMaps.Edge> tunnels = new HashSet<>(edgeCache);
-                                secondProcessPaths = Pathway.chunkStructuresAsVectors(tunnels, world, cubeX, cubeY, cubeZ, heights, projection, true);
-                                sPaths.addAll(secondProcessPaths);
-
-                            }
                         }
                     }
                 }
