@@ -68,7 +68,9 @@ public class InvertableVectorField {
         double w2 = 2*(y-y3)/ROOT3;
         double w3 = 1-w1-w2;
 
-        return new double[] {valx1*w1 + valx2*w2 + valx3*w3, valy1*w1 + valy2*w2 + valy3*w3, (valx3 - valx1)*sideLength, sideLength*flip*(2*valx2 - valx1 - valx3)/ROOT3, (valy3 - valy1)*sideLength, sideLength*flip*(2*valy2 - valy1 - valy3)/ROOT3};
+        return new double[] {valx1*w1 + valx2*w2 + valx3*w3, valy1*w1 + valy2*w2 + valy3*w3,
+                (valx3 - valx1)*sideLength, sideLength*flip*(2*valx2 - valx1 - valx3)/ROOT3,
+                (valy3 - valy1)*sideLength, sideLength*flip*(2*valy2 - valy1 - valy3)/ROOT3};
     }
 
     public double[] applyNewtonsMethod(double expectedf, double expectedg, double xest, double yest, int iter) {
@@ -79,19 +81,10 @@ public class InvertableVectorField {
             double dfdx = c[2], dfdy = c[3];
             double dgdx = c[4], dgdy = c[5];
 
-            //System.out.println(dfdx+" "+dfdy+" "+dgdx+" "+dgdy);
-
-            //double[] cdx = getInterpolatedVector(xest, yest+0.0000001);
-            //System.out.println((cdx[0]-c[0])/0.0000001+" "+(cdx[1]-c[1])/0.0000001);
-
             double determinant = 1/(dfdx*dgdy - dfdy*dgdx);
 
             xest -= determinant*(dgdy*f - dfdy*g);
             yest -= determinant*(-dgdx*f + dfdx*g);
-
-            /*double deltay = (f*dgdx*dfdy/dfdx - g)/(dgdy - dgdx/dfdx);
-            xest -= (f+deltay*dfdy)/dfdx;
-            yest += deltay;*/
         }
 
         return new double[] {xest, yest};
