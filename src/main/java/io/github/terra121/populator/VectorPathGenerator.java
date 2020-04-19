@@ -2,7 +2,6 @@ package io.github.terra121.populator;
 
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
-import io.github.terra121.TerraMod;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
 import io.github.terra121.dataset.Pathway;
@@ -40,32 +39,11 @@ public class VectorPathGenerator implements ICubicPopulator {
 
         if (edges != null) {
 
-            List<Pathway.VectorPathGroup> paths = Pathway.chunkStructuresAsVectors(edges, world, cubeX, cubeY, cubeZ, heights, projection, false);
+            List<Pathway.VectorPathGroup> paths = Pathway.chunkStructuresAsVectors(edges, world, cubeX, cubeY, cubeZ, heights, projection);
 
-            List<Pathway.VectorPathGroup> sPaths = new ArrayList<>();
             if (!paths.isEmpty()) {
 
-                // iterate over VectorPathGroups
-                for (Pathway.VectorPathGroup vpg : paths) {
-
-                    List<VectorPath> currentVp = vpg.paths;
-
-                    for (VectorPath current : currentVp) {
-
-                        if (current.edge != null) {
-
-                            List<OpenStreetMaps.Edge> t = new ArrayList<>();
-                            t.add(current.edge);
-                            Set<OpenStreetMaps.Edge> tunnels = new HashSet<>(t);
-                            sPaths.addAll(Pathway.chunkStructuresAsVectors(tunnels, world, cubeX, cubeY, cubeZ, heights, projection, true));
-
-                        }
-                    }
-                }
-
-                sPaths.addAll(paths);
-
-                for (Pathway.VectorPathGroup g : sPaths) {
+                for (Pathway.VectorPathGroup g : paths) {
                     placeVectorPaths(g.paths, world);
                 }
 

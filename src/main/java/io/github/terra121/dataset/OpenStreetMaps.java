@@ -156,7 +156,7 @@ public class OpenStreetMaps {
 
             String urltext = "https://overpass.kumi.systems/api/interpreter/api/interpreter?data=[out:json][timeout:25];(way("+id+"););out;%3E;out%20skel%20qt;";
 
-            TerraMod.LOGGER.info(urltext);
+            // TerraMod.LOGGER.info(urltext);
 
             //kumi systems request a meaningful user-agent
             URL url = new URL(urltext);
@@ -396,13 +396,11 @@ public class OpenStreetMaps {
                         // todo remove
                         if (istunnel != null && istunnel.equals("yes")) {
 
-                            TerraMod.LOGGER.info("is tunnel");
                             attributes = Attributes.ISTUNNEL;
                             wholePath = getStartAndEndPoints(regiondownload(elem.id));
 
                         } else if (isbridge != null && isbridge.equals("yes")) {
 
-                            TerraMod.LOGGER.info("is bridge");
                             attributes = Attributes.ISBRIDGE;
                             wholePath = getStartAndEndPoints(regiondownload(elem.id));
 

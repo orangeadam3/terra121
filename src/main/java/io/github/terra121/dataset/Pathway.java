@@ -10,6 +10,8 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.Range;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -52,7 +54,7 @@ public class Pathway {
      * Calculates width of a road based on number of lanes and OSM type. Returns the width as double.
      */
     public static double calculateRoadWidth(int l, OpenStreetMaps.Type c) {
-        int width = 2;
+        double width = 2;
         switch (c) {
             case MINOR:
                 width = l * 2;
@@ -110,14 +112,79 @@ public class Pathway {
         double dP12 = fin.dotProduct(init);
         double X = fin.x - init.x * fin.x - init.x;
         double Z = fin.z - init.z * fin.z - init.z;
-        double pytP1 = Math.sqrt((X + Math.pow(fin.y - init.y, 2) + Z));
-        double pytP2 = Math.sqrt((X + Z));
+        double pytP1 = Math.sqrt((X*X + Math.pow(fin.y - init.y, 2) + Z*Z));
+        double pytP2 = Math.sqrt((X*X + Z*Z));
 
         double cosC = dP12 / (pytP1 * pytP2);
         double C = Math.acos(cosC);
 
         return Math.tan(C);
 
+    }
+
+    public static int getTunnelY(Double[] fin, Double[] init, double x, double z, Heights heights) {
+        int height = 0;
+        // get all points (2d) along tunnel
+        double Dz = fin[0] - init[0];
+        double Dx = fin[1] - init[1];
+        double sXZ = Dz/Dx;
+        List<Double> xpoints = new ArrayList<>();
+        List<Double> zpoints = new ArrayList<>();
+        Range<Double> xrange = Range.between(x+1, x-1);
+        Range<Double> zrange = Range.between(z-1, z+1);
+
+        double cx=x;
+        double cz=z;
+        boolean end = false;
+        while (!end) {
+            for (double on = sXZ; on <= 1; on+=sXZ) {
+                cx+=1;
+                xpoints.add(cx);
+            }
+            cz+=1;
+            zpoints.add(cz);
+            if (xrange.contains(cx) && zrange.contains(cz)) end = true;
+        }
+        if (xpoints.size()==zpoints.size()) {
+            double dist = Math.abs(xpoints.get(0) - x);
+            int index = 0;
+            for (int c = 1; c < xpoints.size(); c++) {
+                double cdist = Math.abs(xpoints.get(c)-x);
+                if (cdist < dist) {
+                    index = c;
+                    dist = cdist;
+                }
+            }
+            // closest x + z
+            double xmatch = xpoints.get(index);
+            double zmatch = zpoints.get(index);
+
+            double sY = heights.estimateLocal(init[0], init[1]);
+            double eY = heights.estimateLocal(fin[0], fin[1]);
+
+            double Dy = eY - sY;
+            double sXY = Dy/Dx;
+
+            List<Double> ypoints = new ArrayList<>();
+            Range<Double> yrange = Range.between(eY-1, eY+1);
+
+            double cx2 = x;
+            double cy = sY;
+            boolean endy = false;
+            while (!endy) {
+                for (double ony = sXY; ony <= 1; ony+=sXY) {
+                    cy+=1;
+                    ypoints.add(cy);
+                }
+                cx2+=1;
+                if (yrange.contains(cy)) endy = true;
+            }
+
+            TerraMod.LOGGER.info("height {}", height);
+            height = (int) Math.floor(ypoints.get(index));
+
+        }
+        return height;
     }
 
     /**
@@ -130,51 +197,43 @@ public class Pathway {
      * Returns List of VectorPathGroup. Do not use for buildings.
      */
     public static List<VectorPathGroup> chunkStructuresAsVectors(Set<OpenStreetMaps.Edge> edges, World world, int cubeX, int cubeY, int cubeZ,
-                                                                 Heights heights, GeographicProjection projection, boolean spro) {
+                                                                 Heights heights, GeographicProjection projection) {
         BiFunction<Double, BlockPos, IBlockState> state;
         VectorPath v;
         List<Double> allX = new ArrayList<>();
         List<Double> allY = new ArrayList<>();
         List<Double> allZ = new ArrayList<>();
-        List<VectorPath> tunnel = new ArrayList<>();
         List<VectorPath> air = new ArrayList<>();
         List<VectorPathGroup> allPaths = new ArrayList<>();
 
         for (OpenStreetMaps.Edge e : edges) {
 
+            boolean tunnel = false;
             List<VectorPath> evp = new ArrayList<>();
 
             if (e.type != OpenStreetMaps.Type.BUILDING) {
 
-                // second processing
-                if (spro) {
-                    TerraMod.LOGGER.info("spro");
-                    if ((e.attribute == OpenStreetMaps.Attributes.ISTUNNEL || e.attribute == OpenStreetMaps.Attributes.ISBRIDGE) && e.wp != null) {
+                if (e.attribute == OpenStreetMaps.Attributes.ISTUNNEL || e.attribute == OpenStreetMaps.Attributes.ISBRIDGE) tunnel = true;
+                /*if (e.attribute == OpenStreetMaps.Attributes.ISTUNNEL || e.attribute == OpenStreetMaps.Attributes.ISBRIDGE) {
+
+                    if (e.wp != null) {
 
                         Double[] start = {e.wp[0], e.wp[1]};
                         Double[] end = {e.wp[2], e.wp[3]};
 
                         // todo use estimateLocal instead of getElevation
-                        e.slope = getIncline(new Vec3d(end[0], getElevation(world, end[0], end[1]), end[1]),
-                                new Vec3d(start[0], getElevation(world, start[0], start[1]), start[1]));
+                        e.slope = getIncline(new Vec3d(end[0], heights.estimateLocal(end[0], end[1]), end[1]),
+                                new Vec3d(start[0], heights.estimateLocal(start[0], start[1]), start[1]));
+                        tunnel = true;
 
-                        TerraMod.LOGGER.info("elevation: {}", getElevation(world, e.slon, e.slat));
-                        TerraMod.LOGGER.info("elevation e: {}", getElevation(world, e.elon, e.elat));
+                        TerraMod.LOGGER.info("elevation: {}", heights.estimateLocal(end[0], end[1]));
+                        TerraMod.LOGGER.info("elevation e: {}",heights.estimateLocal(start[0], start[1]));
                         TerraMod.LOGGER.info("e.slope: {}", e.slope);
+
+                    } else {
+                        TerraMod.LOGGER.warn("Tunnel or bridge didn't have whole path data! (This could be an OSM data fault or a bug)");
                     }
-                } else {
-                    // tunnels should pass through e on first processing and exit
-                    if (e.attribute == OpenStreetMaps.Attributes.ISTUNNEL || e.attribute == OpenStreetMaps.Attributes.ISBRIDGE) {
-                        TerraMod.LOGGER.info("Path is tunnel/bridge...");
-                        try {
-                            evp.add(VectorPathFromValues(null, null, null, null, null, e));
-                        } catch (IOException ex) {
-                            TerraMod.LOGGER.error("An IOException has occured while trying to call VectorPathFromValues(). Are all coordinate lists equal in size?");
-                            ex.printStackTrace();
-                        }
-                        break;
-                    }
-                }
+                }*/
 
                 int r;
 
@@ -267,7 +326,15 @@ public class Pathway {
                             distance = Math.sqrt(distance);
 
                             double[] geo = projection.toGeo(mainX + cubeX * (16), mainZ + cubeZ * (16));
-                            int y = (int) Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY * 16);
+                            int y;
+                            if (!tunnel) y = (int) Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY * 16);
+                            else {
+                                // lon lat
+                                Double[] start = {e.wp[0], e.wp[1]};
+                                Double[] end = {e.wp[2], e.wp[3]};
+                                y = getTunnelY(end, start, x, z, heights);
+                                TerraMod.LOGGER.info("height: {}", y);
+                            }
 
                             // if not in this range, someone else will handle it
                             if (y >= 0 && y < 16) {
@@ -297,8 +364,7 @@ public class Pathway {
                                     List<Double> abZ = new ArrayList<>();
                                     IBlockState defState = Blocks.AIR.getDefaultState();
                                     for (int ay = y + 1;
-                                         ay < 32 && world.getBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16)) != defState;
-                                         ay++) {
+                                         ay < 32 && world.getBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16)) != defState; ay++) {
                                         abX.add((double) x + cubeX * 16);
                                         abY.add((double) ay + cubeY * 16);
                                         abZ.add((double) z + cubeZ * 16);
@@ -320,7 +386,6 @@ public class Pathway {
             }
         }
 
-        allPaths.add(new VectorPathGroup(tunnel));
         allPaths.add(new VectorPathGroup(air));
 
         return allPaths;
@@ -371,25 +436,6 @@ public class Pathway {
         } else return WATER_SOURCE;
     }
 
-    /**
-     * An inefficient throw-together kind of method to avoid pregeneration. Gets the Y value in World world at
-     * Integer X and Integer Z.
-     */
-    public static int getElevation(World world, double x, double z) {
-        boolean surf = false;
-        int y = 0;
-        // mt everest, i'm sorry, this method is very inefficient
-        for (int i = 8848; !surf; i--) {
-            IBlockState p = world.getBlockState(new BlockPos(x, i, z));
-            // don't count logs or leaves as a surface
-            if (p != Blocks.AIR.getDefaultState() || p != Blocks.LEAVES.getDefaultState() || p != Blocks.LOG.getDefaultState()) {
-                y = i;
-                surf = true;
-            }
-        }
-        return y;
-    }
-
     // CLASS SUBCLASSES
 
     /**
@@ -435,4 +481,14 @@ public class Pathway {
         }
 
     }
+
+    public static void main(String[] args) {
+
+        Double[] start = {46.6477470,8.5908610};
+        Double[] fin = {46.6477470,8.5908610};
+
+        //System.out.println(getTunnelY());
+
+    }
+
 }
