@@ -11,9 +11,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.chunk.IChunkProvider;
 import io.github.terra121.EarthTerrainProcessor;
 import io.github.terra121.projection.GeographicProjection;
+import io.github.terra121.EarthBiomeProvider;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.event.ClickEvent;
 import java.util.List;
@@ -86,32 +88,72 @@ public class TerraCommand extends CommandBase {
 				throw new WrongUsageException(getUsage(sender), new Object[0]);
 			}
 
-			double x,y;
-			try {
-				x = Double.parseDouble(args[1]);
-				y = Double.parseDouble(args[2]);
-			} catch(Exception e) {
-				result = I18n.format("terra121.error.numbers");
-				break;
-			}
+			c = getNumbers(args[1],args[2]);
+			if(c==null)break;
 
-			if(-180<=x&&x<=180&&-90<=y&&y<=90) {
-				c = projection.fromGeo(y, x);
+			if(-180<=c[1]&&c[1]<=180&&-90<=c[0]&&c[0]<=90) {
+				c = projection.fromGeo(c[1], c[0]);
 				result = I18n.format("terra121.commands.terra.xy", c[0], c[1]);
 			}
 			else {
-				c = projection.toGeo(x, y);
+				c = projection.toGeo(c[0], c[1]);
 				result = I18n.format("terra121.commands.terra.latlon", c[1], c[0]);
 			}
 			break;
 
-			case "distortion": case "tessot": //TODO
+		case "env": case "environment":
+			BiomeProvider bp = world.getBiomeProvider();
+			if(!(bp instanceof EarthBiomeProvider)) { //must have normal biome provider
+				throw new CommandException("terra121.error.notterra", new Object[0]);
+			}
+
+			c = getCoordArgs(sender, args, projection);
+
+			c = ((EarthBiomeProvider)bp).getEnv(c[0], c[1]);
+
+			result =  I18n.format("terra121.commands.terra.environment", c[1], c[2], (int)c[0]);
+			break;
+
+		case "distortion": case "tissot": case "tiss":
+			c = getCoordArgs(sender, args, projection);
+			c = projection.tissot(c[0], c[1], 0.0000001);
+
+			result =  I18n.format("terra121.commands.terra.tissot", Math.sqrt(Math.abs(c[0])), c[1]*180.0/Math.PI);
+			break;
 
 		default:
 			throw new WrongUsageException(getUsage(sender), new Object[0]);
 		}
 
 		if(result!=null)sender.sendMessage(new TextComponentString(result));
+	}
+
+	double[] getCoordArgs(ICommandSender sender, String[] args, GeographicProjection projection) throws CommandException {
+		if(args.length==3) {
+			return getNumbers(args[2], args[1]);
+		}
+		else if(args.length==2) {
+			double[] c = getPlayerCoords(sender, args[1], projection);
+			if(c==null)throw new CommandException("terra121.error.getcoords", new Object[0]);
+			return c;
+		}
+		else {
+			double[] c = getPlayerCoords(sender, null, projection);
+			if(c==null)throw new CommandException("terra121.error.getcoords", new Object[0]);
+			return c;
+		}
+	}
+
+	double[] getNumbers(String s1, String s2) throws CommandException {
+		double x,y;
+		try {
+			x = Double.parseDouble(s1);
+			y = Double.parseDouble(s2);
+		} catch(Exception e) {
+			throw new CommandException("terra121.error.numbers", new Object[0]);
+		}
+
+		return new double[] {x,y};
 	}
 
 	double[] getPlayerCoords(ICommandSender sender, String arg, GeographicProjection projection) throws CommandException {

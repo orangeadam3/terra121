@@ -71,6 +71,14 @@ public class EarthBiomeProvider extends BiomeProvider {
         return classify(projection.toGeo(pos.getX(), pos.getZ()));
     }
 
+    /** Get explicit data on the environment (soil, tempature, precipitation) */
+    public double[] getEnv(double lon, double lat) {
+        Climate.ClimateData clim = climate.getPoint(lon, lat);
+
+        return new double[] {soil.getPoint(lon, lat),
+                            clim.temp, clim.precip};
+    }
+
     public Biome classify(double[] projected) {
 
         Climate.ClimateData clim = climate.getPoint(projected[0], projected[1]);
@@ -94,8 +102,6 @@ public class EarthBiomeProvider extends BiomeProvider {
                 return Biomes.JUNGLE;
             case 11: case 12:
                 return Biomes.PLAINS;
-            case 13:
-                return Biomes.SWAMPLAND;
 
             case 15:
                 if(clim.temp<5)
@@ -118,9 +124,6 @@ public class EarthBiomeProvider extends BiomeProvider {
                 return Biomes.SAVANNA;
             case 34:
                 return Biomes.JUNGLE;
-
-            case 40:
-                return Biomes.SWAMPLAND;
             case 41: case 42: case 43: case 44: case 45:
                 return Biomes.PLAINS;
 
@@ -147,35 +150,21 @@ public class EarthBiomeProvider extends BiomeProvider {
 
             case 70: case 72: case 73: case 74: case 75: case 76: case 77:
                 return Biomes.PLAINS;
-            case 71:
+
+            case 13: case 40: case 71: case 80: case 95: case 98:
                 return Biomes.SWAMPLAND;
 
-            case 80:
-                return Biomes.SWAMPLAND;
-            case 81:
+            case 81: case 83: case 84: case 86:
                 return Biomes.FOREST;
-            case 82:
+            case 82: case 85:
                 return Biomes.PLAINS;
-            case 83:
-                return Biomes.FOREST;
-            case 84:
-                return Biomes.FOREST;
-            case 85:
-                return Biomes.PLAINS;
-            case 86:
-                return Biomes.FOREST;
 
             case 90: case 91: case 92: case 93: case 94:
                 return Biomes.FOREST;
-
-            case 95:
-                return Biomes.SWAMPLAND;
             case 96:
                 return Biomes.SAVANNA;
             case 97:
                 return Biomes.DESERT;
-            case 98:
-                return Biomes.SWAMPLAND;
         }
 
         return Biomes.MUSHROOM_ISLAND;

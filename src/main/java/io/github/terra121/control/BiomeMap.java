@@ -13,9 +13,10 @@ class BiomeMap {
 
     public BiomeMap() {
         //I don't like this but BiomeMap was always gonna be slow anyways
-        biomes = biomes = new EarthBiomeProvider(Biomes.MUSHROOM_ISLAND);
+        biomes = new EarthBiomeProvider(Biomes.MUSHROOM_ISLAND);
         map = new HashMap<Biome, Integer>();
 
+        //Full credit to Amidst for these colors
         map.put(Biomes.OCEAN, 0xFF000070);
         map.put(Biomes.PLAINS, 0xFF8DB360);
         map.put(Biomes.DESERT, 0xFFFA9418);
@@ -29,6 +30,7 @@ class BiomeMap {
         map.put(Biomes.DEEP_OCEAN, 0xFF000030);
         map.put(Biomes.COLD_TAIGA, 0xFF31554A);
         map.put(Biomes.SAVANNA, 0xFFBDB25F);
+        map.put(Biomes.MESA, 0xFFD94515);
     }
 
     public int getColor(double[] coords) {

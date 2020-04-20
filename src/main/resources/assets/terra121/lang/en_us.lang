@@ -37,6 +37,8 @@ terra121.commands.terra.usage=/terra [where:ou] [player]\n/terra world\n/terra o
 terra121.commands.terra.gensettings=Generator Settings: 
 terra121.commands.terra.latlon=lat lon: %.7f %.7f
 terra121.commands.terra.xy=x y: %.7f %.7f
+terra121.commands.terra.environment=%.1f °C; %.1f mm/yr; soil id: %d
+terra121.commands.terra.tissot= ~%.5f blocks/meter ± %.5f°
 
 ## command errors
 terra121.error.notcc=Must be in a Cubic Chunks world!

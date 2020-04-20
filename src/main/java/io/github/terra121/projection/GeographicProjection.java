@@ -97,18 +97,33 @@ public class GeographicProjection {
 		return new double[] {off[0]-x,off[1]-y};
 	}
 
-	public double[] distortion(double x, double y) {
-		double[] north = vector(x,y,1,0);
-		double[] east = vector(x,y,0,1);
+	public double[] tissot(double lon, double lat, double d) {
 
-		double geo[] = toGeo(x,y);
+		double R = EARTH_CIRCUMFERENCE/(2*Math.PI);
 
-		double magn = Math.sqrt(north[0]*north[0] + north[1]*north[1]);
-		double mage = Math.sqrt(east[0]*east[0] + east[1]*east[1]);
+		double ddeg = d*180.0/Math.PI;
 
+		double[] base = fromGeo(lon, lat);
+		double[] lonoff = fromGeo(lon+ddeg, lat);
+		double[] latoff = fromGeo(lon,lat+ddeg);
 
-		double coslat = Math.cos(geo[1]*Math.PI/180);
+		double dxdl = (lonoff[0]-base[0])/d;
+		double dxdp = (latoff[0]-base[0])/d;
+		double dydl = (lonoff[1]-base[1])/d;
+		double dydp = (latoff[1]-base[1])/d;
 
-		return new double[] {magn,mage, east[0]/(Math.cos(coslat)*north[1]), -north[0]/(Math.cos(coslat)*east[1])};
+		double cosp = Math.cos(lat*Math.PI/180.0);
+
+		double h = Math.sqrt(dxdp*dxdp + dydp*dydp)/R;
+		double k = Math.sqrt(dxdl*dxdl + dydl*dydl)/(cosp*R);
+
+		double sint = Math.abs(dydp*dxdl - dxdp*dydl)/(R*R*cosp*h*k);
+		double ap = Math.sqrt(h*h + k*k + 2*h*k*sint);
+		double bp = Math.sqrt(h*h + k*k - 2*h*k*sint);
+
+		double a = (ap+bp)/2;
+		double b = (ap-bp)/2;
+
+		return new double[] {h*k*sint, 2*Math.asin(bp/ap), a, b};
 	}
 }
