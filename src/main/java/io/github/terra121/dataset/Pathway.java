@@ -324,7 +324,7 @@ public class Pathway {
                                 // lon lat
                                 try {
                                     double[] start = {e.wp.lat.get(0), e.wp.lon.get(0)};
-                                    double[] end = {e.wp.lat.get(1), e.wp.lon.get(1)};
+                                    double[] end = {e.wp.lat.get(e.wp.lat.size()-1), e.wp.lon.get(e.wp.lon.size()-1)};
                                     double sy = heights.estimateLocal(start[0], start[1]);
                                     double ey = heights.estimateLocal(end[0], start[1]);
 
