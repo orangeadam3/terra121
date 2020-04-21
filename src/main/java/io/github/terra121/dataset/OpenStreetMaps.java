@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,9 +15,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import org.apache.commons.io.IOUtils;
 
 import com.google.gson.Gson;
@@ -230,7 +228,7 @@ public class OpenStreetMaps {
         return true;
     }
 
-    private Double[] getStartAndEndPoints(InputStream is) throws IOException {
+    private Pathway.LatLon getStartAndEndPoints(InputStream is) throws IOException {
 
         StringWriter writer = new StringWriter();
         IOUtils.copy(is, writer, StandardCharsets.UTF_8);
@@ -239,20 +237,21 @@ public class OpenStreetMaps {
         Gson gson = new Gson();
         Data data = gson.fromJson(str, Data.class);
 
-        List<Double> latlons = new ArrayList<>();
+        List<Double> lat = new ArrayList<>();
+        List<Double> lon = new ArrayList<>();
 
         for (Element element : data.elements) {
 
             if (element.lat != null && element.lon != null) {
-                latlons.add(element.lat);
-                latlons.add(element.lon);
-            }
 
+                lat.add(element.lat);
+                lon.add(element.lon);
+
+            }
         }
 
         try {
-            Double[] allLatLons = {latlons.get(0), latlons.get(1), latlons.get(2), latlons.get(3)};
-            return allLatLons;
+            return new Pathway.LatLon(lat, lon);
         } catch (Exception e) {
             return null;
         }
@@ -282,7 +281,7 @@ public class OpenStreetMaps {
                 }
 
                 String naturalv = null, highway = null, waterway = null, building = null, istunnel = null, isbridge = null, surface = null;
-                Double[] wholePath = null;
+                Pathway.LatLon wholePath = null;
 
                 if (doWater) {
                     naturalv = elem.tags.get("natural");
@@ -393,7 +392,6 @@ public class OpenStreetMaps {
 
                         }
 
-                        // todo remove
                         if (istunnel != null && istunnel.equals("yes")) {
 
                             attributes = Attributes.ISTUNNEL;
@@ -515,7 +513,7 @@ public class OpenStreetMaps {
         }
     }
 
-    void addWay(Element elem, Type type, byte lanes, Region region, Attributes attributes, byte layer, Long id, Surface surf, Double[] wp) {
+    void addWay(Element elem, Type type, byte lanes, Region region, Attributes attributes, byte layer, Long id, Surface surf, Pathway.LatLon wp) {
         double[] lastProj = null;
         if(elem.geometry != null)
         for (Geometry geom : elem.geometry) {
@@ -654,7 +652,7 @@ public class OpenStreetMaps {
         public double offset;
         public Long id;
         public Surface surf;
-        public Double[] wp;
+        public Pathway.LatLon wp;
 
         public byte lanes;
 
@@ -667,7 +665,7 @@ public class OpenStreetMaps {
         }
 
         private Edge(double slon, double slat, double elon, double elat, Type type, byte lanes, Region region, Attributes att, byte ly,
-                     Long id, Surface surf, Double[] wp) {
+                     Long id, Surface surf, Pathway.LatLon wp) {
             //slope must not be infinity, slight inaccuracy shouldn't even be noticible unless you go looking for it
             double dif = elon - slon;
             if (-NOTHING <= dif && dif <= NOTHING) {

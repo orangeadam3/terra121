@@ -10,14 +10,11 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.Range;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BiFunction;
 
 import static io.github.terra121.populator.VectorPathGenerator.bound;
-
 /**
  * dataset.Pathway holds most of the nessisary methods and classes to
  * generate pathways using 3 dimentional vectors (Vec3d). Generating pathways with
@@ -50,10 +47,34 @@ public class Pathway {
 
     // CLASS METHODS
 
+    public static double distanceNoCube(double fx, double fz, double ix, double iz) {
+/*
+        int cX1 = (int) Math.ceil(fx/16);
+        int cX2 = (int) Math.ceil(ix/16);
+        int cZ1 = (int) Math.ceil(fz/16);
+        int cZ2 = (int) Math.ceil(iz/16);
+
+
+        fx = fx+cX1*16;
+        ix = ix+cX2*16;
+        fz = fz+cZ1*16;
+        iz = iz+cZ2*16;
+*/
+        fx -= ix;
+        fz -= iz;
+        return Math.sqrt(fx * fx + fz * fz);
+    }
+
+    public static double distance(double x1, double y1, double x2, double y2) {
+        x1 -= x2;
+        y1 -= y2;
+        return Math.sqrt(x1 * x1 + y1 * y1);
+    }
+
     /**
      * Calculates width of a road based on number of lanes and OSM type. Returns the width as double.
      */
-    public static double calculateRoadWidth(int l, OpenStreetMaps.Type c) {
+    public static double pathWidth(int l, OpenStreetMaps.Type c) {
         double width = 2;
         switch (c) {
             case MINOR:
@@ -104,10 +125,7 @@ public class Pathway {
         }
     }
 
-    /**
-     * Given two points, calculate the slope between the two points.
-     */
-    public static double getIncline(Vec3d fin, Vec3d init) {
+    /*public static double getIncline(Vec3d fin, Vec3d init) {
 
         double dP12 = fin.dotProduct(init);
         double X = fin.x - init.x * fin.x - init.x;
@@ -120,71 +138,73 @@ public class Pathway {
 
         return Math.tan(C);
 
+    }*/
+
+    /**
+     * Get length of way
+     * */
+    public static double distanceAlong(List<Double> latG, List<Double> lonG, GeographicProjection p) {
+
+        List<Double> lat = new ArrayList<>();
+        List<Double> lon = new ArrayList<>();
+
+        for (int i = 0; i < latG.size(); i++) {
+
+            double[] n = p.fromGeo(lonG.get(i), latG.get(i));
+
+            lat.add(n[1]);
+            lon.add(n[0]);
+
+        }
+
+        double slat = lat.get(0);
+        double slon = lon.get(0);
+
+        double dist = 0;
+
+        // calculate length of way
+        for (int i = 0; i < lat.size() - 1; i++) {
+
+            try {
+
+                if (i == 0) {
+
+                    dist += distance(slat, slon, lat.get(2), lon.get(2));
+
+                } else if (i == 1) {
+
+                } else if (i == lat.size() - 1) {
+
+                    dist += distance(lat.get(i), lon.get(i), lat.get(1), lon.get(1));
+
+
+                } else {
+
+                    dist += distance(lat.get(i), lon.get(i), lat.get(i + 1), lon.get(i + 1));
+
+                }
+            } catch (IndexOutOfBoundsException e) { }
+        }
+        return dist;
     }
 
-    public static int getTunnelY(Double[] fin, Double[] init, double x, double z, Heights heights) {
-        int height = 0;
-        // get all points (2d) along tunnel
-        double Dz = fin[0] - init[0];
-        double Dx = fin[1] - init[1];
-        double sXZ = Dz/Dx;
-        List<Double> xpoints = new ArrayList<>();
-        List<Double> zpoints = new ArrayList<>();
-        Range<Double> xrange = Range.between(x+1, x-1);
-        Range<Double> zrange = Range.between(z-1, z+1);
+    /**
+     * Get y increase per meter (block) traveled
+     * */
+    public static double yIncreasePerMeter(double dist, double sy, double ey) {
 
-        double cx=x;
-        double cz=z;
-        boolean end = false;
-        while (!end) {
-            for (double on = sXZ; on <= 1; on+=sXZ) {
-                cx+=1;
-                xpoints.add(cx);
-            }
-            cz+=1;
-            zpoints.add(cz);
-            if (xrange.contains(cx) && zrange.contains(cz)) end = true;
-        }
-        if (xpoints.size()==zpoints.size()) {
-            double dist = Math.abs(xpoints.get(0) - x);
-            int index = 0;
-            for (int c = 1; c < xpoints.size(); c++) {
-                double cdist = Math.abs(xpoints.get(c)-x);
-                if (cdist < dist) {
-                    index = c;
-                    dist = cdist;
-                }
-            }
-            // closest x + z
-            double xmatch = xpoints.get(index);
-            double zmatch = zpoints.get(index);
+        return (ey-sy)/dist;
 
-            double sY = heights.estimateLocal(init[0], init[1]);
-            double eY = heights.estimateLocal(fin[0], fin[1]);
+    }
 
-            double Dy = eY - sY;
-            double sXY = Dy/Dx;
+    /**
+     * Crappy attempt at somewhat balancing out the distortion from using a straight line
+     * to estimate y at a given place.
+     * */
+    public static double averageScalingFactor(double dist, double lin) {
 
-            List<Double> ypoints = new ArrayList<>();
-            Range<Double> yrange = Range.between(eY-1, eY+1);
+        return dist/lin;
 
-            double cx2 = x;
-            double cy = sY;
-            boolean endy = false;
-            while (!endy) {
-                for (double ony = sXY; ony <= 1; ony+=sXY) {
-                    cy+=1;
-                    ypoints.add(cy);
-                }
-                cx2+=1;
-                if (yrange.contains(cy)) endy = true;
-            }
-
-            TerraMod.LOGGER.info("height {}", height);
-            height = (int) Math.floor(ypoints.get(index));
-
-        }
-        return height;
     }
 
     /**
@@ -214,26 +234,6 @@ public class Pathway {
             if (e.type != OpenStreetMaps.Type.BUILDING) {
 
                 if (e.attribute == OpenStreetMaps.Attributes.ISTUNNEL || e.attribute == OpenStreetMaps.Attributes.ISBRIDGE) tunnel = true;
-                /*if (e.attribute == OpenStreetMaps.Attributes.ISTUNNEL || e.attribute == OpenStreetMaps.Attributes.ISBRIDGE) {
-
-                    if (e.wp != null) {
-
-                        Double[] start = {e.wp[0], e.wp[1]};
-                        Double[] end = {e.wp[2], e.wp[3]};
-
-                        // todo use estimateLocal instead of getElevation
-                        e.slope = getIncline(new Vec3d(end[0], heights.estimateLocal(end[0], end[1]), end[1]),
-                                new Vec3d(start[0], heights.estimateLocal(start[0], start[1]), start[1]));
-                        tunnel = true;
-
-                        TerraMod.LOGGER.info("elevation: {}", heights.estimateLocal(end[0], end[1]));
-                        TerraMod.LOGGER.info("elevation e: {}",heights.estimateLocal(start[0], start[1]));
-                        TerraMod.LOGGER.info("e.slope: {}", e.slope);
-
-                    } else {
-                        TerraMod.LOGGER.warn("Tunnel or bridge didn't have whole path data! (This could be an OSM data fault or a bug)");
-                    }
-                }*/
 
                 int r;
 
@@ -253,7 +253,7 @@ public class Pathway {
                         break;
                     default:
                         state = getMaterial(e.surf);
-                        r = (int) Pathway.calculateRoadWidth(e.lanes, e.type);
+                        r = (int) Pathway.pathWidth(e.lanes, e.type);
                         break;
                 }
 
@@ -326,15 +326,30 @@ public class Pathway {
                             distance = Math.sqrt(distance);
 
                             double[] geo = projection.toGeo(mainX + cubeX * (16), mainZ + cubeZ * (16));
-                            int y;
-                            if (!tunnel) y = (int) Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY * 16);
-                            else {
+                            int y = (int) Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY * 16);
+                            // override y if tunnel or bridge
+                            if (tunnel) {
                                 // lon lat
-                                Double[] start = {e.wp[0], e.wp[1]};
-                                Double[] end = {e.wp[2], e.wp[3]};
-                                y = getTunnelY(end, start, x, z, heights);
-                                TerraMod.LOGGER.info("height: {}", y);
+                                try {
+                                    double[] start = projection.fromGeo(e.wp.lon.get(1), e.wp.lat.get(0));
+
+                                    double startY = heights.estimateLocal(e.wp.lon.get(1), e.wp.lat.get(0));
+                                    double endY = heights.estimateLocal(e.wp.lon.get(3), e.wp.lat.get(2));
+
+                                    // length of tunnel (approximation)
+                                    double distanceAlong = distanceAlong(e.wp.lat, e.wp.lon, projection);
+                                    double ypt = yIncreasePerMeter(distanceAlong, startY, endY);
+
+                                    double linear = distanceNoCube(x + cubeX * 16, z + cubeZ * 16, start[1], start[0]); // todo more exact
+
+                                    int geoHeight = (int) Math.abs(Math.floor(((ypt * linear) * averageScalingFactor(distance, linear)) - cubeY * 16));
+
+                                    y = (int) Math.abs(Math.floor(geoHeight - Math.floor(geoHeight/16) * 16));
+
+                                } catch (Exception ignored) { }
                             }
+
+                            TerraMod.LOGGER.info("height: {}", y);
 
                             // if not in this range, someone else will handle it
                             if (y >= 0 && y < 16) {
@@ -482,10 +497,23 @@ public class Pathway {
 
     }
 
+    public static class LatLon {
+
+        List<Double> lat;
+        List<Double> lon;
+
+        public LatLon(List<Double> lat, List<Double> lon) {
+
+            this.lat = lat;
+            this.lon = lon;
+
+        }
+    }
+
     public static void main(String[] args) {
 
-        Double[] start = {46.6477470,8.5908610};
-        Double[] fin = {46.6477470,8.5908610};
+        // Double[] start = {46.6477470,8.5908610};
+        // Double[] fin = {46.6477470,8.5908610};
 
         //System.out.println(getTunnelY());
 
