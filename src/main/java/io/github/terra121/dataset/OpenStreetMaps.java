@@ -14,7 +14,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.io.IOUtils;
 
 import com.google.gson.Gson;
@@ -36,6 +35,9 @@ public class OpenStreetMaps {
     private static final String URL_B = ")%20tags%20qt;(._<;);out%20body%20qt;";
     private static final String URL_C = "is_in(";
     private String URL_SUFFIX = ");area._[~\"natural|waterway\"~\"water|riverbank\"];out%20ids;";
+    // get all elements by id
+    private static final String URL_ID = "[out:json][timeout:25](way(";
+    private static final String URL_ID_SUFFIX = "););out;>;out skel qt;";
 
     private HashMap<Coord, Set<Edge>> chunks;
     public LinkedHashMap<Coord, Region> regions;
@@ -50,16 +52,16 @@ public class OpenStreetMaps {
     private GeographicProjection projection;
 
     public static enum Type {
-        IGNORE, ROAD, MINOR, SIDE, MAIN, INTERCHANGE, LIMITEDACCESS, FREEWAY, STREAM, RIVER, BUILDING, RAIL
+        IGNORE, PATH, ROAD, MINOR, SIDE, MAIN, INTERCHANGE, LIMITEDACCESS, FREEWAY, STREAM, RIVER, BUILDING, RAIL
         // ranges from minor to freeway for roads, use road if not known
     }
 
     public static enum Attributes {
-        ISBRIDGE, ISTUNNEL, NONE
+        ISBRIDGE, ISTUNNEL, NONE, ROAD
     }
 
-    public static class noneBoolAttributes {
-        public static String layer;
+    public enum Surface {
+        ASPHALT, CONCRETE, COBBLE, WOOD, GRAVEL, DIRT, GRASS_PATH, IGNORE
     }
 
     Type wayType;
@@ -145,6 +147,30 @@ public class OpenStreetMaps {
         return region;
     }
 
+    public InputStream quickRequest(Long arg, String data) {
+
+        try {
+
+            String urltext = "https://overpass.kumi.systems/api/interpreter/api/interpreter?data=[out:json][timeout:25];("+data+"("+arg+"););out;%3E;out%20skel%20qt;";
+
+            URL url = new URL(urltext);
+            URLConnection c = url.openConnection();
+            c.addRequestProperty("User-Agent", TerraMod.USERAGENT);
+            InputStream is = c.getInputStream();
+
+            return is;
+
+        } catch (Exception e) {
+
+            TerraMod.LOGGER.error("OSM download failed while trying to generate tunnel or bridge. Feature will not spawn. This may be a bug. Please include" +
+                    " this as well as the following error message in your Github issue if you create one (up until the text \"end error message\"): " + e);
+            e.printStackTrace();
+            TerraMod.LOGGER.error("end error message");
+            return null;
+
+        }
+    }
+
     public boolean regiondownload(Region region) {
         double X = region.coord.x * TILE_SIZE;
         double Y = region.coord.y * TILE_SIZE;
@@ -198,6 +224,47 @@ public class OpenStreetMaps {
         return true;
     }
 
+    private Pathway.LatLon getStartAndEndPoints(InputStream is) throws IOException {
+
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(is, writer, StandardCharsets.UTF_8);
+        String str = writer.toString();
+
+        Gson gson = new Gson();
+        Data data = gson.fromJson(str, Data.class);
+
+        List<Double> lat = new ArrayList<>();
+        List<Double> lon = new ArrayList<>();
+
+        for (Element element : data.elements) {
+
+            if (element.nodes != null) {
+                for (long n : element.nodes) {
+
+                    InputStream quickIn = quickRequest(n, "node");
+                    StringWriter quickWriter = new StringWriter();
+                    IOUtils.copy(quickIn, quickWriter, StandardCharsets.UTF_8);
+                    String inStr = writer.toString();
+                    Data ndata = gson.fromJson(inStr, Data.class);
+
+                    for (Element nelem : ndata.elements) {
+                        if (nelem.lat != null && nelem.lon != null) {
+                            lat.add(nelem.lat);
+                            lon.add(nelem.lon);
+                        }
+                    }
+                }
+            }
+        }
+
+        try {
+            return new Pathway.LatLon(lat, lon);
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
+
     private void doGson(InputStream is, Region region) throws IOException {
 
         StringWriter writer = new StringWriter();
@@ -220,7 +287,8 @@ public class OpenStreetMaps {
                     continue;
                 }
 
-                String naturalv = null, highway = null, waterway = null, building = null, istunnel = null, isbridge = null;
+                String naturalv = null, highway = null, waterway = null, building = null, istunnel = null, isbridge = null, surface = null;
+                Pathway.LatLon wholePath = null;
 
                 if (doWater) {
                     naturalv = elem.tags.get("natural");
@@ -230,8 +298,8 @@ public class OpenStreetMaps {
                 if (doRoad) {
                     highway = elem.tags.get("highway");
                     istunnel = elem.tags.get("tunnel");
-                    // to be implemented
                     isbridge = elem.tags.get("bridge");
+                    surface = elem.tags.get("surface");
                 }
 
                 if (doBuildings) {
@@ -243,7 +311,8 @@ public class OpenStreetMaps {
                 } else if (highway != null || (waterway != null && (waterway.equals("river") ||
                         waterway.equals("canal") || waterway.equals("stream"))) || building != null) { //TODO: fewer equals
 
-                    Type type = Type.ROAD;
+                    Type type = Type.PATH;
+                    Surface surf = Surface.GRASS_PATH;
 
                     if (waterway != null) {
                         type = Type.STREAM;
@@ -254,55 +323,101 @@ public class OpenStreetMaps {
 
                     if (building != null) type = Type.BUILDING;
 
-                    if (istunnel != null && istunnel.equals("yes")) {
+                    if (highway != null) {
 
-                        attributes = Attributes.ISTUNNEL;
-
-                    } else if (isbridge != null && isbridge.equals("yes")) {
-
-                        attributes = Attributes.ISBRIDGE;
-
-                    } else {
-
-                        // totally skip classification if it's a tunnel or bridge. this should make it more efficient.
-                        if (highway != null && attributes == Attributes.NONE) {
-                            switch (highway) {
-                                case "motorway":
-                                    type = Type.FREEWAY;
-                                    break;
-                                case "trunk":
-                                    type = Type.LIMITEDACCESS;
-                                    break;
-                                case "motorway_link":
-                                case "trunk_link":
-                                    type = Type.INTERCHANGE;
-                                    break;
-                                case "secondary":
+                        switch (highway) {
+                            case "motorway":
+                                type = Type.FREEWAY;
+                                break;
+                            case "trunk":
+                                type = Type.LIMITEDACCESS;
+                                break;
+                            case "motorway_link":
+                            case "trunk_link":
+                                type = Type.INTERCHANGE;
+                                break;
+                            case "secondary":
+                                type = Type.SIDE;
+                                break;
+                            case "primary":
+                            case "raceway":
+                                type = Type.MAIN;
+                                break;
+                            case "tertiary":
+                            case "residential":
+                                type = Type.MINOR;
+                                break;
+                            case "path":
+                            case "footpath":
+                            case "track":
+                            case "bridleway":
+                                type = Type.PATH;
+                            default:
+                                if (highway.equals("primary_link") ||
+                                        highway.equals("secondary_link") ||
+                                        highway.equals("living_street") ||
+                                        highway.equals("bus_guideway") ||
+                                        highway.equals("service") ||
+                                        highway.equals("unclassified"))
                                     type = Type.SIDE;
-                                    break;
-                                case "primary":
-                                case "raceway":
-                                    type = Type.MAIN;
-                                    break;
-                                case "tertiary":
-                                case "residential":
-                                    type = Type.MINOR;
-                                    break;
-                                default:
-                                    if (highway.equals("primary_link") ||
-                                            highway.equals("secondary_link") ||
-                                            highway.equals("living_street") ||
-                                            highway.equals("bus_guideway") ||
-                                            highway.equals("service") ||
-                                            highway.equals("unclassified"))
-                                        type = Type.SIDE;
-                                    break;
-                            }
+                                break;
+                        }
+                        // one could match surfaces to blocks all day, but this should do
+                        if (surface == null) surface = "asphalt";
+
+                        switch (surface) {
+                            case "paved":
+                            case "asphalt":
+                                surf = Surface.ASPHALT;
+                                break;
+                            case "concrete":
+                                surf = Surface.CONCRETE;
+                                break;
+                            case "paving_stones":
+                            case "sett":
+                            case "cobblestone":
+                            case "unhewn_cobblestone":
+                                surf = Surface.COBBLE;
+                                break;
+                            case "unpaved":
+                            case "compacted":
+                            case "fine_gravel":
+                            case "gravel":
+                            case "pebblestone":
+                                surf = Surface.GRAVEL;
+                                break;
+                            case "wood":
+                                surf = Surface.WOOD;
+                                break;
+                            case "dirt":
+                            case "ground":
+                                surf = Surface.DIRT;
+                                break;
+                            case "mud":
+                            case "earth":
+                                surf = Surface.GRASS_PATH;
+
+                        }
+
+                        if (istunnel != null && istunnel.equals("yes")) {
+
+                            attributes = Attributes.ISTUNNEL;
+                            wholePath = getStartAndEndPoints(quickRequest(elem.id, "way"));
+
+                        } else if (isbridge != null && isbridge.equals("yes")) {
+
+                            attributes = Attributes.ISBRIDGE;
+                            wholePath = getStartAndEndPoints(quickRequest(elem.id, "way"));
+
                         }
                     }
+
+
+
                     //get lane number (default is 2)
                     String slanes = elem.tags.get("lanes");
                     String slayer = elem.tags.get("layers");
+                    long id = elem.id;
                     byte lanes = 2;
                     byte layer = 1;
 
@@ -344,8 +459,9 @@ public class OpenStreetMaps {
                     if (lanes > 2 && type == Type.MINOR)
                         type = Type.MAIN;
 
-                    addWay(elem, type, lanes, region, attributes, layer);
+                    addWay(elem, type, lanes, region, attributes, layer, id, surf, wholePath);
                 } else unusedWays.add(elem);
+
             } else if (elem.type == EType.relation && elem.members != null && elem.tags != null) {
 
                 if(doWater) {
@@ -371,7 +487,7 @@ public class OpenStreetMaps {
                         if (member.type == EType.way) {
                             Element way = allWays.get(member.ref);
                             if (way != null) {
-                                addWay(way, Type.BUILDING, (byte) 1, region, Attributes.NONE, (byte) 0);
+                                addWay(way, Type.BUILDING, (byte) 1, region, Attributes.NONE, (byte) 0, null, Surface.IGNORE, null);
                                 unusedWays.remove(way);
                             }
                         }
@@ -404,7 +520,7 @@ public class OpenStreetMaps {
         }
     }
 
-    void addWay(Element elem, Type type, byte lanes, Region region, Attributes attributes, byte layer) {
+    void addWay(Element elem, Type type, byte lanes, Region region, Attributes attributes, byte layer, Long id, Surface surf, Pathway.LatLon wp) {
         double[] lastProj = null;
         if(elem.geometry != null)
         for (Geometry geom : elem.geometry) {
@@ -413,7 +529,7 @@ public class OpenStreetMaps {
                 double[] proj = projection.fromGeo(geom.lon, geom.lat);
 
                 if (lastProj != null) { //register as a road edge
-                    allEdges.add(new Edge(lastProj[0], lastProj[1], proj[0], proj[1], type, lanes, region, attributes, layer));
+                    allEdges.add(new Edge(lastProj[0], lastProj[1], proj[0], proj[1], type, lanes, region, attributes, layer, id, surf, wp));
                 }
 
                 lastProj = proj;
@@ -541,6 +657,9 @@ public class OpenStreetMaps {
         public byte layer_number;
         public double slope;
         public double offset;
+        public Long id;
+        public Surface surf;
+        public Pathway.LatLon wp;
 
         public byte lanes;
 
@@ -552,7 +671,8 @@ public class OpenStreetMaps {
             return dlat * dlat + dlon * dlon;
         }
 
-        private Edge(double slon, double slat, double elon, double elat, Type type, byte lanes, Region region, Attributes att, byte ly) {
+        private Edge(double slon, double slat, double elon, double elat, Type type, byte lanes, Region region, Attributes att, byte ly,
+                     Long id, Surface surf, Pathway.LatLon wp) {
             //slope must not be infinity, slight inaccuracy shouldn't even be noticible unless you go looking for it
             double dif = elon - slon;
             if (-NOTHING <= dif && dif <= NOTHING) {
@@ -572,6 +692,9 @@ public class OpenStreetMaps {
             this.lanes = lanes;
             this.region = region;
             this.layer_number = ly;
+            this.id = id;
+            this.surf = surf;
+            this.wp = wp;
 
             slope = (elat - slat) / (elon - slon);
             offset = slat - slope * slon;
@@ -609,6 +732,8 @@ public class OpenStreetMaps {
     public static class Element {
         EType type;
         long id;
+        Double lat;
+        Double lon;
         Map<String, String> tags;
         long[] nodes;
         Member[] members;

@@ -1,5 +1,6 @@
 package io.github.terra121;
 
+import io.github.terra121.control.TerraDebug;
 import org.apache.logging.log4j.Logger;
 
 import io.github.terra121.control.TerraTeleport;
@@ -61,6 +62,7 @@ public class TerraMod implements ILetsEncryptMod
     public void serverLoad(FMLServerStartingEvent event) {
         event.registerServerCommand(new TerraTeleport());
         event.registerServerCommand(new TerraCommand());
+        event.registerServerCommand(new TerraDebug());
     }
     
     //set custom provider

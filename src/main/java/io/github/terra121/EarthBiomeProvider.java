@@ -17,7 +17,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeProvider;
 
-public class EarthBiomeProvider extends BiomeProvider {
+public class  EarthBiomeProvider extends BiomeProvider {
 
     /*public Biome getBiome(BlockPos pos, Biome defaultBiome) {
         int x = pos.getX();
