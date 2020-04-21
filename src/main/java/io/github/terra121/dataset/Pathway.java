@@ -48,18 +48,6 @@ public class Pathway {
     // CLASS METHODS
 
     public static double distanceNoCube(double fx, double fz, double ix, double iz) {
-/*
-        int cX1 = (int) Math.ceil(fx/16);
-        int cX2 = (int) Math.ceil(ix/16);
-        int cZ1 = (int) Math.ceil(fz/16);
-        int cZ2 = (int) Math.ceil(iz/16);
-
-
-        fx = fx+cX1*16;
-        ix = ix+cX2*16;
-        fz = fz+cZ1*16;
-        iz = iz+cZ2*16;
-*/
         fx -= ix;
         fz -= iz;
         return Math.sqrt(fx * fx + fz * fz);
@@ -188,22 +176,26 @@ public class Pathway {
         return dist;
     }
 
-    /**
-     * Get y increase per meter (block) traveled
-     * */
-    public static double yIncreasePerMeter(double dist, double sy, double ey) {
+    public static int getY(double x1, double z1, double x2, double z2, List<Double> pointsX,
+                           List<Double> pointsZ, double y1, double y2, GeographicProjection projection, double x, double z) {
 
-        return (ey-sy)/dist;
+        // get distance from (x,y,z)1 to (x,y,z)2
+        double xdif = x2 - x1;
+        double zdif = z2 - z1;
 
-    }
+        double xzLinDist = Math.sqrt((xdif * xdif) + (zdif * zdif));
+        double xzActualDist = distanceAlong(pointsX, pointsZ, projection);
+        double distortion = xzActualDist / xzLinDist;
 
-    /**
-     * Crappy attempt at somewhat balancing out the distortion from using a straight line
-     * to estimate y at a given place.
-     * */
-    public static double averageScalingFactor(double dist, double lin) {
+        double cxdif = x - x1;
+        double czdif = z - z1;
 
-        return dist/lin;
+        double distorted = Math.sqrt((cxdif * cxdif) + (czdif * czdif));
+        double nondistorted = distorted * distortion;
+
+        double exactY = y1 + ((xzActualDist/nondistorted) * y2);
+
+        return (int) Math.floor(exactY - Math.floor(exactY / 16) * 16);
 
     }
 
@@ -331,26 +323,15 @@ public class Pathway {
                             if (tunnel) {
                                 // lon lat
                                 try {
-                                    double[] start = projection.fromGeo(e.wp.lon.get(1), e.wp.lat.get(0));
+                                    double[] start = {e.wp.lat.get(0), e.wp.lon.get(0)};
+                                    double[] end = {e.wp.lat.get(1), e.wp.lon.get(1)};
+                                    double sy = heights.estimateLocal(start[0], start[1]);
+                                    double ey = heights.estimateLocal(end[0], start[1]);
 
-                                    double startY = heights.estimateLocal(e.wp.lon.get(1), e.wp.lat.get(0));
-                                    double endY = heights.estimateLocal(e.wp.lon.get(3), e.wp.lat.get(2));
-
-                                    // length of tunnel (approximation)
-                                    double distanceAlong = distanceAlong(e.wp.lat, e.wp.lon, projection);
-                                    double ypt = yIncreasePerMeter(distanceAlong, startY, endY);
-
-                                    double linear = distanceNoCube(x + cubeX * 16, z + cubeZ * 16, start[1], start[0]); // todo more exact
-
-                                    int geoHeight = (int) Math.abs(Math.floor(((ypt * linear) * averageScalingFactor(distance, linear)) - cubeY * 16));
-
-                                    y = (int) Math.abs(Math.floor(geoHeight - Math.floor(geoHeight/16) * 16));
-
+                                    y = getY(start[0], start[1], end[0], end[1], e.wp.lat, e.wp.lon, sy, ey, projection, mainX + cubeX * 16, mainZ + cubeZ * 16);
+                                    System.out.println(y);
                                 } catch (Exception ignored) { }
                             }
-
-                            TerraMod.LOGGER.info("height: {}", y);
-
                             // if not in this range, someone else will handle it
                             if (y >= 0 && y < 16) {
 

@@ -6,7 +6,6 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -148,15 +147,12 @@ public class OpenStreetMaps {
         return region;
     }
 
-    public InputStream regiondownload(Long id) {
+    public InputStream quickRequest(Long arg, String data) {
 
         try {
 
-            String urltext = "https://overpass.kumi.systems/api/interpreter/api/interpreter?data=[out:json][timeout:25];(way("+id+"););out;%3E;out%20skel%20qt;";
+            String urltext = "https://overpass.kumi.systems/api/interpreter/api/interpreter?data=[out:json][timeout:25];("+data+"("+arg+"););out;%3E;out%20skel%20qt;";
 
-            // TerraMod.LOGGER.info(urltext);
-
-            //kumi systems request a meaningful user-agent
             URL url = new URL(urltext);
             URLConnection c = url.openConnection();
             c.addRequestProperty("User-Agent", TerraMod.USERAGENT);
@@ -242,11 +238,22 @@ public class OpenStreetMaps {
 
         for (Element element : data.elements) {
 
-            if (element.lat != null && element.lon != null) {
+            if (element.nodes != null) {
+                for (long n : element.nodes) {
 
-                lat.add(element.lat);
-                lon.add(element.lon);
+                    InputStream quickIn = quickRequest(n, "node");
+                    StringWriter quickWriter = new StringWriter();
+                    IOUtils.copy(quickIn, quickWriter, StandardCharsets.UTF_8);
+                    String inStr = writer.toString();
+                    Data ndata = gson.fromJson(inStr, Data.class);
 
+                    for (Element nelem : ndata.elements) {
+                        if (nelem.lat != null && nelem.lon != null) {
+                            lat.add(nelem.lat);
+                            lon.add(nelem.lon);
+                        }
+                    }
+                }
             }
         }
 
@@ -395,12 +402,12 @@ public class OpenStreetMaps {
                         if (istunnel != null && istunnel.equals("yes")) {
 
                             attributes = Attributes.ISTUNNEL;
-                            wholePath = getStartAndEndPoints(regiondownload(elem.id));
+                            wholePath = getStartAndEndPoints(quickRequest(elem.id, "way"));
 
                         } else if (isbridge != null && isbridge.equals("yes")) {
 
                             attributes = Attributes.ISBRIDGE;
-                            wholePath = getStartAndEndPoints(regiondownload(elem.id));
+                            wholePath = getStartAndEndPoints(quickRequest(elem.id, "way"));
 
                         }
                     }
