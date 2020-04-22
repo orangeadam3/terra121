@@ -28,7 +28,7 @@ terra121.commands.tpll.usage=/tpll breitengrad längengrad [altitude]
 
 terra121.commands.terra.usage=/terra [where:ou] [player]\n/terra world\n/terra osm\n/terra conv[ert] [x z]:[breitengrad längengrad]
 
-terra121.commands.terra.gensettings=Generator Settings: 
+terra121.commands.terra.gensettings=Generator Settings:
 terra121.commands.terra.latlon=breitengrad längengrad: %.7f %.7f
 terra121.commands.terra.xy=x y: %.7f %.7f
 
@@ -39,4 +39,11 @@ terra121.error.numbers=Alle Argumente müssen Zahlen sein!
 terra121.error.getcoords=Konnte die Koordinaten nicht heraussuchen!
 terra121.error.notplayer=Du bist kein Spieler, bitte einen nennen!
 terra121.error.unknownplayer=Unbekannter Spieler!
-terra121.error.notopothers=Braucht OP für Info von anderen Spielern!
+
+terra121.gui.biomemap=Debug Map
+terra121.projection.transverse_mercator=Transverse Mercator
+terra121.projection.airocean=Airocean (Not BTE)
+terra121.projection.conformal=Conformal Approx. (Not BTE)
+terra121.projection.bteairocean=Build The Earth
+terra121.commands.terra.environment=%.1f °C; %.1f mm/yr; soil id: %d
+terra121.commands.terra.tissot= ~%.5f blocks/meter ± %.5f°terra121.error.notopothers=Braucht OP für Info von anderen Spielern!
