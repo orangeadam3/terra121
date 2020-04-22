@@ -1,7 +1,9 @@
 package io.github.terra121.dataset;
 
+import io.github.terra121.TerraConfig;
 import io.github.terra121.TerraMod;
 import io.github.terra121.projection.GeographicProjection;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockColored;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
@@ -44,14 +46,9 @@ public class Pathway {
     private static final IBlockState WOOD = Blocks.PLANKS.getDefaultState();
     private static final IBlockState CONCRETE = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
     private static final IBlockState COBBLE = Blocks.COBBLESTONE.getDefaultState();
+    private static final IBlockState TUNNEL_DEBUG = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.ORANGE);
 
     // CLASS METHODS
-
-    public static double distanceNoCube(double fx, double fz, double ix, double iz) {
-        fx -= ix;
-        fz -= iz;
-        return Math.sqrt(fx * fx + fz * fz);
-    }
 
     public static double distance(double x1, double y1, double x2, double y2) {
         x1 -= x2;
@@ -113,48 +110,45 @@ public class Pathway {
         }
     }
 
-    /*public static double getIncline(Vec3d fin, Vec3d init) {
-
-        double dP12 = fin.dotProduct(init);
-        double X = fin.x - init.x * fin.x - init.x;
-        double Z = fin.z - init.z * fin.z - init.z;
-        double pytP1 = Math.sqrt((X*X + Math.pow(fin.y - init.y, 2) + Z*Z));
-        double pytP2 = Math.sqrt((X*X + Z*Z));
-
-        double cosC = dP12 / (pytP1 * pytP2);
-        double C = Math.acos(cosC);
-
-        return Math.tan(C);
-
-    }*/
-
     /**
      * Get length of way
      * */
     public static double distanceAlong(List<Double> latG, List<Double> lonG, GeographicProjection p) {
 
-        List<Double> lat = new ArrayList<>();
-        List<Double> lon = new ArrayList<>();
-
-        for (int i = 0; i < latG.size(); i++) {
-
-            double[] n = p.fromGeo(lonG.get(i), latG.get(i));
-
-            lat.add(n[1]);
-            lon.add(n[0]);
-
-        }
-
         double dist = 0;
 
-        // calculate length of way
-        for (int i = 0; i < lat.size() - 1; i++) {
+        if (latG.size() == lonG.size()) {
+            List<Double> lat = new ArrayList<>();
+            List<Double> lon = new ArrayList<>();
 
-            try {
+            for (int i = 0; i < latG.size(); i++) {
 
-                dist += distance(lat.get(i), lon.get(i), lat.get(i + 1), lon.get(i + 1));
+                double[] n = p.fromGeo(lonG.get(i), latG.get(i));
 
-            } catch (IndexOutOfBoundsException e) { }
+                lat.add(n[1]);
+                lon.add(n[0]);
+
+            }
+
+            // calculate length of way
+            for (int i = 0; i <= lat.size() - 1; i++) {
+
+                if (i == lat.size() - 1) {
+
+                    break;
+
+                } else {
+
+                    double xdif = lat.get(i + 1) - lat.get(i);
+                    double zdif = lon.get(i + 1) - lon.get(i);
+
+                    // distance(lat.get(i), lon.get(i), lat.get(i + 1), lon.get(i + 1));
+
+                    double d = Math.sqrt((xdif * xdif) + (zdif * zdif));
+                    dist += d;
+
+                }
+            }
         }
         return dist;
     }
@@ -165,9 +159,10 @@ public class Pathway {
         // get distance from (x,y,z)1 to (x,y,z)2
         double xdif = x2 - x1;
         double zdif = z2 - z1;
+        double ydif = y2 - y1;
 
         double xzLinDist = Math.sqrt((xdif * xdif) + (zdif * zdif)); // smallest length
-        double xzActualDist = distanceAlong(pointsX, pointsZ, projection); // actual length
+        double xzActualDist = distanceAlong(pointsZ, pointsX, projection); // actual length
         double distortion = xzActualDist / xzLinDist; // meh attempt at correcting for distortion
 
         double cxdif = x - x1;
@@ -176,11 +171,24 @@ public class Pathway {
         double distorted = Math.sqrt((cxdif * cxdif) + (czdif * czdif)); // shortest distance between current point and begin
         double nondistorted = distorted * distortion; // correct distortion
 
-        double exactY = y1 + ((nondistorted / xzActualDist) * y2); //
+        double exactY = y1 + ((distorted / xzLinDist) * ydif);
+/*
+        //double exactY = y1 + ((nondistorted / xzActualDist) * y2); //
+        //TerraMod.LOGGER.info("===========================");
+        TerraMod.LOGGER.info("x {}, z {}, x1 {}, x2 {}, z1 {}, z2 {}, y1 {}, y2 {}",x,z,x1,x2,z1,z2,y1,y2);
+        TerraMod.LOGGER.info("===========================");
+        TerraMod.LOGGER.info("xdif {}, zdif {}, xzLinDist {}, xzActualDist {}, distortion {}, cxdif {}, czdif {}, distorted {}, nondistorted {}, exactY {}",
+                xdif, zdif, xzLinDist, xzActualDist, distortion, cxdif, czdif, distorted, nondistorted, exactY);
+        TerraMod.LOGGER.info("===========================");*/
 
-        return (int) Math.floor(exactY - Math.floor(exactY / 16) * 16);
+        int cubeY = (int) Math.floor(exactY / 16);
+
+        TerraMod.LOGGER.info("X {}, Z {}, eY {}, cube {}, should be at {}", x, z, exactY, cubeY, exactY - cubeY * 16);
+
+        return (int) Math.floor(exactY - cubeY * 16);
 
     }
+
 
     /**
      * This method uses the <i>exact</i> same code as in RoadGenerator. However, instead of
@@ -194,17 +202,17 @@ public class Pathway {
     public static List<VectorPathGroup> chunkStructuresAsVectors(Set<OpenStreetMaps.Edge> edges, World world, int cubeX, int cubeY, int cubeZ,
                                                                  Heights heights, GeographicProjection projection) {
         BiFunction<Double, BlockPos, IBlockState> state;
-        VectorPath v;
+        VectorPath3D v;
         List<Double> allX = new ArrayList<>();
         List<Double> allY = new ArrayList<>();
         List<Double> allZ = new ArrayList<>();
-        List<VectorPath> air = new ArrayList<>();
+        List<VectorPath3D> air = new ArrayList<>();
         List<VectorPathGroup> allPaths = new ArrayList<>();
 
         for (OpenStreetMaps.Edge e : edges) {
 
             boolean tunnel = false;
-            List<VectorPath> evp = new ArrayList<>();
+            List<VectorPath3D> evp = new ArrayList<>();
 
             if (e.type != OpenStreetMaps.Type.BUILDING) {
 
@@ -301,18 +309,24 @@ public class Pathway {
                             distance = Math.sqrt(distance);
 
                             double[] geo = projection.toGeo(mainX + cubeX * (16), mainZ + cubeZ * (16));
+
                             int y = (int) Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY * 16);
+                            int clearBlock = 32;
                             // override y if tunnel or bridge
                             if (tunnel) {
                                 // lon lat
+                                clearBlock = 5;
                                 try {
-                                    double[] start = {e.wp.lat.get(0), e.wp.lon.get(0)};
-                                    double[] end = {e.wp.lat.get(e.wp.lat.size()-1), e.wp.lon.get(e.wp.lon.size()-1)};
-                                    double sy = heights.estimateLocal(start[0], start[1]);
-                                    double ey = heights.estimateLocal(end[0], start[1]);
+                                    // ik this is hard to read (im sorry)...
+                                    double[] start = projection.fromGeo(e.wp.lon.get(0), e.wp.lat.get(0));
+                                    double[] end = projection.fromGeo(e.wp.lon.get(e.wp.lon.size()-1), e.wp.lat.get(e.wp.lat.size()-1));
+
+                                    double sy = heights.estimateLocal(e.wp.lon.get(0), e.wp.lat.get(0));
+                                    double ey = heights.estimateLocal(e.wp.lon.get(e.wp.lon.size()-1), e.wp.lat.get(e.wp.lat.size()-1));
 
                                     y = getY(start[0], start[1], end[0], end[1], e.wp.lat, e.wp.lon, sy, ey, projection, mainX + cubeX * 16, mainZ + cubeZ * 16);
-                                    System.out.println(y);
+                                    state = (dis, bpos) -> TUNNEL_DEBUG;
+
                                 } catch (Exception ignored) { }
                             }
                             // if not in this range, someone else will handle it
@@ -333,7 +347,8 @@ public class Pathway {
                                         evp.add(v);
 
                                     } catch (IOException ex) {
-                                        TerraMod.LOGGER.error("An IOException has occured while trying to call VectorPathFromValues(). Are all coordinate lists equal in size?");
+                                        TerraMod.LOGGER.error("An IOException has occured while trying to call VectorPathFromValues(). " +
+                                                "Are all coordinate lists equal in size?");
                                         ex.printStackTrace();
                                     }
 
@@ -343,7 +358,7 @@ public class Pathway {
                                     List<Double> abZ = new ArrayList<>();
                                     IBlockState defState = Blocks.AIR.getDefaultState();
                                     for (int ay = y + 1;
-                                         ay < 32 && world.getBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16)) != defState; ay++) {
+                                         ay < clearBlock && world.getBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16)) != defState; ay++) {
                                         abX.add((double) x + cubeX * 16);
                                         abY.add((double) ay + cubeY * 16);
                                         abZ.add((double) z + cubeZ * 16);
@@ -351,7 +366,8 @@ public class Pathway {
                                     try {
                                         air.add(VectorPathFromValues(abX, abY, abZ, defState, OpenStreetMaps.Attributes.NONE, null));
                                     } catch (IOException ex) {
-                                        TerraMod.LOGGER.error("An IOException has occured while trying to call VectorPathFromValues(). Are all coordinate lists equal in size?");
+                                        TerraMod.LOGGER.error("An IOException has occured while trying to call VectorPathFromValues(). " +
+                                                "Are all coordinate lists equal in size?");
                                         ex.printStackTrace();
                                     }
                                 }
@@ -375,10 +391,10 @@ public class Pathway {
      * Converts x, y and z doubles into VectorPath objects and passes through other values belonging
      * to said x, y and z values and returns a VectorPath.
      */
-    public static VectorPath VectorPathFromValues(List<Double> x, List<Double> y, List<Double> z,
-                                                  IBlockState material, OpenStreetMaps.Attributes attribute, OpenStreetMaps.Edge e) throws IOException {
+    public static VectorPath3D VectorPathFromValues(List<Double> x, List<Double> y, List<Double> z,
+                                                    IBlockState material, OpenStreetMaps.Attributes attribute, OpenStreetMaps.Edge e) throws IOException {
 
-        if (x == null) return new VectorPath(null, null, null, e);
+        if (x == null) return new VectorPath3D(null, null, null, e);
         Vec3d vector;
         List<Vec3d> vectors = new ArrayList<>();
 
@@ -396,7 +412,7 @@ public class Pathway {
 
         }
 
-        return new VectorPath(vectors, material, attribute, e);
+        return new VectorPath3D(vectors, material, attribute, e);
 
     }
 
@@ -429,9 +445,9 @@ public class Pathway {
      */
     public static class VectorPathGroup {
 
-        public List<VectorPath> paths;
+        public List<VectorPath3D> paths;
 
-        public VectorPathGroup(List<VectorPath> paths) {
+        public VectorPathGroup(List<VectorPath3D> paths) {
             this.paths = paths;
         }
 
@@ -441,14 +457,14 @@ public class Pathway {
      * An object that holds a List of vectors (Vec3d) of block locations, as well as their respective IBlockState, OSM relations (String) and Attributes.
      * <br> While an OpenStreetMaps.Edge is required to instantiate, for most situations it should be assigned as null.
      */
-    public static class VectorPath {
+    public static class VectorPath3D {
 
         public List<Vec3d> path = new ArrayList<>();
         public IBlockState material;
         public OpenStreetMaps.Attributes attribute;
         public OpenStreetMaps.Edge edge;
 
-        public VectorPath(List<Vec3d> blockLocs, IBlockState material, OpenStreetMaps.Attributes attribute, OpenStreetMaps.Edge e) {
+        public VectorPath3D(List<Vec3d> blockLocs, IBlockState material, OpenStreetMaps.Attributes attribute, OpenStreetMaps.Edge e) {
 
             if (blockLocs != null) {
                 this.path.addAll(blockLocs);
@@ -457,6 +473,24 @@ public class Pathway {
             this.material = material;
             this.attribute = attribute;
             this.edge = e;
+        }
+
+    }
+
+    public static class VectorPath2D {
+
+        public List<Double> allX;
+        public List<Double> allZ;
+        public OpenStreetMaps.Attributes attribute;
+        OpenStreetMaps.Edge edge;
+
+        public VectorPath2D(List<Double> x, List<Double> z, OpenStreetMaps.Attributes attribute, OpenStreetMaps.Edge e) {
+
+            this.allX = x;
+            this.allZ = z;
+            this.attribute = attribute;
+            this.edge = e;
+
         }
 
     }

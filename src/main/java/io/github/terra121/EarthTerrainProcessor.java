@@ -25,10 +25,7 @@ import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.CustomGenerato
 import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.structure.CubicCaveGenerator;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
-import io.github.terra121.populator.CliffReplacer;
-import io.github.terra121.populator.EarthTreePopulator;
-import io.github.terra121.populator.RoadGenerator;
-import io.github.terra121.populator.SnowPopulator;
+import io.github.terra121.populator.*;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -81,7 +78,9 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         unnaturals.add(Blocks.BRICK_BLOCK);
         
         surfacePopulators = new HashSet<ICubicPopulator>();
-        if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
+        if (doRoads && cfg.settings.advancedRoads) {
+            surfacePopulators.add(new VectorPathGenerator(osm, heights, projection));
+        } else if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
         surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
 
