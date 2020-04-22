@@ -22,8 +22,8 @@ public class GeographicProjection {
 		projections.put("airocean", new Airocean());
 		projections.put("transverse_mercator", new TransverseMercatorProjection());
 		projections.put("airocean", new Airocean());
-		//projections.put("conformal", new ConformalEstimate());
-		//projections.put("bteairocean", new ModifiedAirocean());
+		projections.put("conformal", new ConformalEstimate());
+		projections.put("bteairocean", new ModifiedAirocean());
 	}
 	
 	public static enum Orientation {
@@ -47,7 +47,6 @@ public class GeographicProjection {
 	}
 	
 	public double[] toGeo(double x, double y) {
-
 		return new double[] {x,y};
 	}
 	

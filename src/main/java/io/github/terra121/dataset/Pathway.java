@@ -145,9 +145,6 @@ public class Pathway {
 
         }
 
-        double slat = lat.get(0);
-        double slon = lon.get(0);
-
         double dist = 0;
 
         // calculate length of way
@@ -155,22 +152,8 @@ public class Pathway {
 
             try {
 
-                if (i == 0) {
+                dist += distance(lat.get(i), lon.get(i), lat.get(i + 1), lon.get(i + 1));
 
-                    dist += distance(slat, slon, lat.get(2), lon.get(2));
-
-                } else if (i == 1) {
-
-                } else if (i == lat.size() - 1) {
-
-                    dist += distance(lat.get(i), lon.get(i), lat.get(1), lon.get(1));
-
-
-                } else {
-
-                    dist += distance(lat.get(i), lon.get(i), lat.get(i + 1), lon.get(i + 1));
-
-                }
             } catch (IndexOutOfBoundsException e) { }
         }
         return dist;
@@ -183,17 +166,17 @@ public class Pathway {
         double xdif = x2 - x1;
         double zdif = z2 - z1;
 
-        double xzLinDist = Math.sqrt((xdif * xdif) + (zdif * zdif));
-        double xzActualDist = distanceAlong(pointsX, pointsZ, projection);
-        double distortion = xzActualDist / xzLinDist;
+        double xzLinDist = Math.sqrt((xdif * xdif) + (zdif * zdif)); // smallest length
+        double xzActualDist = distanceAlong(pointsX, pointsZ, projection); // actual length
+        double distortion = xzActualDist / xzLinDist; // meh attempt at correcting for distortion
 
         double cxdif = x - x1;
         double czdif = z - z1;
 
-        double distorted = Math.sqrt((cxdif * cxdif) + (czdif * czdif));
-        double nondistorted = distorted * distortion;
+        double distorted = Math.sqrt((cxdif * cxdif) + (czdif * czdif)); // shortest distance between current point and begin
+        double nondistorted = distorted * distortion; // correct distortion
 
-        double exactY = y1 + ((xzActualDist/nondistorted) * y2);
+        double exactY = y1 + ((nondistorted / xzActualDist) * y2); //
 
         return (int) Math.floor(exactY - Math.floor(exactY / 16) * 16);
 
