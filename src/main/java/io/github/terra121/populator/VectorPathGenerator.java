@@ -10,7 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import io.github.terra121.dataset.Pathway.VectorPath;
+import io.github.terra121.dataset.Pathway.VectorPath3D;
 import java.util.*;
 
 /**
@@ -44,15 +44,16 @@ public class VectorPathGenerator implements ICubicPopulator {
             if (!paths.isEmpty()) {
 
                 for (Pathway.VectorPathGroup g : paths) {
-                    placeVectorPaths(g.paths, world);
-                }
 
+                    placeVectorPaths(g.paths, world);
+
+                }
             }
         }
     }
 
-    public void placeVectorPaths(List<VectorPath> paths, World world) {
-        for (VectorPath p : paths) {
+    public void placeVectorPaths(List<VectorPath3D> paths, World world) {
+        for (VectorPath3D p : paths) {
             for (Vec3d path : p.path) {
                 BlockPos l = new BlockPos(path.x, path.y, path.z);
                 if (world.getBlockState(l).getBlock().getDefaultState() != p.material) {
