@@ -1,7 +1,7 @@
 package io.github.terra121.projection;
-/*
+
 public class ModifiedAirocean extends ConformalEstimate {
-/*
+
     protected static double THETA = -150*TO_RADIANS;
     protected static double SIN_THETA = Math.sin(THETA);
     protected static double COS_THETA = Math.cos(THETA);
@@ -98,4 +98,3 @@ public class ModifiedAirocean extends ConformalEstimate {
         return new double[] {-1.5*ARC*ROOT3, -1.5*ARC, 3*ARC, ROOT3*ARC}; //TODO: 3*ARC is prly to high
     }
 }
-*/

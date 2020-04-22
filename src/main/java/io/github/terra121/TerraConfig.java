@@ -8,7 +8,6 @@ import net.minecraftforge.common.config.ConfigManager;
 
 @Config(modid = TerraMod.MODID)
 public class TerraConfig {
-	public static boolean debugModeActive = false;
 	@Name("overpass_interpreter")
 	@Comment({"Overpass interpreter for road and water OpenStreetMap data",
 			  "Make sure you follow the instances guidelines",

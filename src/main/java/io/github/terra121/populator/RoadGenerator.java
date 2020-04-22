@@ -3,8 +3,10 @@ package io.github.terra121.populator;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
+
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
+import io.github.terra121.TerraMod;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
 import io.github.terra121.projection.GeographicProjection;
@@ -16,9 +18,10 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 
 public class RoadGenerator implements ICubicPopulator {
-
+	
     private static final IBlockState ASPHALT = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.GRAY);
     private static final IBlockState WATER_SOURCE = Blocks.WATER.getDefaultState();
     //private static final IBlockState WATER_RAMP = Blocks.WATER.getDefaultState().withProperty(BlockLiquid.LEVEL, );
@@ -40,21 +43,21 @@ public class RoadGenerator implements ICubicPopulator {
     }
 
     public void generate(World world, Random rand, CubePos pos, Biome biome) {
-
-        int cubeX = pos.getX(), cubeY = pos.getY(), cubeZ = pos.getZ();
-
+    	
+    	int cubeX = pos.getX(), cubeY = pos.getY(), cubeZ = pos.getZ();
+    	
         Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeZ);
+		
+        if(edges!=null) { 
+        	
+        	// rivers done before roads
+        	for(OpenStreetMaps.Edge e: edges) {
+	            if(e.type == OpenStreetMaps.Type.RIVER) {
+	            	placeEdge(e, world, cubeX, cubeY, cubeZ, 5, (dis, bpos) -> riverState(world, dis, bpos));
+	            }
+	        }
 
-        if(edges!=null) {
-
-            // rivers done before roads
-            for(OpenStreetMaps.Edge e: edges) {
-                if(e.type == OpenStreetMaps.Type.RIVER) {
-                    placeEdge(e, world, cubeX, cubeY, cubeZ, 5, (dis, bpos) -> riverState(world, dis, bpos));
-                }
-            }
-
-            // (1+w)l+l is the equation to calculate road width, where "w" is the width and "l" is the amount of lanes
+        	// (1+w)l+l is the equation to calculate road width, where "w" is the width and "l" is the amount of lanes
 
             // i only use this for roads that need road markings, because if there are no road markings, the extra place is not needed,
             // and it can simply be w*l
@@ -63,10 +66,10 @@ public class RoadGenerator implements ICubicPopulator {
 
             // TODO simplify road width
 
-            for(OpenStreetMaps.Edge e: edges) {
-                // this will obviously be deleted once the levels actually do something
+	        for(OpenStreetMaps.Edge e: edges) {
+	            // this will obviously be deleted once the levels actually do something
                 // System.out.println("Generating road on level: " + e.layer_number);
-                if (e.attributes != OpenStreetMaps.Attributes.TUNNEL) {
+                if (e.attribute != OpenStreetMaps.Attributes.ISTUNNEL) {
                     switch (e.type) {
                         case MINOR:
                             placeEdge(e, world, cubeX, cubeY, cubeZ, Math.ceil((2 * e.lanes) / 2), (dis, bpos) -> ASPHALT);
@@ -89,7 +92,7 @@ public class RoadGenerator implements ICubicPopulator {
                             break;
                     }
                 }
-            }
+	        }
         }
     }
 
@@ -105,7 +108,7 @@ public class RoadGenerator implements ICubicPopulator {
         }
         else return WATER_SOURCE;
     }
-
+    
     private void placeEdge(OpenStreetMaps.Edge e, World world, int cubeX, int cubeY, int cubeZ, double r, BiFunction<Double, BlockPos, IBlockState> state) {
         double x0 = 0;
         double b = r;
@@ -117,7 +120,7 @@ public class RoadGenerator implements ICubicPopulator {
         double j = e.slon - (cubeX*16);
         double k = e.elon - (cubeX*16);
         double off = e.offset - (cubeZ*16) + e.slope*(cubeX*16);
-
+        
         if(j>k) {
             double t = j;
             j = k;
@@ -126,14 +129,14 @@ public class RoadGenerator implements ICubicPopulator {
 
         double ij = j-r;
         double ik = k+r;
-
+        
         if(j<=0) {
-            j=0;
-            //ij=0;
+        	j=0;
+        	//ij=0;
         }
         if(k>=16) {
-            k=16;
-            //ik = 16;
+        	k=16;
+        	//ik = 16;
         }
 
         int is = (int)Math.floor(ij);
@@ -148,7 +151,7 @@ public class RoadGenerator implements ICubicPopulator {
 
             double from = Math.min(Math.min(ul,ur),Math.min(ll,lr));
             double to = Math.max(Math.max(ul,ur),Math.max(ll,lr));
-
+            
             if(from==from) {
                 int ifrom = (int)Math.floor(from);
                 int ito = (int)Math.floor(to);
@@ -169,30 +172,30 @@ public class RoadGenerator implements ICubicPopulator {
                     else if(mainX>k) mainX = k;*/
 
                     double mainZ = e.slope*mainX + off;
-
+                    
                     //get distance to closest point
                     double distance = mainX-X;
-                    distance *= distance;
-                    double t = mainZ-Z;
-                    distance += t*t;
-                    distance = Math.sqrt(distance);
+                	distance *= distance;
+                	double t = mainZ-Z;
+                	distance += t*t;
+                	distance = Math.sqrt(distance);
 
                     double[] geo = projection.toGeo(mainX + cubeX*(16), mainZ + cubeZ*(16));
                     int y = (int)Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY*16);
 
                     if (y >= 0 && y < 16) { //if not in this range, someone else will handle it
-
-                        BlockPos surf = new BlockPos(x + cubeX * 16, y + cubeY * 16, z + cubeZ * 16);
-                        IBlockState bstate = state.apply(distance, surf);
-
-                        if(bstate!=null) {
-                            world.setBlockState(surf, bstate);
-
-                            //clear the above blocks (to a point, we don't want to be here all day)
-                            IBlockState defState = Blocks.AIR.getDefaultState();
-                            for (int ay = y + 1; ay < 16 * 2 && world.getBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16)) != defState; ay++) {
-                                world.setBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16), defState);
-                            }
+                    	
+                    	BlockPos surf = new BlockPos(x + cubeX * 16, y + cubeY * 16, z + cubeZ * 16);
+                    	IBlockState bstate = state.apply(distance, surf);
+                    	
+                    	if(bstate!=null) {
+		                	world.setBlockState(surf, bstate);
+		
+		                    //clear the above blocks (to a point, we don't want to be here all day)
+		                    IBlockState defState = Blocks.AIR.getDefaultState();
+		                    for (int ay = y + 1; ay < 16 * 2 && world.getBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16)) != defState; ay++) {
+		                        world.setBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16), defState);
+		                    }
                         }
                     }
                 }
