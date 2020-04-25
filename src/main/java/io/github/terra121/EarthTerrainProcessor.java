@@ -1,5 +1,6 @@
 package io.github.terra121;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,12 +26,14 @@ import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.CustomGenerato
 import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.structure.CubicCaveGenerator;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
+import io.github.terra121.dataset.Pathway;
 import io.github.terra121.populator.*;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeProvider;
@@ -307,7 +310,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
                 for(ICubicPopulator pop: surfacePopulators)
                 	pop.generate(world, rand, pos, biome);
             }
-			
+
             biomePopulators.get(biome).generate(world, rand, pos, biome);
 			
             if(surf==1)

@@ -2,16 +2,21 @@ package io.github.terra121.dataset;
 
 import io.github.terra121.TerraMod;
 import io.github.terra121.projection.GeographicProjection;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockColored;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 import java.util.function.BiFunction;
 
 import static io.github.terra121.populator.VectorPathGenerator.bound;
@@ -46,15 +51,7 @@ public class Pathway {
     private static final IBlockState COBBLE = Blocks.COBBLESTONE.getDefaultState();
     private static final IBlockState TUNNEL_DEBUG = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.ORANGE);
 
-    private static int heightCache = 0;
-
     // CLASS METHODS
-
-    public static double distance(double x1, double y1, double x2, double y2) {
-        x1 -= x2;
-        y1 -= y2;
-        return Math.sqrt(x1 * x1 + y1 * y1);
-    }
 
     /**
      * Calculates width of a road based on number of lanes and OSM type. Returns the width as double.
@@ -157,7 +154,7 @@ public class Pathway {
                                      List<Double> pointsZ, double y1, double y2, GeographicProjection projection, double x, double z) {
 
         // height within cube (0-16)
-        int exactY = absoluteHeight(x1,z1,x2,z2,pointsX,pointsZ,y1,y2,projection,x,z);
+        double exactY = absoluteHeight(x1,z1,x2,z2,pointsX,pointsZ,y1,y2,projection,x,z);
 
         return (int) (exactY - Math.floor(exactY / 16) * 16);
 
@@ -333,7 +330,7 @@ public class Pathway {
                                     heightCheck = absoluteHeight(start[0], start[1], end[0], end[1], e.wp.lat, e.wp.lon, sy, ey, projection,
                                             mainX + cubeX * 16, mainZ + cubeZ * 16);
 
-                                    y = relativeHeight(start[0], start[1], end[0], end[1], e.wp.lat, e.wp.lon, sy, ey, projection, mainX + cubeX * 16, mainZ + cubeZ * 16);
+                                    y = relativeHeight(start[0], start[1], end[0], end[1], e.wp.lon, e.wp.lat, sy, ey, projection, mainX + cubeX * 16, mainZ + cubeZ * 16);
                                     state = (dis, bpos) -> TUNNEL_DEBUG;
 
                                 } catch (Exception ignored) { } // data fault, probably
@@ -368,8 +365,6 @@ public class Pathway {
 
                                 BlockPos pathPos = new BlockPos(x + cubeX * 16, actualHeight, z + cubeZ * 16);
                                 IBlockState bstate = state.apply(distance, pathPos);
-
-                                heightCache = actualHeight;
 
                                 if (bstate != null) {
 
@@ -414,17 +409,19 @@ public class Pathway {
                                         ex.printStackTrace();
                                     }
 
-                                    // clear the above blocks (to a point, we don't want to be here all day)
                                     List<Double> abX = new ArrayList<>();
                                     List<Double> abY = new ArrayList<>();
                                     List<Double> abZ = new ArrayList<>();
                                     IBlockState defState = Blocks.AIR.getDefaultState();
 
-                                    for (int ay = actualHeight + 1;
-                                         ay < clearBlock && world.getBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16)) != defState; ay++) {
+                                    int ay = actualHeight + 1;
+                                    while (ay < 8 && world.getBlockState(new BlockPos(x + cubeX * 16, ay, z + cubeZ * 16)) != defState) {
+
                                         abX.add((double) x + cubeX * 16);
-                                        abY.add((double) ay + cubeY * 16);
+                                        abY.add((double) ay);
                                         abZ.add((double) z + cubeZ * 16);
+                                        ay++;
+
                                     }
 
                                     try {
@@ -504,6 +501,26 @@ public class Pathway {
                 return null;
             return WATER_BEACH;
         } else return WATER_SOURCE;
+    }
+
+    public static void superSecretMethod(int x, int y, int z, World world) {
+
+        Block secret = Blocks.STANDING_SIGN;
+
+        BlockPos b = new BlockPos(x,y,z);
+        if (world.getBlockState(b).getBlock() != Blocks.AIR) {
+
+            world.setBlockState(b, secret.getDefaultState());
+            TileEntity t = world.getTileEntity(b);
+
+            if (t instanceof TileEntitySign) {
+                TileEntitySign s = (TileEntitySign) t;
+                s.signText[0] = new TextComponentString("liebe grüsse");
+                s.signText[1] = new TextComponentString("aus zürich");
+                s.signText[2] = new TextComponentString("- taeko-chan");
+                s.signText[3] = new TextComponentString("der reusstal ist in uri");
+            }
+        }
     }
 
     // CLASS SUBCLASSES
