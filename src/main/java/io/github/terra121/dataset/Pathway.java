@@ -1,9 +1,7 @@
 package io.github.terra121.dataset;
 
-import io.github.terra121.TerraConfig;
 import io.github.terra121.TerraMod;
 import io.github.terra121.projection.GeographicProjection;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockColored;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
@@ -47,6 +45,8 @@ public class Pathway {
     private static final IBlockState CONCRETE = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
     private static final IBlockState COBBLE = Blocks.COBBLESTONE.getDefaultState();
     private static final IBlockState TUNNEL_DEBUG = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.ORANGE);
+
+    private static int heightCache = 0;
 
     // CLASS METHODS
 
@@ -153,8 +153,18 @@ public class Pathway {
         return dist;
     }
 
-    public static int getY(double x1, double z1, double x2, double z2, List<Double> pointsX,
-                           List<Double> pointsZ, double y1, double y2, GeographicProjection projection, double x, double z) {
+    public static int relativeHeight(double x1, double z1, double x2, double z2, List<Double> pointsX,
+                                     List<Double> pointsZ, double y1, double y2, GeographicProjection projection, double x, double z) {
+
+        // height within cube (0-16)
+        int exactY = absoluteHeight(x1,z1,x2,z2,pointsX,pointsZ,y1,y2,projection,x,z);
+
+        return (int) (exactY - Math.floor(exactY / 16) * 16);
+
+    }
+
+    public static int absoluteHeight(double x1, double z1, double x2, double z2, List<Double> pointsX,
+                                     List<Double> pointsZ, double y1, double y2, GeographicProjection projection, double x, double z) {
 
         // get distance from (x,y,z)1 to (x,y,z)2
         double xdif = x2 - x1;
@@ -171,48 +181,36 @@ public class Pathway {
         double distorted = Math.sqrt((cxdif * cxdif) + (czdif * czdif)); // shortest distance between current point and begin
         double nondistorted = distorted * distortion; // correct distortion
 
-        double exactY = y1 + ((distorted / xzLinDist) * ydif);
-/*
-        //double exactY = y1 + ((nondistorted / xzActualDist) * y2); //
-        //TerraMod.LOGGER.info("===========================");
-        TerraMod.LOGGER.info("x {}, z {}, x1 {}, x2 {}, z1 {}, z2 {}, y1 {}, y2 {}",x,z,x1,x2,z1,z2,y1,y2);
-        TerraMod.LOGGER.info("===========================");
-        TerraMod.LOGGER.info("xdif {}, zdif {}, xzLinDist {}, xzActualDist {}, distortion {}, cxdif {}, czdif {}, distorted {}, nondistorted {}, exactY {}",
-                xdif, zdif, xzLinDist, xzActualDist, distortion, cxdif, czdif, distorted, nondistorted, exactY);
-        TerraMod.LOGGER.info("===========================");*/
+        double exactY = y1 + ((nondistorted / xzActualDist) * ydif);
 
-        int cubeY = (int) Math.floor(exactY / 16);
-
-        TerraMod.LOGGER.info("X {}, Z {}, eY {}, cube {}, should be at {}", x, z, exactY, cubeY, exactY - cubeY * 16);
-
-        return (int) Math.floor(exactY - cubeY * 16);
+        return (int) exactY;
 
     }
 
-
     /**
-     * This method uses the <i>exact</i> same code as in RoadGenerator. However, instead of
-     * generating the blocks directly, it stores them in VectorPath objects, which allows sections of roads
-     * to be grouped together very easily. This means generation of special features, such as tunnels
-     * and bridges, is made possible by calculating the incline directly before generation instead of on a
-     * block by block basis. Use this method to generate VectorPaths using the same args as RoadGenerator.placeEdge() ( except
-     * the edges must be in a set and are iterated over within the method instead of in generate() ).<br>
-     * Returns List of VectorPathGroup. Do not use for buildings.
+     * Converts HashSet of OpenStreetMaps.Edge to 10 VectorPathGroups,
+     * each one of which containing all path blocks within a cube with a certain surface material.
      */
     public static List<VectorPathGroup> chunkStructuresAsVectors(Set<OpenStreetMaps.Edge> edges, World world, int cubeX, int cubeY, int cubeZ,
                                                                  Heights heights, GeographicProjection projection) {
         BiFunction<Double, BlockPos, IBlockState> state;
         VectorPath3D v;
-        List<Double> allX = new ArrayList<>();
-        List<Double> allY = new ArrayList<>();
-        List<Double> allZ = new ArrayList<>();
+
         List<VectorPath3D> air = new ArrayList<>();
+        List<VectorPath3D> asphalt = new ArrayList<>();
+        List<VectorPath3D> path = new ArrayList<>();
+        List<VectorPath3D> dirt = new ArrayList<>();
+        List<VectorPath3D> wood = new ArrayList<>();
+        List<VectorPath3D> cobble = new ArrayList<>();
+        List<VectorPath3D> gravel = new ArrayList<>();
+        List<VectorPath3D> concrete = new ArrayList<>();
+        List<VectorPath3D> waterway = new ArrayList<>();
+        List<VectorPath3D> evp = new ArrayList<>();
         List<VectorPathGroup> allPaths = new ArrayList<>();
 
         for (OpenStreetMaps.Edge e : edges) {
 
             boolean tunnel = false;
-            List<VectorPath3D> evp = new ArrayList<>();
 
             if (e.type != OpenStreetMaps.Type.BUILDING) {
 
@@ -273,6 +271,10 @@ public class Pathway {
                 int is = (int) Math.floor(ij);
                 int ie = (int) Math.floor(ik);
 
+                List<Double> allX = new ArrayList<>();
+                List<Double> allY = new ArrayList<>();
+                List<Double> allZ = new ArrayList<>();
+
                 for (int x = is; x <= ie; x++) {
 
                     double ul = bound(x, e.slope, j, k, r, x0, b, 1) + off; //TODO: save these repeated values
@@ -312,39 +314,99 @@ public class Pathway {
 
                             int y = (int) Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY * 16);
                             int clearBlock = 32;
+
+                            Integer heightCheck = null;
+
                             // override y if tunnel or bridge
                             if (tunnel) {
                                 // lon lat
                                 clearBlock = 5;
+
                                 try {
-                                    // ik this is hard to read (im sorry)...
+                                    // ik this is hard to read
                                     double[] start = projection.fromGeo(e.wp.lon.get(0), e.wp.lat.get(0));
                                     double[] end = projection.fromGeo(e.wp.lon.get(e.wp.lon.size()-1), e.wp.lat.get(e.wp.lat.size()-1));
 
                                     double sy = heights.estimateLocal(e.wp.lon.get(0), e.wp.lat.get(0));
                                     double ey = heights.estimateLocal(e.wp.lon.get(e.wp.lon.size()-1), e.wp.lat.get(e.wp.lat.size()-1));
 
-                                    y = getY(start[0], start[1], end[0], end[1], e.wp.lat, e.wp.lon, sy, ey, projection, mainX + cubeX * 16, mainZ + cubeZ * 16);
+                                    heightCheck = absoluteHeight(start[0], start[1], end[0], end[1], e.wp.lat, e.wp.lon, sy, ey, projection,
+                                            mainX + cubeX * 16, mainZ + cubeZ * 16);
+
+                                    y = relativeHeight(start[0], start[1], end[0], end[1], e.wp.lat, e.wp.lon, sy, ey, projection, mainX + cubeX * 16, mainZ + cubeZ * 16);
                                     state = (dis, bpos) -> TUNNEL_DEBUG;
 
-                                } catch (Exception ignored) { }
+                                } catch (Exception ignored) { } // data fault, probably
                             }
+
                             // if not in this range, someone else will handle it
                             if (y >= 0 && y < 16) {
 
                                 allX.add((double) (x + cubeX * 16));
-                                allY.add((double) (y + cubeY * 16));
                                 allZ.add((double) (z + cubeZ * 16));
+                                int actualHeight = y + cubeY * 16;
 
-                                BlockPos pathPos = new BlockPos(x + cubeX * 16, y + cubeY * 16, z + cubeZ * 16);
+                                // do correction if height is much lower or higher than unprocessed mathematical result
+                                boolean heightIsTooLow = heightCheck != null && actualHeight - heightCheck < -3,
+                                        heightIsTooHigh = heightCheck != null && actualHeight - heightCheck > 3;
+
+                                // prevent large jumps in height
+                                if (heightIsTooLow) {
+                                    actualHeight += heightCheck - actualHeight;
+                                }
+
+                                if (heightIsTooHigh) {
+                                    actualHeight -= actualHeight - heightCheck;
+                                }
+
+                                // set river 1 deeper into the ground, should prevent some flooding
+                                if (e.type == OpenStreetMaps.Type.RIVER || e.type == OpenStreetMaps.Type.STREAM){
+                                    actualHeight -= 1;
+                                }
+
+                                allY.add((double) actualHeight);
+
+                                BlockPos pathPos = new BlockPos(x + cubeX * 16, actualHeight, z + cubeZ * 16);
                                 IBlockState bstate = state.apply(distance, pathPos);
+
+                                heightCache = actualHeight;
 
                                 if (bstate != null) {
 
                                     try {
-
                                         v = VectorPathFromValues(allX, allY, allZ, bstate, e.attribute, null);
-                                        evp.add(v);
+
+                                        if (e.type == OpenStreetMaps.Type.RIVER || e.type == OpenStreetMaps.Type.STREAM) {
+                                            waterway.add(v);
+                                        } else {
+
+                                            switch (e.surf) {
+                                                case ASPHALT:
+                                                    asphalt.add(v);
+                                                    break;
+                                                case CONCRETE:
+                                                    concrete.add(v);
+                                                    break;
+                                                case COBBLE:
+                                                    cobble.add(v);
+                                                    break;
+                                                case WOOD:
+                                                    wood.add(v);
+                                                    break;
+                                                case GRAVEL:
+                                                    gravel.add(v);
+                                                    break;
+                                                case DIRT:
+                                                    dirt.add(v);
+                                                    break;
+                                                case GRASS_PATH:
+                                                    path.add(v);
+                                                    break;
+                                                case IGNORE:
+                                                default:
+                                                    evp.add(v);
+                                            }
+                                        }
 
                                     } catch (IOException ex) {
                                         TerraMod.LOGGER.error("An IOException has occured while trying to call VectorPathFromValues(). " +
@@ -357,30 +419,43 @@ public class Pathway {
                                     List<Double> abY = new ArrayList<>();
                                     List<Double> abZ = new ArrayList<>();
                                     IBlockState defState = Blocks.AIR.getDefaultState();
-                                    for (int ay = y + 1;
+
+                                    for (int ay = actualHeight + 1;
                                          ay < clearBlock && world.getBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16)) != defState; ay++) {
                                         abX.add((double) x + cubeX * 16);
                                         abY.add((double) ay + cubeY * 16);
                                         abZ.add((double) z + cubeZ * 16);
                                     }
+
                                     try {
+
                                         air.add(VectorPathFromValues(abX, abY, abZ, defState, OpenStreetMaps.Attributes.NONE, null));
+
                                     } catch (IOException ex) {
+
                                         TerraMod.LOGGER.error("An IOException has occured while trying to call VectorPathFromValues(). " +
                                                 "Are all coordinate lists equal in size?");
                                         ex.printStackTrace();
+
                                     }
                                 }
                             }
                         }
                     }
                 }
-
-                allPaths.add(new VectorPathGroup(evp));
-
             }
         }
 
+        // todo this is horrible
+        allPaths.add(new VectorPathGroup(evp));
+        allPaths.add(new VectorPathGroup(waterway));
+        allPaths.add(new VectorPathGroup(path));
+        allPaths.add(new VectorPathGroup(cobble));
+        allPaths.add(new VectorPathGroup(gravel));
+        allPaths.add(new VectorPathGroup(wood));
+        allPaths.add(new VectorPathGroup(dirt));
+        allPaths.add(new VectorPathGroup(asphalt));
+        allPaths.add(new VectorPathGroup(concrete));
         allPaths.add(new VectorPathGroup(air));
 
         return allPaths;
