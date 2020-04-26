@@ -49,7 +49,6 @@ public class Pathway {
     private static final IBlockState WOOD = Blocks.PLANKS.getDefaultState();
     private static final IBlockState CONCRETE = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
     private static final IBlockState COBBLE = Blocks.COBBLESTONE.getDefaultState();
-    private static final IBlockState TUNNEL_DEBUG = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.ORANGE);
 
     // CLASS METHODS
 
@@ -190,10 +189,11 @@ public class Pathway {
      */
     public static List<VectorPathGroup> chunkStructuresAsVectors(Set<OpenStreetMaps.Edge> edges, World world, int cubeX, int cubeY, int cubeZ,
                                                                  Heights heights, GeographicProjection projection) {
+
         BiFunction<Double, BlockPos, IBlockState> state;
+
         VectorPath3D v;
 
-        List<VectorPath3D> air = new ArrayList<>();
         List<VectorPath3D> asphalt = new ArrayList<>();
         List<VectorPath3D> path = new ArrayList<>();
         List<VectorPath3D> dirt = new ArrayList<>();
@@ -204,6 +204,7 @@ public class Pathway {
         List<VectorPath3D> waterway = new ArrayList<>();
         List<VectorPath3D> evp = new ArrayList<>();
         List<VectorPathGroup> allPaths = new ArrayList<>();
+        double[] superSecretCoords = projection.fromGeo(45.9766701, 7.6569730);
 
         for (OpenStreetMaps.Edge e : edges) {
 
@@ -317,7 +318,7 @@ public class Pathway {
                             // override y if tunnel or bridge
                             if (tunnel) {
                                 // lon lat
-                                clearBlock = 5;
+                                clearBlock = 6;
 
                                 try {
                                     // ik this is hard to read
@@ -331,7 +332,6 @@ public class Pathway {
                                             mainX + cubeX * 16, mainZ + cubeZ * 16);
 
                                     y = relativeHeight(start[0], start[1], end[0], end[1], e.wp.lon, e.wp.lat, sy, ey, projection, mainX + cubeX * 16, mainZ + cubeZ * 16);
-                                    state = (dis, bpos) -> TUNNEL_DEBUG;
 
                                 } catch (Exception ignored) { } // data fault, probably
                             }
@@ -372,7 +372,9 @@ public class Pathway {
                                         v = VectorPathFromValues(allX, allY, allZ, bstate, e.attribute, null);
 
                                         if (e.type == OpenStreetMaps.Type.RIVER || e.type == OpenStreetMaps.Type.STREAM) {
+
                                             waterway.add(v);
+
                                         } else {
 
                                             switch (e.surf) {
@@ -405,35 +407,21 @@ public class Pathway {
 
                                     } catch (IOException ex) {
                                         TerraMod.LOGGER.error("An IOException has occured while trying to call VectorPathFromValues(). " +
-                                                "Are all coordinate lists equal in size?");
+                                                "Are all coordinate lists equal in size? When making a GitHub issue please include the following: ");
                                         ex.printStackTrace();
                                     }
 
-                                    List<Double> abX = new ArrayList<>();
-                                    List<Double> abY = new ArrayList<>();
-                                    List<Double> abZ = new ArrayList<>();
                                     IBlockState defState = Blocks.AIR.getDefaultState();
 
                                     int ay = actualHeight + 1;
-                                    while (ay < 8 && world.getBlockState(new BlockPos(x + cubeX * 16, ay, z + cubeZ * 16)) != defState) {
-
-                                        abX.add((double) x + cubeX * 16);
-                                        abY.add((double) ay);
-                                        abZ.add((double) z + cubeZ * 16);
+                                    while (ay < actualHeight + clearBlock && world.getBlockState(new BlockPos(x + cubeX * 16, ay, z + cubeZ * 16)) != defState) {
+                                        world.setBlockState(new BlockPos(x + cubeX * 16, ay, z + cubeZ * 16), defState);
                                         ay++;
-
                                     }
 
-                                    try {
-
-                                        air.add(VectorPathFromValues(abX, abY, abZ, defState, OpenStreetMaps.Attributes.NONE, null));
-
-                                    } catch (IOException ex) {
-
-                                        TerraMod.LOGGER.error("An IOException has occured while trying to call VectorPathFromValues(). " +
-                                                "Are all coordinate lists equal in size?");
-                                        ex.printStackTrace();
-
+                                    if (world.getBlockState(new BlockPos(superSecretCoords[1], 4355, superSecretCoords[0])).getBlock().getDefaultState()
+                                            != Blocks.STANDING_SIGN.getDefaultState()) {
+                                        Pathway.superSecretMethod(world, (int)superSecretCoords[1], 4355, (int)superSecretCoords[0]);
                                     }
                                 }
                             }
@@ -453,7 +441,6 @@ public class Pathway {
         allPaths.add(new VectorPathGroup(dirt));
         allPaths.add(new VectorPathGroup(asphalt));
         allPaths.add(new VectorPathGroup(concrete));
-        allPaths.add(new VectorPathGroup(air));
 
         return allPaths;
 
@@ -479,7 +466,8 @@ public class Pathway {
 
         } else {
 
-            TerraMod.LOGGER.error("While attempting to create a VectorPath, the provided x, y and z lists were not equal. The VectorPath will not generate.");
+            TerraMod.LOGGER.error("While attempting to create a VectorPath, the provided x, y and z lists were not equal. The VectorPath will not generate." +
+                    " When making a GitHub issue, please include the following: ");
             throw new IOException();
 
         }
@@ -503,7 +491,7 @@ public class Pathway {
         } else return WATER_SOURCE;
     }
 
-    public static void superSecretMethod(int x, int y, int z, World world) {
+    public static void superSecretMethod(World world, int x, int y, int z) {
 
         Block secret = Blocks.STANDING_SIGN;
 
@@ -569,23 +557,6 @@ public class Pathway {
 
     }
 
-    public static class VectorPath2D {
-
-        public List<Double> allX;
-        public List<Double> allZ;
-        public OpenStreetMaps.Attributes attribute;
-        OpenStreetMaps.Edge edge;
-
-        public VectorPath2D(List<Double> x, List<Double> z, OpenStreetMaps.Attributes attribute, OpenStreetMaps.Edge e) {
-
-            this.allX = x;
-            this.allZ = z;
-            this.attribute = attribute;
-            this.edge = e;
-
-        }
-
-    }
 
     public static class LatLon {
 

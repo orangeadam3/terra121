@@ -31,11 +31,6 @@ public class VectorPathGenerator implements ICubicPopulator {
     @Override
     public void generate(World world, Random random, CubePos cubePos, Biome biome) {
 
-        // small easter egg. hint: famous swiss mountain (or just put the coords in g maps)
-        double[] superSecretCoords = projection.fromGeo(45.976484, 7.658406);
-        if (cubePos.getX() == 0 && cubePos.getY() == 0 && cubePos.getZ() == 0) Pathway.superSecretMethod((int)superSecretCoords[0],
-                (int)heights.estimateLocal(superSecretCoords[0], superSecretCoords[1]), (int)superSecretCoords[1], world);
-
         int cubeX = cubePos.getX();
         int cubeY = cubePos.getY();
         int cubeZ = cubePos.getZ();

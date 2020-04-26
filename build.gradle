@@ -56,7 +56,6 @@ minecraft {
 dependencies {
     // you may put jars on which you depend on in ./libs
     // or you may define them like so..
-    compile "org.deeplearning4j:deeplearning4j-core:1.0.0-beta6"
     //compile "some.group:artifact:version:classifier"
     //compile "some.group:artifact:version"
       

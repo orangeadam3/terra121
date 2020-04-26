@@ -35,9 +35,6 @@ public class OpenStreetMaps {
     private static final String URL_B = ")%20tags%20qt;(._<;);out%20body%20qt;";
     private static final String URL_C = "is_in(";
     private String URL_SUFFIX = ");area._[~\"natural|waterway\"~\"water|riverbank\"];out%20ids;";
-    // get all elements by id
-    private static final String URL_ID = "[out:json][timeout:25](way(";
-    private static final String URL_ID_SUFFIX = "););out;>;out skel qt;";
 
     private HashMap<Coord, Set<Edge>> chunks;
     public LinkedHashMap<Coord, Region> regions;
@@ -248,7 +245,8 @@ public class OpenStreetMaps {
                     Data ndata = gson.fromJson(inStr, Data.class);
 
                     for (Element nelem : ndata.elements) {
-                        if (nelem.lat != null && nelem.lon != null) {
+
+                        if (nelem.id == n) {
                             lat.add(nelem.lat);
                             lon.add(nelem.lon);
                         }
