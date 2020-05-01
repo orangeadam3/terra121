@@ -34,7 +34,7 @@ terra121.commands.tpll.usage=/tpll lat lon [海拔高度]
 
 terra121.commands.terra.usage=/terra [where:ou] [玩家]\n/terra world\n/terra osm\n/terra conv[ert] [x z]:[lat lon]
 
-terra121.commands.terra.gensettings=Generator Settings: 
+terra121.commands.terra.gensettings=生成器设置：
 terra121.commands.terra.latlon=lat lon: %.7f %.7f
 terra121.commands.terra.xy=x y: %.7f %.7f
 terra121.commands.terra.environment=%.1f °C; %.1f mm/yr; soil id: %d
