@@ -7,6 +7,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,17 +34,19 @@ public class OpenStreetMaps {
     private static final String OVERPASS_INSTANCE = "https://overpass-api.de";//"https://overpass.kumi.systems";
     private static final String URL_PREFACE = TerraConfig.serverOverpass + "/api/interpreter?data=[out:json];way(";
     private String URL_A = ")";
-    private static final String URL_B = ")%20tags%20qt;(._<;);out%20body%20qt;";
+    private static final String URL_B = "%20tags%20qt;(._<;);out%20body%20qt;";
     private static final String URL_C = "is_in(";
     private String URL_SUFFIX = ");area._[~\"natural|waterway\"~\"water|riverbank\"];out%20ids;";
 
     private HashMap<Coord, Set<Edge>> chunks;
+    private HashMap<Coord, Set<Building>> chunksBuildings;
     public LinkedHashMap<Coord, Region> regions;
     public Water water;
 
     private int numcache = TerraConfig.osmCacheSize;
 
     private ArrayList<Edge> allEdges;
+    private Set<Building> allBuildings;
 
     private Gson gson;
 
@@ -71,8 +74,10 @@ public class OpenStreetMaps {
 
     public OpenStreetMaps(GeographicProjection proj, boolean doRoad, boolean doWater, boolean doBuildings) {
         gson = new GsonBuilder().create();
-        chunks = new LinkedHashMap<Coord, Set<Edge>>();
+        chunks = new LinkedHashMap<>();
+        chunksBuildings = new LinkedHashMap<>();
         allEdges = new ArrayList<Edge>();
+        allBuildings = new HashSet<>();
         regions = new LinkedHashMap<Coord, Region>();
         projection = proj;
         try {
@@ -89,7 +94,7 @@ public class OpenStreetMaps {
         if (!doBuildings) URL_A += "[!\"building\"]";
         if (!doRoad) URL_A += "[!\"highway\"]";
         if (!doWater) URL_A += "[!\"water\"][!\"natural\"][!\"waterway\"]";
-        URL_A += ";out%20geom(";
+        URL_A += ";out%20geom";
     }
 
     public Coord getRegion(double lon, double lat) {
@@ -112,6 +117,24 @@ public class OpenStreetMaps {
             return null;
 
         return chunks.get(coord);
+    }
+
+    public Set<Building> chunkBuildings(int x, int z) {
+        Coord coord = new Coord(x, z);
+
+        if (regionCache(projection.toGeo(x * CHUNK_SIZE, z * CHUNK_SIZE)) == null)
+            return null;
+
+        if (regionCache(projection.toGeo((x + 1) * CHUNK_SIZE, z * CHUNK_SIZE)) == null)
+            return null;
+
+        if (regionCache(projection.toGeo((x + 1) * CHUNK_SIZE, (z + 1) * CHUNK_SIZE)) == null)
+            return null;
+
+        if (regionCache(projection.toGeo(x * CHUNK_SIZE, (z + 1) * CHUNK_SIZE)) == null)
+            return null;
+
+        return chunksBuildings.get(coord);
     }
 
     public Region regionCache(double[] corner) {
@@ -159,7 +182,7 @@ public class OpenStreetMaps {
             String bottomleft = Y + "," + X;
             String bbox = bottomleft + "," + (Y + TILE_SIZE) + "," + (X + TILE_SIZE);
 
-            String urltext = URL_PREFACE + bbox + URL_A + bbox + URL_B;
+            String urltext = URL_PREFACE + bbox + URL_A /*+ bbox */+ URL_B;
             if (doWater) urltext += URL_C + bottomleft + URL_SUFFIX;
 
             TerraMod.LOGGER.info(urltext);
@@ -194,6 +217,10 @@ public class OpenStreetMaps {
         for (Edge e : allEdges)
             relevantChunks(lowX, lowZ, highX, highZ, e);
         allEdges.clear();
+
+        for (Building b : allBuildings)
+            relevantChunks(b);
+        allBuildings.clear();
 
         return true;
     }
@@ -240,8 +267,10 @@ public class OpenStreetMaps {
 
                 if (naturalv != null && naturalv.equals("coastline")) {
                     waterway(elem, -1, region, null);
+                } else if (building != null) {
+                    allBuildings.add(new Building(elem, allWays).projectFromGeo(projection));
                 } else if (highway != null || (waterway != null && (waterway.equals("river") ||
-                        waterway.equals("canal") || waterway.equals("stream"))) || building != null) { //TODO: fewer equals
+                        waterway.equals("canal") || waterway.equals("stream")))) { //TODO: fewer equals
 
                     Type type = Type.ROAD;
 
@@ -251,8 +280,6 @@ public class OpenStreetMaps {
                             type = Type.RIVER;
 
                     }
-
-                    if (building != null) type = Type.BUILDING;
 
                     if (istunnel != null && istunnel.equals("yes")) {
 
@@ -366,16 +393,8 @@ public class OpenStreetMaps {
                         continue;
                     }
                 }
-                if(doBuildings && elem.tags.get("building")!=null) {
-                    for (Member member : elem.members) {
-                        if (member.type == EType.way) {
-                            Element way = allWays.get(member.ref);
-                            if (way != null) {
-                                addWay(way, Type.BUILDING, (byte) 1, region, Attributes.NONE, (byte) 0);
-                                unusedWays.remove(way);
-                            }
-                        }
-                    }
+                if(doBuildings && elem.tags.get("building") != null) {
+                    allBuildings.add(new Building(elem, allWays).projectFromGeo(projection));
                 }
 
             } else if (elem.type == EType.area) {
@@ -466,12 +485,28 @@ public class OpenStreetMaps {
         }
     }
 
-    private void assoiateWithChunk(Coord c, Edge edge) {
-        Set<Edge> list = chunks.get(c);
-        if (list == null) {
-            list = new HashSet<Edge>();
-            chunks.put(c, list);
+    private void relevantChunks(Building building) {
+        int lowX = (int)Math.floor(building.minX() / CHUNK_SIZE);
+        int lowZ = (int)Math.floor(building.minZ() / CHUNK_SIZE);
+        int highX = (int)Math.ceil(building.maxX() / CHUNK_SIZE);
+        int highZ = (int)Math.ceil(building.maxZ() / CHUNK_SIZE);
+//        System.out.println("relevantChunks(" + building + ") -> l: " + lowX + ", " + lowZ + "; h: " + highX + ", " + highZ);
+        // There's probably an error if this one building is relevant to 100+ chunks.
+//        if ((highX - lowX) * (highZ - lowZ) > 100) return;
+        for (int x = lowX; x < highX; x++) {
+            for (int z = lowZ; z < highZ; z++) {
+                assoiateWithChunk(new Coord(x, z), building);
+            }
         }
+    }
+
+    private void assoiateWithChunk(Coord c, Building building) {
+        Set<Building> list = chunksBuildings.computeIfAbsent(c, k -> new HashSet<Building>());
+        list.add(building);
+    }
+
+    private void assoiateWithChunk(Coord c, Edge edge) {
+        Set<Edge> list = chunks.computeIfAbsent(c, k -> new HashSet<Edge>());
         list.add(edge);
     }
 
@@ -599,20 +634,38 @@ public class OpenStreetMaps {
         EType type;
         long ref;
         String role;
+
+        Element element;
     }
 
     public static class Geometry {
-        double lat;
-        double lon;
+        public double lat;
+        public double lon;
+
+        public Geometry(){}
+
+        public Geometry(double lat, double lon) {
+            this.lat = lat;
+            this.lon = lon;
+        }
     }
 
     public static class Element {
-        EType type;
-        long id;
-        Map<String, String> tags;
-        long[] nodes;
-        Member[] members;
-        Geometry[] geometry;
+        public EType type;
+        public long id;
+        public Map<String, String> tags;
+        public long[] nodes;
+        public Member[] members;
+        public Geometry[] geometry;
+
+        @Override
+        public String toString() {
+            return type + "{" +
+                    "id=" + id +
+                    ", tags=" + tags +
+                    ", geometry=" + Arrays.toString(geometry) +
+                    '}';
+        }
     }
 
     public static class Data {
