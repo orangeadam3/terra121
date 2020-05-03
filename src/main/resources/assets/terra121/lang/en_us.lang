@@ -10,7 +10,7 @@ terra121.gui.roads=Spawn Roads
 terra121.gui.smoothblend=Smooth Blending
 terra121.gui.dynamicbaseheight=Elevation Based Ores
 terra121.gui.osmwater=Advanced Water (experimental)
-terra121.gui.buildings=OSM Building Outlines
+terra121.gui.buildings=OSM Building Shells
 
 terra121.gui.biomemap=Debug Map
 
