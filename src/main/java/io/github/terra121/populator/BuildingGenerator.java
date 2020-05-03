@@ -22,6 +22,7 @@ import java.util.Set;
 
 public class BuildingGenerator implements ICubicStructureGenerator {
     public static final IBlockState FOUNDATION = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
+    public static final IBlockState ROOF = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.BLACK);
     public static final IBlockState WALLS = Blocks.BRICK_BLOCK.getDefaultState();
 
     private OpenStreetMaps osm;
@@ -57,20 +58,25 @@ public class BuildingGenerator implements ICubicStructureGenerator {
             if (maxY < chunkPosition.getMinBlockY()) continue;
             if (minY > chunkPosition.getMaxBlockY()) continue;
 
-            // Foundation and set air above
+            // Foundation, roof, and clear area of building
             for (int x = Math.max(minX, chunkPosition.getMinBlockX()); x <= Math.min(maxX, chunkPosition.getMaxBlockX()); x++) {
                 for (int z = Math.max(minZ, chunkPosition.getMinBlockZ()); z <= Math.min(maxZ, chunkPosition.getMaxBlockZ()); z++) {
                     if (building.contains(x, z)) {
+                        // Foundation
                         if (minY >= chunkPosition.getMinBlockY())
                             cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), minY - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), FOUNDATION);
+                        // Air
                         for (int y = Math.max(minY + 1, chunkPosition.getMinBlockY()); y <= Math.min(maxY+3, chunkPosition.getMaxBlockY()); y++)
                             if (cubePrimer.getBlockState(x - chunkPosition.getMinBlockX(), y - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ()) != WALLS)
                                 cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), y - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), Blocks.AIR.getDefaultState());
+                            // Roof
+                        if (maxY-1 <= chunkPosition.getMaxBlockY())
+                            cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), maxY-1 - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), ROOF);
                     }
                 }
             }
 
-            // Walls
+            // Walls (done afterward so it overwrites the edge of the roof)
             for (int y = Math.max(minY, chunkPosition.getMinBlockY()); y <= Math.min(maxY, chunkPosition.getMaxBlockY()); y++) {
                 for (Polygon p : building.outerPolygons) {
                     OpenStreetMaps.Geometry last = p.vertices[0];
