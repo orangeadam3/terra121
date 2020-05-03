@@ -55,6 +55,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     private CustomGeneratorSettings cubiccfg;
     private Set<ICubicPopulator> surfacePopulators;
     private Map<Biome, ICubicPopulator> biomePopulators;
+    private BuildingGenerator buildingGenerator;
     private CubicCaveGenerator caveGenerator;
     private SnowPopulator snow;
 	public EarthGeneratorSettings cfg;
@@ -83,7 +84,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         
         surfacePopulators = new HashSet<ICubicPopulator>();
         if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
-        if(doBuildings || cfg.settings.buildings)surfacePopulators.add(new BuildingGenerator(osm, heights, projection));
+        if(doBuildings || cfg.settings.buildings) buildingGenerator = new BuildingGenerator(osm, heights, projection);
         surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
 
@@ -214,6 +215,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         }
         
         caveGenerator.generate(world, primer, new CubePos(cubeX, cubeY, cubeZ));
+        buildingGenerator.generate(world, primer, new CubePos(cubeX, cubeY, cubeZ));
 
         //spawn roads
         if((doRoads || doBuildings || cfg.settings.osmwater) && surface) {
@@ -291,7 +293,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         /**
          * If event is not canceled we will use cube populators from registry.
          **/
-        //if (!MinecraftForge.EVENT_BUS.post(new CubePopulatorEvent(world, cube))) {
+        if (!MinecraftForge.EVENT_BUS.post(new CubePopulatorEvent(world, cube))) {
             Random rand = Coords.coordsSeedRandom(world.getSeed(), cube.getX(), cube.getY(), cube.getZ());
             
             Biome biome = cube.getBiome(Coords.getCubeCenter(cube));
@@ -318,7 +320,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
             MinecraftForge.EVENT_BUS.post(new PopulateCubeEvent.Post(world, rand, cube.getX(), cube.getY(), cube.getZ(), false));
             CubeGeneratorsRegistry.generateWorld(world, rand, pos, biome);
-        //}
+        }
     }
 
     //TODO: so inefficient but it's the best i could think of, short of caching this state by coords
