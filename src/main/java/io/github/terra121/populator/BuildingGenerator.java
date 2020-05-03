@@ -21,8 +21,8 @@ import java.util.Random;
 import java.util.Set;
 
 public class BuildingGenerator implements ICubicStructureGenerator {
-    private static final IBlockState FOUNDATION = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
-    private static final IBlockState WALLS = Blocks.BRICK_BLOCK.getDefaultState();
+    public static final IBlockState FOUNDATION = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
+    public static final IBlockState WALLS = Blocks.BRICK_BLOCK.getDefaultState();
 
     private OpenStreetMaps osm;
     private Heights heights;
@@ -63,7 +63,7 @@ public class BuildingGenerator implements ICubicStructureGenerator {
                     if (building.contains(x, z)) {
                         if (minY >= chunkPosition.getMinBlockY())
                             cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), minY - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), FOUNDATION);
-                        for (int y = Math.max(minY, chunkPosition.getMinBlockY()); y <= Math.min(maxY+3, chunkPosition.getMaxBlockY()); y++)
+                        for (int y = Math.max(minY + 1, chunkPosition.getMinBlockY()); y <= Math.min(maxY+3, chunkPosition.getMaxBlockY()); y++)
                             if (cubePrimer.getBlockState(x - chunkPosition.getMinBlockX(), y - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ()) != WALLS)
                                 cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), y - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), Blocks.AIR.getDefaultState());
                     }
