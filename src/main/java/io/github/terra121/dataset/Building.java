@@ -276,41 +276,45 @@ public class Building {
         return this;
     }
 
+    private int _minX = Integer.MAX_VALUE;
     public int minX() {
-        int min = Integer.MAX_VALUE;
+        if (_minX != Integer.MAX_VALUE) return _minX;
         for (Polygon p : outerPolygons) {
             int minX = p.minX();
-            if (minX < min)
-                min = minX;
+            if (minX < _minX)
+                _minX = minX;
         }
-        return min;
+        return _minX;
     }
+    private int _minZ = Integer.MAX_VALUE;
     public int minZ() {
-        int min = Integer.MAX_VALUE;
+        if (_minZ != Integer.MAX_VALUE) return _minZ;
         for (Polygon p : outerPolygons) {
             int minZ = p.minZ();
-            if (minZ < min)
-                min = minZ;
+            if (minZ < _minZ)
+                _minZ = minZ;
         }
-        return min;
+        return _minZ;
     }
+    private int _maxX = Integer.MIN_VALUE;
     public int maxX() {
-        int max = Integer.MIN_VALUE;
+        if (_maxX != Integer.MIN_VALUE) return _maxX;
         for (Polygon p : outerPolygons) {
             int maxX = p.maxX();
-            if (maxX > max)
-                max = maxX;
+            if (maxX > _maxX)
+                _maxX = maxX;
         }
-        return max;
+        return _maxX;
     }
+    private int _maxZ = Integer.MIN_VALUE;
     public int maxZ() {
-        int max = Integer.MIN_VALUE;
+        if (_maxZ != Integer.MIN_VALUE) return _maxZ;
         for (Polygon p : outerPolygons) {
             int maxZ = p.maxZ();
-            if (maxZ > max)
-                max = maxZ;
+            if (maxZ > _maxZ)
+                _maxZ = maxZ;
         }
-        return max;
+        return _maxZ;
     }
 
     public void calculateHeights(Heights heights, GeographicProjection projection) {

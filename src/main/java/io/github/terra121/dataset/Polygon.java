@@ -36,36 +36,40 @@ public class Polygon {
         return this;
     }
 
+    private int _minX = Integer.MAX_VALUE;
     public int minX() {
-        int min = Integer.MAX_VALUE;
+        if (_minX != Integer.MAX_VALUE) return _minX;
         for (OpenStreetMaps.Geometry g : vertices) {
-            if (g.lon < min)
-                min = (int)g.lon;
+            if (g.lon < _minX)
+                _minX = (int)g.lon;
         }
-        return min;
+        return _minX;
     }
+    private int _minZ = Integer.MAX_VALUE;
     public int minZ() {
-        int min = Integer.MAX_VALUE;
+        if (_minZ != Integer.MAX_VALUE) return _minZ;
         for (OpenStreetMaps.Geometry g : vertices) {
-            if (g.lat < min)
-                min = (int)g.lat;
+            if (g.lat < _minZ)
+                _minZ = (int)g.lat;
         }
-        return min;
+        return _minZ;
     }
+    private int _maxX = Integer.MIN_VALUE;
     public int maxX() {
-        int max = Integer.MIN_VALUE;
+        if (_maxX != Integer.MIN_VALUE) return _maxX;
         for (OpenStreetMaps.Geometry g : vertices) {
-            if (g.lon > max)
-                max = (int)g.lon;
+            if (g.lon > _maxX)
+                _maxX = (int)g.lon;
         }
-        return max;
+        return _maxX;
     }
+    private int _maxZ = Integer.MIN_VALUE;
     public int maxZ() {
-        int max = Integer.MIN_VALUE;
+        if (_maxZ != Integer.MIN_VALUE) return _maxZ;
         for (OpenStreetMaps.Geometry g : vertices) {
-            if (g.lat > max)
-                max = (int)g.lat;
+            if (g.lat > _maxZ)
+                _maxZ = (int)g.lat;
         }
-        return max;
+        return _maxZ;
     }
 }
