@@ -1,5 +1,7 @@
 package io.github.terra121.dataset;
 
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
+import io.github.opencubicchunks.cubicchunks.api.worldgen.CubePrimer;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.BlockColored;
 import net.minecraft.block.state.IBlockState;
@@ -13,6 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 public class Building {
+    public static final IBlockState FOUNDATION = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
+    public static final IBlockState ROOF = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
+    public static final IBlockState WALLS = Blocks.BRICK_BLOCK.getDefaultState();
+
     public Polygon[] outerPolygons;
     public Polygon[] innerPolygons;
 
@@ -117,6 +123,146 @@ public class Building {
                 if (p.isInside(x, z))
                     inside = false;
         return inside;
+    }
+
+    public void placeIntoChunk(World world, CubePrimer cubePrimer, CubePos chunkPosition, Heights heights, GeographicProjection projection) {
+        if (!hasCalculatedHeights)
+            calculateHeights(heights, projection);
+        int minX = minX();
+        int minZ = minZ();
+        int maxX = maxX();
+        int maxZ = maxZ();
+        int minY;
+        int maxY;
+        if (minHeight != 0) {
+            minY = (int)heightOfLowestCorner + minHeight;
+            maxY = minY + (height - minHeight);
+        } else {
+            minY = (int) heightOfLowestCorner;
+            maxY = (int) Math.max(heightOfHighestCorner, minY + height);
+        }
+        if (maxY < chunkPosition.getMinBlockY()) return;
+        if (minY > chunkPosition.getMaxBlockY()) return;
+
+        // Foundation, roof, and clear area of building
+        for (int x = Math.max(minX, chunkPosition.getMinBlockX()); x <= Math.min(maxX, chunkPosition.getMaxBlockX()); x++) {
+            for (int z = Math.max(minZ, chunkPosition.getMinBlockZ()); z <= Math.min(maxZ, chunkPosition.getMaxBlockZ()); z++) {
+                if (contains(x, z)) {
+                    // Foundation
+                    if (minY >= chunkPosition.getMinBlockY())
+                        cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), minY - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), FOUNDATION);
+                    // Air
+                    for (int y = Math.max(minY + 1, chunkPosition.getMinBlockY()); y <= Math.min(maxY+3, chunkPosition.getMaxBlockY()); y++)
+                        if (cubePrimer.getBlockState(x - chunkPosition.getMinBlockX(), y - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ()) != WALLS)
+                            cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), y - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), Blocks.AIR.getDefaultState());
+                    // Roof
+                    if (maxY <= chunkPosition.getMaxBlockY())
+                        cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), maxY - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), ROOF);
+                }
+            }
+        }
+
+        // Walls (done afterward so it overwrites the edge of the roof)
+        for (int y = Math.max(minY, chunkPosition.getMinBlockY()); y <= Math.min(maxY, chunkPosition.getMaxBlockY()); y++) {
+            for (Polygon p : outerPolygons) {
+                OpenStreetMaps.Geometry last = p.vertices[0];
+                for (int i = 1; i < p.vertices.length; i++) {
+                    OpenStreetMaps.Geometry current = p.vertices[i];
+                    placeLine(cubePrimer, (int)last.lon, y, (int)last.lat, (int)current.lon, y, (int)current.lat, WALLS, chunkPosition);
+                    last = current;
+                }
+            }
+            if (innerPolygons != null)
+                for (Polygon p : innerPolygons) {
+                    OpenStreetMaps.Geometry last = p.vertices[0];
+                    for (int i = 1; i < p.vertices.length; i++) {
+                        OpenStreetMaps.Geometry current = p.vertices[i];
+                        placeLine(cubePrimer, (int)last.lon, y, (int)last.lat, (int)current.lon, y, (int)current.lat, WALLS, chunkPosition);
+                        last = current;
+                    }
+                }
+        }
+    }
+
+    private void placeLine(CubePrimer cubePrimer, int x0, int y0, int z0, int x1, int y1, int z1, IBlockState block, CubePos cube) {
+        int dx = Math.abs(x1 - x0);
+        int dy = Math.abs(y1 - y0);
+        int dz = Math.abs(z1 - z0);
+        int stepX = x0 < x1 ? 1 : -1;
+        int stepY = y0 < y1 ? 1 : -1;
+        int stepZ = z0 < z1 ? 1 : -1;
+        double hypotenuse = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2) + Math.pow(dz, 2));
+        double tMaxX = hypotenuse*0.5 / dx;
+        double tMaxY = hypotenuse*0.5 / dy;
+        double tMaxZ = hypotenuse*0.5 / dz;
+        double tDeltaX = hypotenuse / dx;
+        double tDeltaY = hypotenuse / dy;
+        double tDeltaZ = hypotenuse / dz;
+        while (x0 != x1 || y0 != y1 || z0 != z1){
+            if (tMaxX < tMaxY) {
+                if (tMaxX < tMaxZ) {
+                    x0 = x0 + stepX;
+                    tMaxX = tMaxX + tDeltaX;
+                }
+                else if (tMaxX > tMaxZ){
+                    z0 = z0 + stepZ;
+                    tMaxZ = tMaxZ + tDeltaZ;
+                }
+                else{
+                    x0 = x0 + stepX;
+                    tMaxX = tMaxX + tDeltaX;
+                    z0 = z0 + stepZ;
+                    tMaxZ = tMaxZ + tDeltaZ;
+                }
+            }
+            else if (tMaxX > tMaxY){
+                if (tMaxY < tMaxZ) {
+                    y0 = y0 + stepY;
+                    tMaxY = tMaxY + tDeltaY;
+                }
+                else if (tMaxY > tMaxZ){
+                    z0 = z0 + stepZ;
+                    tMaxZ = tMaxZ + tDeltaZ;
+                }
+                else{
+                    y0 = y0 + stepY;
+                    tMaxY = tMaxY + tDeltaY;
+                    z0 = z0 + stepZ;
+                    tMaxZ = tMaxZ + tDeltaZ;
+
+                }
+            }
+            else{
+                if (tMaxY < tMaxZ) {
+                    y0 = y0 + stepY;
+                    tMaxY = tMaxY + tDeltaY;
+                    x0 = x0 + stepX;
+                    tMaxX = tMaxX + tDeltaX;
+                }
+                else if (tMaxY > tMaxZ){
+                    z0 = z0 + stepZ;
+                    tMaxZ = tMaxZ + tDeltaZ;
+                }
+                else{
+                    x0 = x0 + stepX;
+                    tMaxX = tMaxX + tDeltaX;
+                    y0 = y0 + stepY;
+                    tMaxY = tMaxY + tDeltaY;
+                    z0 = z0 + stepZ;
+                    tMaxZ = tMaxZ + tDeltaZ;
+
+                }
+            }
+            if (
+                    x0 >= cube.getMinBlockX() &&
+                            x0 <= cube.getMaxBlockX() &&
+                            y0 >= cube.getMinBlockY() &&
+                            y0 <= cube.getMaxBlockY() &&
+                            z0 >= cube.getMinBlockZ() &&
+                            z0 <= cube.getMaxBlockZ()
+            )
+                cubePrimer.setBlockState(x0 - cube.getMinBlockX(), y0 - cube.getMinBlockY(), z0 - cube.getMinBlockZ(), block);
+        }
     }
 
     public Building projectFromGeo(GeographicProjection projection) {
