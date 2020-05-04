@@ -8,6 +8,7 @@ import java.util.function.Function;
 
 import javax.imageio.ImageIO;
 
+import io.github.terra121.dataset.OpenStreetMaps;
 import org.apache.commons.io.IOUtils;
 
 import io.github.terra121.EarthGeneratorSettings;
@@ -65,7 +66,7 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 						toggleButton(6966, "roads", null),
 						toggleButton(6965, "osmwater", null),
 						toggleButton(6964, "dynamicbaseheight", null),
-						toggleButton(6963, "buildings", null),
+						cycleButton(6963, "buildings", OpenStreetMaps.BuildingGenerationType.values(), e -> I18n.format("terra121.buildings." + e.toString().toLowerCase())),
 		};
 		projectMap(false);
 	}

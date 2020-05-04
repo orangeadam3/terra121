@@ -57,6 +57,10 @@ public class OpenStreetMaps {
         // ranges from minor to freeway for roads, use road if not known
     }
 
+    public static enum BuildingGenerationType {
+        NONE, OUTLINES, SHELLS
+    }
+
     public static enum Attributes {
         ISBRIDGE, ISTUNNEL, NONE
     }
@@ -70,9 +74,9 @@ public class OpenStreetMaps {
 
     boolean doRoad;
     boolean doWater;
-    boolean doBuildings;
+    BuildingGenerationType buildingGenerationType;
 
-    public OpenStreetMaps(GeographicProjection proj, boolean doRoad, boolean doWater, boolean doBuildings) {
+    public OpenStreetMaps(GeographicProjection proj, boolean doRoad, boolean doWater, BuildingGenerationType buildingGenerationType) {
         gson = new GsonBuilder().create();
         chunks = new LinkedHashMap<>();
         chunksBuildings = new LinkedHashMap<>();
@@ -89,9 +93,9 @@ public class OpenStreetMaps {
 
         this.doRoad = doRoad;
         this.doWater = doWater;
-        this.doBuildings = doBuildings;
+        this.buildingGenerationType = buildingGenerationType;
 
-        if (!doBuildings) URL_A += "[!\"building\"]";
+        if (buildingGenerationType == BuildingGenerationType.NONE) URL_A += "[!\"building\"]";
         if (!doRoad) URL_A += "[!\"highway\"]";
         if (!doWater) URL_A += "[!\"water\"][!\"natural\"][!\"waterway\"]";
         URL_A += ";out%20geom";
@@ -261,16 +265,16 @@ public class OpenStreetMaps {
                     isbridge = elem.tags.get("bridge");
                 }
 
-                if (doBuildings) {
+                if (buildingGenerationType != BuildingGenerationType.NONE) {
                     building = elem.tags.get("building");
                 }
 
                 if (naturalv != null && naturalv.equals("coastline")) {
                     waterway(elem, -1, region, null);
-                } else if (building != null) {
+                } else if (building != null && buildingGenerationType == BuildingGenerationType.SHELLS) {
                     allBuildings.add(new Building(elem, allWays).projectFromGeo(projection));
                 } else if (highway != null || (waterway != null && (waterway.equals("river") ||
-                        waterway.equals("canal") || waterway.equals("stream")))) { //TODO: fewer equals
+                        waterway.equals("canal") || waterway.equals("stream"))) || building != null) { //TODO: fewer equals
 
                     Type type = Type.ROAD;
 
@@ -280,6 +284,8 @@ public class OpenStreetMaps {
                             type = Type.RIVER;
 
                     }
+
+                    if (building != null) type = Type.BUILDING;
 
                     if (istunnel != null && istunnel.equals("yes")) {
 
@@ -393,7 +399,18 @@ public class OpenStreetMaps {
                         continue;
                     }
                 }
-                if(doBuildings && elem.tags.get("building") != null) {
+                if(buildingGenerationType == BuildingGenerationType.OUTLINES && elem.tags.get("building") != null) {
+                    for (Member member : elem.members) {
+                        if (member.type == EType.way) {
+                            Element way = allWays.get(member.ref);
+                            if (way != null) {
+                                addWay(way, Type.BUILDING, (byte) 1, region, Attributes.NONE, (byte) 0);
+                                unusedWays.remove(way);
+                            }
+                        }
+                    }
+                }
+                if(buildingGenerationType == BuildingGenerationType.SHELLS && elem.tags.get("building") != null) {
                     allBuildings.add(new Building(elem, allWays).projectFromGeo(projection));
                 }
 
