@@ -216,6 +216,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         
         caveGenerator.generate(world, primer, new CubePos(cubeX, cubeY, cubeZ));
 
+        if (buildingGenerator != null)
         buildingGenerator.generate(world, primer, new CubePos(cubeX, cubeY, cubeZ));
 
         //spawn roads
