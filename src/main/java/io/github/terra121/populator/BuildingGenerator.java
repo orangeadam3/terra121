@@ -22,7 +22,7 @@ import java.util.Set;
 
 public class BuildingGenerator implements ICubicStructureGenerator {
     public static final IBlockState FOUNDATION = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
-    public static final IBlockState ROOF = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.BLACK);
+    public static final IBlockState ROOF = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
     public static final IBlockState WALLS = Blocks.BRICK_BLOCK.getDefaultState();
 
     private OpenStreetMaps osm;
@@ -69,9 +69,9 @@ public class BuildingGenerator implements ICubicStructureGenerator {
                         for (int y = Math.max(minY + 1, chunkPosition.getMinBlockY()); y <= Math.min(maxY+3, chunkPosition.getMaxBlockY()); y++)
                             if (cubePrimer.getBlockState(x - chunkPosition.getMinBlockX(), y - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ()) != WALLS)
                                 cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), y - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), Blocks.AIR.getDefaultState());
-                            // Roof
-                        if (maxY-1 <= chunkPosition.getMaxBlockY())
-                            cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), maxY-1 - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), ROOF);
+                        // Roof
+                        if (maxY <= chunkPosition.getMaxBlockY())
+                            cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), maxY - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), ROOF);
                     }
                 }
             }
