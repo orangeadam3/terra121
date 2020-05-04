@@ -1,5 +1,6 @@
 package io.github.terra121.dataset;
 
+import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.terra121.TerraMod;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.Block;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 import static io.github.terra121.populator.VectorPathGenerator.bound;
+
 /**
  * dataset.Pathway holds most of the nessisary methods and classes to
  * generate pathways using 3 dimentional vectors (Vec3d). Generating pathways with
@@ -33,7 +35,7 @@ import static io.github.terra121.populator.VectorPathGenerator.bound;
  * as in populator.RoadGenerator is by using Pathway.VectorPathFromEdge().
  * There are a lot of "space saving" classes and methods, but I mainly use them to make sure the
  * more surface code is easier to read and understand.<br>
- * If you don't understand something, don't hessitate to reach out to me (the same goes for all VectorPath generation stuff):
+ * If you don't understand something, don't hesitate to reach out to me (the same goes for all VectorPath generation stuff):
  * taeko-chan on Github
  * taeko#4924 on Discord
  */
@@ -49,13 +51,16 @@ public class Pathway {
     private static final IBlockState WOOD = Blocks.PLANKS.getDefaultState();
     private static final IBlockState CONCRETE = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
     private static final IBlockState COBBLE = Blocks.COBBLESTONE.getDefaultState();
+    // roof and walls for buildings by AidanLovelace
+    public static final IBlockState ROOF = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
+    public static final IBlockState WALLS = Blocks.BRICK_BLOCK.getDefaultState();
 
     // CLASS METHODS
 
     /**
      * Calculates width of a road based on number of lanes and OSM type. Returns the width as double.
      */
-    public static double pathWidth(int l, OpenStreetMaps.Type c) {
+    private static double pathWidth(int l, OpenStreetMaps.Type c) {
         double width = 2;
         switch (c) {
             case MINOR:
@@ -84,7 +89,7 @@ public class Pathway {
         return width / 2;
     }
 
-    public static BiFunction<Double, BlockPos, IBlockState> getMaterial(OpenStreetMaps.Surface s) {
+    private static BiFunction<Double, BlockPos, IBlockState> getMaterial(OpenStreetMaps.Surface s) {
 
         switch (s) {
             case ASPHALT:
@@ -109,7 +114,7 @@ public class Pathway {
     /**
      * Get length of way
      * */
-    public static double distanceAlong(List<Double> latG, List<Double> lonG, GeographicProjection p) {
+    private static double distanceAlong(List<Double> latG, List<Double> lonG, GeographicProjection p) {
 
         double dist = 0;
 
@@ -149,7 +154,7 @@ public class Pathway {
         return dist;
     }
 
-    public static int relativeHeight(double x1, double z1, double x2, double z2, List<Double> pointsX,
+    private static int relativeHeight(double x1, double z1, double x2, double z2, List<Double> pointsX,
                                      List<Double> pointsZ, double y1, double y2, GeographicProjection projection, double x, double z) {
 
         // height within cube (0-16)
@@ -159,7 +164,7 @@ public class Pathway {
 
     }
 
-    public static int absoluteHeight(double x1, double z1, double x2, double z2, List<Double> pointsX,
+    private static int absoluteHeight(double x1, double z1, double x2, double z2, List<Double> pointsX,
                                      List<Double> pointsZ, double y1, double y2, GeographicProjection projection, double x, double z) {
 
         // get distance from (x,y,z)1 to (x,y,z)2
@@ -181,6 +186,64 @@ public class Pathway {
 
         return (int) exactY;
 
+    }
+
+    /**
+     * Place simple one block wide path. Intended for buildings, as the material will be brick.
+     * */
+    private static void doBuildings(CubePos cubePos, OpenStreetMaps.Edge e, GeographicProjection projection, Heights heights, World world) {
+
+        int cubeX = cubePos.getX();
+        int cubeY = cubePos.getY();
+        int cubeZ = cubePos.getZ();
+
+        double start = e.slon;
+        double end = e.elon;
+
+        if (start > end) {
+            double tmp = start;
+            start = end;
+            end = tmp;
+        }
+
+        int sx = (int) Math.floor(start) - cubeX * 16;
+        int ex = (int) Math.floor(end) - cubeX * 16;
+
+        if (ex >= 16) ex = 16 - 1;
+
+        for (int x = Math.max(sx, 0); x <= ex; x++) {
+            double realx = (x + cubeX * 16);
+            if (realx < start)
+                realx = start;
+
+            double nextx = realx + 1;
+            if (nextx > end)
+                nextx = end;
+
+            int from = (int) Math.floor((e.slope * realx + e.offset)) - cubeZ * 16;
+            int to = (int) Math.floor((e.slope * nextx + e.offset)) - cubeZ * 16;
+
+            if (from > to) {
+                int tmp = from;
+                from = to;
+                to = tmp;
+            }
+
+            if (to >= 16) to = 16 - 1;
+
+            for (int z = Math.max(from, 0); z <= to; z++) {
+
+                double[] geo = projection.toGeo(x + cubeX * (16), z + cubeZ * (16));
+                int y = (int) Math.floor(heights.estimateLocal(geo[0], geo[1])) - cubeY * 16;
+
+                if (y >= 0 && y < 16) {
+
+                    BlockPos b = new BlockPos(x, y, z);
+                    world.setBlockState(b, Blocks.BRICK_BLOCK.getDefaultState());
+
+                }
+            }
+        }
     }
 
     /**
@@ -317,7 +380,8 @@ public class Pathway {
 
                             // override y if tunnel or bridge
                             if (tunnel) {
-                                // lon lat
+
+                                // only clear up to 6 blocks above in tunnels (bridges too i guess, but when would that come up?)
                                 clearBlock = 6;
 
                                 try {
@@ -348,18 +412,8 @@ public class Pathway {
                                         heightIsTooHigh = heightCheck != null && actualHeight - heightCheck > 3;
 
                                 // prevent large jumps in height
-                                if (heightIsTooLow) {
-                                    actualHeight += heightCheck - actualHeight;
-                                }
-
-                                if (heightIsTooHigh) {
-                                    actualHeight -= actualHeight - heightCheck;
-                                }
-
-                                // set river 1 deeper into the ground, should prevent some flooding
-                                if (e.type == OpenStreetMaps.Type.RIVER || e.type == OpenStreetMaps.Type.STREAM){
-                                    actualHeight -= 1;
-                                }
+                                if (heightIsTooLow) actualHeight += heightCheck - actualHeight;
+                                if (heightIsTooHigh) actualHeight -= actualHeight - heightCheck;
 
                                 allY.add((double) actualHeight);
 
@@ -377,6 +431,7 @@ public class Pathway {
 
                                         } else {
 
+                                            // seriously if anyone has a better idea for this please let me know
                                             switch (e.surf) {
                                                 case ASPHALT:
                                                     asphalt.add(v);
@@ -414,11 +469,16 @@ public class Pathway {
                                     IBlockState defState = Blocks.AIR.getDefaultState();
 
                                     int ay = actualHeight + 1;
-                                    while (ay < actualHeight + clearBlock && world.getBlockState(new BlockPos(x + cubeX * 16, ay, z + cubeZ * 16)) != defState) {
+                                    while (ay < actualHeight + clearBlock &&
+                                            world.getBlockState(new BlockPos(x + cubeX * 16, ay, z + cubeZ * 16)) != defState &&
+                                            // don't overwrite buildings
+                                            world.getBlockState(new BlockPos(x + cubeX * 16, ay, z + cubeZ * 16)) != WALLS &&
+                                            world.getBlockState(new BlockPos(x + cubeX * 16, ay, z + cubeZ * 16)) != ROOF
+                                    ) {
                                         world.setBlockState(new BlockPos(x + cubeX * 16, ay, z + cubeZ * 16), defState);
                                         ay++;
                                     }
-
+                                    // doesn't work quite yet lol
                                     if (world.getBlockState(new BlockPos(superSecretCoords[1], 4355, superSecretCoords[0])).getBlock().getDefaultState()
                                             != Blocks.STANDING_SIGN.getDefaultState()) {
                                         Pathway.superSecretMethod(world, (int)superSecretCoords[1], 4355, (int)superSecretCoords[0]);
@@ -428,10 +488,10 @@ public class Pathway {
                         }
                     }
                 }
-            }
+            } else doBuildings(new CubePos(cubeX, cubeY, cubeZ), e, projection, heights, world);
         }
 
-        // todo this is horrible
+        // todo this is horrible however it keeps them from bleeding into eachother
         allPaths.add(new VectorPathGroup(evp));
         allPaths.add(new VectorPathGroup(waterway));
         allPaths.add(new VectorPathGroup(path));
@@ -553,10 +613,10 @@ public class Pathway {
             this.material = material;
             this.attribute = attribute;
             this.edge = e;
+
         }
 
     }
-
 
     public static class LatLon {
 
