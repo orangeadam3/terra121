@@ -84,7 +84,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         
         surfacePopulators = new HashSet<ICubicPopulator>();
         if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
-        if(buildingGenerationType != OpenStreetMaps.BuildingGenerationType.NONE) buildingGenerator = new BuildingGenerator(osm, heights, projection);
+        if(buildingGenerationType != OpenStreetMaps.BuildingGenerationType.NONE) buildingGenerator = new BuildingGenerator(osm, heights, projection, cfg.settings.buildingMaterialSetting);
         surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
 

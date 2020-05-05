@@ -4,20 +4,34 @@ import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.CubePrimer;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.BlockColored;
+import net.minecraft.block.BlockStone;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class Building {
-    public static final IBlockState FOUNDATION = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
-    public static final IBlockState ROOF = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
-    public static final IBlockState WALLS = Blocks.BRICK_BLOCK.getDefaultState();
+    public final IBlockState foundation = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
+    public final IBlockState roof = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
+
+    // Only affects walls
+    public static enum BuildingMaterial {
+        BRICK, // Standard bricks
+        STONE_BRICK, // Standard stone bricks
+        CONCRETE, // Plain silver concrete
+        OSM_BRICK, // Whatever OSM material but default to brick
+        OSM_STONE_BRICK, // Whatever OSM material but default to stone brick
+        OSM_CONCRETE, // Whatever OSM material but default to silver concrete
+        RANDOM_CONCRETE, // Random concrete colors (on a per building basis)
+        RANDOM_PLUS, // Random concrete colors plus wood, stone, etc
+        OSM_RANDOM_CONCRETE,  // Whatever OSM material but default to random concrete colors (on a per building basis)
+        OSM_RANDOM_PLUS  // Whatever OSM material but default to random concrete colors plus wood, stone, etc
+    }
 
     public Polygon[] outerPolygons;
     public Polygon[] innerPolygons;
@@ -25,6 +39,10 @@ public class Building {
     public boolean hasCalculatedHeights = false;
     public double heightOfLowestCorner;
     public double heightOfHighestCorner;
+
+    public boolean hasMaterial = false;
+    public IBlockState walls = Blocks.BRICK_BLOCK.getDefaultState();
+
 
     public OpenStreetMaps.Element element;
 
@@ -108,8 +126,6 @@ public class Building {
         } else {
             throw new IllegalArgumentException("Building Object constructor requires either a way or relation element");
         }
-
-
     }
 
     public boolean contains(int x, int z) {
@@ -125,7 +141,9 @@ public class Building {
         return inside;
     }
 
-    public void placeIntoChunk(World world, CubePrimer cubePrimer, CubePos chunkPosition, Heights heights, GeographicProjection projection) {
+    public void placeIntoChunk(World world, CubePrimer cubePrimer, CubePos chunkPosition, Heights heights, GeographicProjection projection, BuildingMaterial buildingMaterialSetting) {
+        if (!hasMaterial)
+            calculateMaterial(buildingMaterialSetting, world.rand);
         if (!hasCalculatedHeights)
             calculateHeights(heights, projection);
         int minX = minX();
@@ -150,14 +168,14 @@ public class Building {
                 if (contains(x, z)) {
                     // Foundation
                     if (minY >= chunkPosition.getMinBlockY())
-                        cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), minY - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), FOUNDATION);
+                        cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), minY - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), foundation);
                     // Air
                     for (int y = Math.max(minY + 1, chunkPosition.getMinBlockY()); y <= Math.min(maxY+3, chunkPosition.getMaxBlockY()); y++)
-                        if (cubePrimer.getBlockState(x - chunkPosition.getMinBlockX(), y - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ()) != WALLS)
+                        if (cubePrimer.getBlockState(x - chunkPosition.getMinBlockX(), y - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ()) != walls)
                             cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), y - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), Blocks.AIR.getDefaultState());
                     // Roof
-                    if (maxY <= chunkPosition.getMaxBlockY())
-                        cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), maxY - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), ROOF);
+                    if ((maxY - 1) <= chunkPosition.getMaxBlockY() && (maxY - 1) >= chunkPosition.getMinBlockY())
+                        cubePrimer.setBlockState(x - chunkPosition.getMinBlockX(), (maxY - 1) - chunkPosition.getMinBlockY(), z - chunkPosition.getMinBlockZ(), roof);
                 }
             }
         }
@@ -168,7 +186,7 @@ public class Building {
                 OpenStreetMaps.Geometry last = p.vertices[0];
                 for (int i = 1; i < p.vertices.length; i++) {
                     OpenStreetMaps.Geometry current = p.vertices[i];
-                    placeLine(cubePrimer, (int)last.lon, y, (int)last.lat, (int)current.lon, y, (int)current.lat, WALLS, chunkPosition);
+                    placeLine(cubePrimer, (int)last.lon, y, (int)last.lat, (int)current.lon, y, (int)current.lat, walls, chunkPosition);
                     last = current;
                 }
             }
@@ -177,14 +195,15 @@ public class Building {
                     OpenStreetMaps.Geometry last = p.vertices[0];
                     for (int i = 1; i < p.vertices.length; i++) {
                         OpenStreetMaps.Geometry current = p.vertices[i];
-                        placeLine(cubePrimer, (int)last.lon, y, (int)last.lat, (int)current.lon, y, (int)current.lat, WALLS, chunkPosition);
+                        placeLine(cubePrimer, (int)last.lon, y, (int)last.lat, (int)current.lon, y, (int)current.lat, walls, chunkPosition);
                         last = current;
                     }
                 }
         }
     }
 
-    private void placeLine(CubePrimer cubePrimer, int x0, int y0, int z0, int x1, int y1, int z1, IBlockState block, CubePos cube) {
+    private boolean placeLine(CubePrimer cubePrimer, int x0, int y0, int z0, int x1, int y1, int z1, IBlockState block, CubePos cube) {
+        boolean placedAnything = false;
         int dx = Math.abs(x1 - x0);
         int dy = Math.abs(y1 - y0);
         int dz = Math.abs(z1 - z0);
@@ -260,9 +279,12 @@ public class Building {
                             y0 <= cube.getMaxBlockY() &&
                             z0 >= cube.getMinBlockZ() &&
                             z0 <= cube.getMaxBlockZ()
-            )
+            ) {
                 cubePrimer.setBlockState(x0 - cube.getMinBlockX(), y0 - cube.getMinBlockY(), z0 - cube.getMinBlockZ(), block);
+                placedAnything = true;
+            }
         }
+        return placedAnything;
     }
 
     public Building projectFromGeo(GeographicProjection projection) {
@@ -271,8 +293,8 @@ public class Building {
         for (Polygon p : outerPolygons)
             p.projectFromGeo(projection);
         if (this.innerPolygons != null)
-        for (Polygon p : innerPolygons)
-            p.projectFromGeo(projection);
+            for (Polygon p : innerPolygons)
+                p.projectFromGeo(projection);
         return this;
     }
 
@@ -320,8 +342,7 @@ public class Building {
     public void calculateHeights(Heights heights, GeographicProjection projection) {
         double min = Double.MAX_VALUE;
         double max = Double.MIN_VALUE;
-        for (int i = 0; i < outerPolygons.length; i++) {
-            Polygon p = outerPolygons[i];
+        for (Polygon p : outerPolygons) {
             for (OpenStreetMaps.Geometry g : p.vertices) {
                 double[] geo = projection.toGeo(g.lon, g.lat);
                 double height = heights.estimateLocal(geo[0], geo[1]);
@@ -335,6 +356,114 @@ public class Building {
         this.heightOfHighestCorner = max;
 
         this.hasCalculatedHeights = true;
+    }
+
+    public IBlockState materialFromOSM(String material) {
+        switch (material) {
+            case "cement_block":
+            case "masonry":
+                return Blocks.STONEBRICK.getDefaultState();
+            case "plaster":
+                return Blocks.HARDENED_CLAY.getDefaultState();
+            case "brick":
+                return Blocks.BRICK_BLOCK.getDefaultState();
+            case "timber_framing":
+            case "wood":
+                return Blocks.PLANKS.getDefaultState();
+            case "concrete":
+                return Blocks.CONCRETE.getDefaultState();
+            case "glass":
+            case "mirror":
+                return Blocks.GLASS.getDefaultState();
+            case "stone":
+                return Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE_SMOOTH);
+            case "sand_cement_blocks":
+            case "sandstone":
+                return Blocks.SANDSTONE.getDefaultState();
+            case "limestone":
+                return Blocks.QUARTZ_BLOCK.getDefaultState();
+            case "steel":
+            case "metal":
+            case "metal_plates":
+                return Blocks.IRON_BLOCK.getDefaultState();
+            case "mud":
+            case "adobe":
+            case "rammedearth":
+                return Blocks.DIRT.getDefaultState();
+            case "plastic":
+            case "vinyl":
+            case "tiles":
+            default:
+                return null;
+        }
+    }
+
+    private static final ArrayList<IBlockState> randomPlusMaterials = new ArrayList<>();
+    static {
+        randomPlusMaterials.add(Blocks.STONEBRICK.getDefaultState());
+        randomPlusMaterials.add(Blocks.BRICK_BLOCK.getDefaultState());
+        randomPlusMaterials.add(Blocks.PLANKS.getDefaultState());
+        randomPlusMaterials.add(Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.ANDESITE_SMOOTH));
+        randomPlusMaterials.add(Blocks.SANDSTONE.getDefaultState());
+        randomPlusMaterials.add(Blocks.QUARTZ_BLOCK.getDefaultState());
+        randomPlusMaterials.add(Blocks.HARDENED_CLAY.getDefaultState());
+        for (EnumDyeColor color : EnumDyeColor.values()) {
+            randomPlusMaterials.add(Blocks.STAINED_HARDENED_CLAY.getDefaultState().withProperty(BlockColored.COLOR, color));
+            randomPlusMaterials.add(Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, color));
+        }
+    }
+
+    private void calculateMaterial(BuildingMaterial buildingMaterialSetting, Random rand) {
+        switch (buildingMaterialSetting) {
+            case BRICK:
+                walls = Blocks.BRICK_BLOCK.getDefaultState();
+                break;
+            case STONE_BRICK:
+                walls = Blocks.STONEBRICK.getDefaultState();
+                break;
+            case CONCRETE:
+                walls = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
+                break;
+            case OSM_BRICK: {
+                if (!element.tags.containsKey("building:material") || (walls = materialFromOSM(element.tags.get("building:material"))) == null) {
+                    walls = Blocks.BRICK_BLOCK.getDefaultState();
+                }
+                break;
+            }
+            case OSM_STONE_BRICK: {
+                if (!element.tags.containsKey("building:material") || (walls = materialFromOSM(element.tags.get("building:material"))) == null) {
+                    walls = Blocks.STONEBRICK.getDefaultState();
+                }
+                break;
+            }
+            case OSM_CONCRETE: {
+                if (!element.tags.containsKey("building:material") || (walls = materialFromOSM(element.tags.get("building:material"))) == null) {
+                    walls = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.SILVER);
+                }
+                break;
+            }
+            case RANDOM_CONCRETE: {
+                walls = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.values()[rand.nextInt(EnumDyeColor.values().length)]);
+                break;
+            }
+            case RANDOM_PLUS: {
+                walls = randomPlusMaterials.get(rand.nextInt(randomPlusMaterials.size()));
+                break;
+            }
+            case OSM_RANDOM_CONCRETE: {
+                if (!element.tags.containsKey("building:material") || (walls = materialFromOSM(element.tags.get("building:material"))) == null) {
+                    walls = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.values()[rand.nextInt(EnumDyeColor.values().length)]);
+                }
+                break;
+            }
+            case OSM_RANDOM_PLUS: {
+                if (!element.tags.containsKey("building:material") || (walls = materialFromOSM(element.tags.get("building:material"))) == null) {
+                    walls = randomPlusMaterials.get(rand.nextInt(randomPlusMaterials.size()));
+                }
+                break;
+            }
+        }
+        hasMaterial = true;
     }
 
     @Override

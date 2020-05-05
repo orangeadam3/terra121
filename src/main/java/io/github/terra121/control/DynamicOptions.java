@@ -73,6 +73,29 @@ public class DynamicOptions extends GuiSlot {
     	public abstract void draw(Minecraft mc, int x, int y, int height, int mouseX, int mouseY, float partialTicks);
     	public void click(Minecraft mc) {}
     }
+
+    public static class ConditionalShowElement extends Element {
+    	Element element;
+		Function<Void, Boolean> shouldDraw;
+
+		public ConditionalShowElement(Element element, Function<Void, Boolean> shouldDraw) {
+			this.element = element;
+			this.shouldDraw = shouldDraw;
+		}
+
+		@Override
+		public void draw(Minecraft mc, int x, int y, int height, int mouseX, int mouseY, float partialTicks) {
+			if (shouldDraw.apply(null)) {
+				element.draw(mc, x, y, height, mouseX, mouseY, partialTicks);
+			}
+		}
+
+		public void click(Minecraft mc) {
+			if (shouldDraw.apply(null)) {
+				element.click(mc);
+			}
+		}
+	}
     
     public static class CycleButtonElement<E> extends Element {
     	public GuiButton gui;

@@ -10,6 +10,7 @@ import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.CustomGenerato
 import io.github.opencubicchunks.cubicchunks.cubicgen.preset.CustomGenSettingsSerialization;
 import io.github.opencubicchunks.cubicchunks.cubicgen.preset.fixer.CustomGeneratorSettingsFixer;
 import io.github.opencubicchunks.cubicchunks.cubicgen.preset.fixer.PresetLoadError;
+import io.github.terra121.dataset.Building;
 import io.github.terra121.dataset.OpenStreetMaps;
 import io.github.terra121.projection.GeographicProjection;
 import io.github.terra121.projection.ScaleProjection;
@@ -30,6 +31,7 @@ public class EarthGeneratorSettings {
 		// Kept for backward compatibility
 		public Boolean buildings = null;
 		public OpenStreetMaps.BuildingGenerationType buildingGenerationType = OpenStreetMaps.BuildingGenerationType.NONE;
+		public Building.BuildingMaterial buildingMaterialSetting = Building.BuildingMaterial.OSM_RANDOM_PLUS;
 	}
 	public JsonSettings settings;
 	

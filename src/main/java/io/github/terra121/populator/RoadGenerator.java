@@ -195,9 +195,7 @@ public class RoadGenerator implements ICubicPopulator {
 		                    IBlockState defState = Blocks.AIR.getDefaultState();
 		                    for (int ay = y + 1; ay < 16 * 2 &&
                                     (
-                                            world.getBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16)) != defState &&
-                                            world.getBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16)) != BuildingGenerator.WALLS &&
-                                            world.getBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16)) != BuildingGenerator.FOUNDATION
+                                            world.getBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16)) != defState
                                     ); ay++) {
 		                        world.setBlockState(new BlockPos(x + cubeX * 16, ay + cubeY * 16, z + cubeZ * 16), defState);
 		                    }

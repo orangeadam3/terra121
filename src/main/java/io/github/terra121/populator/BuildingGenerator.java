@@ -28,11 +28,13 @@ public class BuildingGenerator implements ICubicStructureGenerator {
     private OpenStreetMaps osm;
     private Heights heights;
     private GeographicProjection projection;
+    private Building.BuildingMaterial buildingMaterialSetting;
 
-    public BuildingGenerator(OpenStreetMaps osm, Heights heights, GeographicProjection projection) {
+    public BuildingGenerator(OpenStreetMaps osm, Heights heights, GeographicProjection projection, Building.BuildingMaterial buildingMaterialSetting) {
         this.osm = osm;
         this.heights = heights;
         this.projection = projection;
+        this.buildingMaterialSetting = buildingMaterialSetting;
     }
 
     @Override
@@ -40,7 +42,7 @@ public class BuildingGenerator implements ICubicStructureGenerator {
         Set<Building> buildings = osm.chunkBuildings(chunkPosition.getX(), chunkPosition.getZ());
         if (buildings != null)
         for (Building building : buildings)
-            building.placeIntoChunk(world, cubePrimer, chunkPosition, heights, projection);
+            building.placeIntoChunk(world, cubePrimer, chunkPosition, heights, projection, buildingMaterialSetting);
     }
 
 
