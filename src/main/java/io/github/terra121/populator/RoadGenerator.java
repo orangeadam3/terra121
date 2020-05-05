@@ -18,8 +18,8 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 
+// old road generator, leaving it in just in case
 public class RoadGenerator implements ICubicPopulator {
 	
     private static final IBlockState ASPHALT = Blocks.CONCRETE.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.GRAY);

@@ -1,6 +1,5 @@
 package io.github.terra121;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,17 +25,21 @@ import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.CustomGenerato
 import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.structure.CubicCaveGenerator;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
-import io.github.terra121.dataset.Pathway;
 import io.github.terra121.populator.*;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.entity.passive.*;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 //import io.github.opencubicchunks.cubicchunks.api.worldgen.structure.event.InitCubicStructureGeneratorEvent;
 
@@ -80,9 +83,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         unnaturals.add(Blocks.BRICK_BLOCK);
         
         surfacePopulators = new HashSet<ICubicPopulator>();
-        if (doRoads && cfg.settings.advancedRoads) {
-            surfacePopulators.add(new VectorPathGenerator(osm, heights, projection));
-        } else if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
+        if (doRoads) surfacePopulators.add(new VectorPathGenerator(osm, heights, projection));
         surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
 
@@ -211,10 +212,9 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             	else for (int y = (int)Math.max(Y - minblock,0); y < 16 && y < 0 - minblock; y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
             }
         }
-        
+
         caveGenerator.generate(world, primer, new CubePos(cubeX, cubeY, cubeZ));
 
-        //spawn roads
         if((doRoads || doBuildings || cfg.settings.osmwater) && surface) {
             Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeZ);
 

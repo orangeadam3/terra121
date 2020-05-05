@@ -5,13 +5,16 @@ import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopula
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
 import io.github.terra121.dataset.Pathway;
+import io.github.terra121.dataset.Pathway.VectorPath3D;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import io.github.terra121.dataset.Pathway.VectorPath3D;
-import java.util.*;
+
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 /**
  * Generates what Pathway processes
@@ -22,9 +25,9 @@ public class VectorPathGenerator implements ICubicPopulator {
     Heights heights;
     GeographicProjection projection;
 
-    public VectorPathGenerator(OpenStreetMaps osm, Heights heights, GeographicProjection proj) {
+    public VectorPathGenerator(OpenStreetMaps osm, Heights heights, GeographicProjection projection) {
         this.heights = heights;
-        projection = proj;
+        this.projection = projection;
         this.osm = osm;
     }
 
@@ -45,7 +48,7 @@ public class VectorPathGenerator implements ICubicPopulator {
 
                 for (Pathway.VectorPathGroup g : paths) {
 
-                    placeVectorPaths(g.paths, world);
+                    if (!g.paths.isEmpty()) placeVectorPaths(g.paths, world);
 
                 }
             }
@@ -53,13 +56,9 @@ public class VectorPathGenerator implements ICubicPopulator {
     }
 
     public void placeVectorPaths(List<VectorPath3D> paths, World world) {
-        for (VectorPath3D p : paths) {
-            for (Vec3d path : p.path) {
+        for (VectorPath3D p : paths) for (Vec3d path : p.path) {
                 BlockPos l = new BlockPos(path.x, path.y, path.z);
-                if (world.getBlockState(l).getBlock().getDefaultState() != p.material) {
-                    world.setBlockState(l, p.material);
-                }
-            }
+                world.setBlockState(l, p.material);
         }
     }
 
