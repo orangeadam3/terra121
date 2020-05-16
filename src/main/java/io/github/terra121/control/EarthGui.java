@@ -31,7 +31,8 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 	GeographicProjection projection;
 	DynamicOptions settings;
 	private DynamicOptions.Element[] settingElems;
-	private GuiButton done, cancel;
+	private GuiButton done, cancel, biomemapbutt;
+	private BiomeMap biomemap = null;
 	
 	private int mapsize;
 	
@@ -45,7 +46,7 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		
 		this.mc = mc;
 		this.guiCreateWorld = guiCreateWorld;
-		
+
 		InputStream is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/map.png");
 		try {
 			base = ImageIO.read(is);
@@ -86,7 +87,7 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 	
 	private <E> DynamicOptions.ToggleElement toggleButton(int id, String name, String field, Consumer<Boolean> notify) {
 		try {
-			return new DynamicOptions.ToggleElement(id, name, EarthGeneratorSettings.JsonSettings.class.getField(field), cfg.settings, notify);
+			return new DynamicOptions.ToggleElement(id, name, field==null?null:EarthGeneratorSettings.JsonSettings.class.getField(field), cfg.settings, notify);
 		} catch (NoSuchFieldException | SecurityException e) {
 			TerraMod.LOGGER.error("This should never happen, but find field reflection error");
 			e.printStackTrace();
@@ -124,14 +125,19 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 				if(bounds[0]<=X&&X<=bounds[2]&&bounds[1]<=Y&&Y<=bounds[3]) {
 					
 					double proj[] = projection.toGeo(X, Y); //projection coords to lon lat
-					
-					//lat lon to reference image coords
-					int lon = (int)((proj[0]/360 + 0.5)*base.getWidth());
-					int lat = (int)((0.5 + proj[1]/180)*base.getHeight());
-					
-					//get pixel from reference image if possible
-					if(lon>=0 && lat>=0 && lat < base.getHeight() && lon < base.getWidth()) {
-						img.setRGB(x, y, base.getRGB(lon, base.getHeight()-lat-1));
+
+					if(!( proj[0]>=-180 && proj[0]<=180 && proj[1]>=-90 && proj[1]<=90 )) continue; //out of bounds gets a transparent
+
+					if(biomemap!=null)img.setRGB(x,y, biomemap.getColor(proj)); //biome map
+					else { //image map
+						//lat lon to reference image coords
+						int lon = (int) ((proj[0] / 360 + 0.5) * base.getWidth());
+						int lat = (int) ((0.5 + proj[1] / 180) * base.getHeight());
+
+						//get pixel from reference image if possible
+						if (lon >= 0 && lat >= 0 && lat < base.getHeight() && lon < base.getWidth()) {
+							img.setRGB(x, y, base.getRGB(lon, base.getHeight() - lat - 1));
+						}
 					}
 				}
 			}
@@ -155,6 +161,7 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		settings = new DynamicOptions(mc, width-mapsize, height-32, 32, height-32, 32, this, settingElems);
 		done = new GuiButton(69, width-106, height-26, 100, 20, I18n.format("gui.done"));
 		cancel = new GuiButton(69, 6, height-26, 100, 20, I18n.format("gui.cancel"));
+		biomemapbutt = new GuiButton(69, width-106, 6, 100, 20, I18n.format("terra121.gui.biomemap"));
     }
 	
 	@Override
@@ -174,6 +181,7 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		
 		done.drawButton(mc, mouseX, mouseY, partialTicks);
 		cancel.drawButton(mc, mouseX, mouseY, partialTicks);
+		biomemapbutt.drawButton(mc, mouseX, mouseY, partialTicks);
 		
 		//this.drawCenteredString(this.fontRenderer, "WORK IN PROGRESS", this.width/2, this.height/2, 0x00FF5555);
 		
@@ -183,13 +191,18 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 	public void mouseClicked(int mouseX, int mouseY, int mouseEvent)
     {
 		if(done.mousePressed(mc, mouseX, mouseY)) {
+			biomemap = null; //delete biome map
 			this.guiCreateWorld.chunkProviderSettingsJson = cfg.toString(); //save settings
             this.mc.displayGuiScreen(this.guiCreateWorld); ///exit
 			return;
 			
 		} else if(cancel.mousePressed(mc, mouseX, mouseY)) {
+			biomemap = null; //delete biome map
 			this.mc.displayGuiScreen(this.guiCreateWorld); //exit without saving
 			return;
+		} else if(biomemapbutt.mousePressed(mc,mouseX, mouseY)) {
+			biomemap = biomemap==null?new BiomeMap():null; //create biomemap or destroy based on boolean
+			projectMap(false);
 		}
 		
 		settings.mouseClicked(mouseX, mouseY, mouseEvent);

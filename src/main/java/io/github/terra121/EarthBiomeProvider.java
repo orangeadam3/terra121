@@ -28,24 +28,27 @@ public class EarthBiomeProvider extends BiomeProvider {
     public Soil soil;
     public Climate climate;
     public GeographicProjection projection;
-    private EarthGeneratorSettings cfg;
 
     /** The biome generator object. */
     private final Biome defaultBiome;
 
     public EarthBiomeProvider(Biome biomeIn, World world)
     {
-    	cfg = new EarthGeneratorSettings(world.getWorldInfo().getGeneratorOptions());
+        this(biomeIn);
+
+        EarthGeneratorSettings cfg = new EarthGeneratorSettings(world.getWorldInfo().getGeneratorOptions());
     	projection = cfg.getProjection();
-    	
-    	//load soil and climate data from assets
+    }
+
+    public EarthBiomeProvider(Biome biomeIn) {
+        //load soil and climate data from assets
         this.defaultBiome = biomeIn;
         try {
             InputStream is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/suborder.img");
             soil = new Soil(is);
             is.close();
-			
-        	is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/climate.dat");
+
+            is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/climate.dat");
             climate = new Climate(is);
             is.close();
         } catch(IOException ioe) {
@@ -64,12 +67,23 @@ public class EarthBiomeProvider extends BiomeProvider {
     			return Biomes.FOREST;
     		return Biomes.MUSHROOM_ISLAND;
     	}
-    	
-    	double[] projected = projection.toGeo(pos.getX(), pos.getZ());
-    	
+
+        return classify(projection.toGeo(pos.getX(), pos.getZ()));
+    }
+
+    /** Get explicit data on the environment (soil, tempature, precipitation) */
+    public double[] getEnv(double lon, double lat) {
+        Climate.ClimateData clim = climate.getPoint(lon, lat);
+
+        return new double[] {soil.getPoint(lon, lat),
+                            clim.temp, clim.precip};
+    }
+
+    public Biome classify(double[] projected) {
+
         Climate.ClimateData clim = climate.getPoint(projected[0], projected[1]);
         byte stype = soil.getPoint(projected[0], projected[1]);
-        
+
         switch(stype) {
             case 0: //Ocean
                 if(clim.temp < -5)
@@ -88,8 +102,6 @@ public class EarthBiomeProvider extends BiomeProvider {
                 return Biomes.JUNGLE;
             case 11: case 12:
                 return Biomes.PLAINS;
-            case 13:
-                return Biomes.SWAMPLAND;
 
             case 15:
                 if(clim.temp<5)
@@ -112,67 +124,50 @@ public class EarthBiomeProvider extends BiomeProvider {
                 return Biomes.SAVANNA;
             case 34:
                 return Biomes.JUNGLE;
-                
-            case 40:
-            	return Biomes.SWAMPLAND;
             case 41: case 42: case 43: case 44: case 45:
-            	return Biomes.PLAINS;
+                return Biomes.PLAINS;
 
             case 50:
-            	return Biomes.COLD_TAIGA;
+                return Biomes.COLD_TAIGA;
             case 51: //salt flats always desert
-            	return Biomes.DESERT;
+                return Biomes.DESERT;
             case 52: case 53: case 55: case 99: //hot and dry
-            	if(clim.temp<2)
-            		return Biomes.COLD_TAIGA;
-				if(clim.temp<5)
-					return Biomes.TAIGA; //TODO: Tundra in (1.15)
-            	if(clim.precip<5)
-            		return Biomes.DESERT;
-                return Biomes.MESA; //TODO: this soil can also be desert i.e. saudi Arabia (base on percip?)    
-            
+                if(clim.temp<2)
+                    return Biomes.COLD_TAIGA;
+                if(clim.temp<5)
+                    return Biomes.TAIGA; //TODO: Tundra in (1.15)
+                if(clim.precip<5)
+                    return Biomes.DESERT;
+                return Biomes.MESA; //TODO: this soil can also be desert i.e. saudi Arabia (base on percip?)
+
             case 54: case 56:
-            	return Biomes.SAVANNA;
-               
+                return Biomes.SAVANNA;
+
             case 60: case 61: case 62: case 63: case 64:
-            	if (clim.temp < 10)
+                if (clim.temp < 10)
                     return Biomes.TAIGA;
-            	return Biomes.FOREST;
-                
+                return Biomes.FOREST;
+
             case 70: case 72: case 73: case 74: case 75: case 76: case 77:
-            	return Biomes.PLAINS;
-            case 71: 
-            	return Biomes.SWAMPLAND;
-            	
-            case 80:
-            	return Biomes.SWAMPLAND;
-            case 81:
-            	return Biomes.FOREST;
-            case 82:
-            	return Biomes.PLAINS;
-            case 83:
-            	return Biomes.FOREST;
-            case 84:
-            	return Biomes.FOREST;
-            case 85:
-            	return Biomes.PLAINS;
-            case 86:
-            	return Biomes.FOREST;
-            	
-            case 90: case 91: case 92: case 93: case 94:
-            	return Biomes.FOREST;
-            	
-            case 95:
+                return Biomes.PLAINS;
+
+            case 13: case 40: case 71: case 80: case 95: case 98:
                 return Biomes.SWAMPLAND;
+
+            case 81: case 83: case 84: case 86:
+                return Biomes.FOREST;
+            case 82: case 85:
+                return Biomes.PLAINS;
+
+            case 90: case 91: case 92: case 93: case 94:
+                return Biomes.FOREST;
             case 96:
                 return Biomes.SAVANNA;
             case 97:
                 return Biomes.DESERT;
-            case 98:
-                return Biomes.SWAMPLAND;
         }
 
-        return defaultBiome;
+        return Biomes.MUSHROOM_ISLAND;
     }
 
     /**

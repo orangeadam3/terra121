@@ -62,7 +62,6 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
     public EarthTerrainProcessor(World world) {
         super(world);
-        
 
         cfg = new EarthGeneratorSettings(world.getWorldInfo().getGeneratorOptions());
     	projection = cfg.getProjection();
@@ -167,20 +166,21 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             	else if(wateroff>=1.4&&Y>=0) { //drop above sea level areas that are in the ocean
             		Y = -1;
             	}*/
-            	
+
+                //estimate slopes
+                double dx, dz;
+                if(x == 16-1)
+                    dx = heightarr[x][z]-heightarr[x-1][z];
+                else dx = heightarr[x+1][z]-heightarr[x][z];
+
+                if(z == 16-1)
+                    dz = heightarr[x][z]-heightarr[x][z-1];
+                else dz = heightarr[x][z+1]-heightarr[x][z];
+
+                //get biome (thanks to 	z3nth10n for spoting this one)
+                List<IBiomeBlockReplacer> reps = biomeBlockReplacers.get(biomes.getBiome(new BlockPos(cubeX*16 + x, 0, cubeZ*16 + z)));
+
                 for (int y = 0; y < 16 && y < Y - Coords.cubeToMinBlock(cubeY); y++) {
-                	
-                	//estimate slopes
-                	double dx, dz;
-                	if(x == 16-1)
-                		dx = heightarr[x][z]-heightarr[x-1][z];
-                	else dx = heightarr[x+1][z]-heightarr[x][z];
-                	
-                	if(z == 16-1)
-                		dz = heightarr[x][z]-heightarr[x][z-1];
-                	else dz = heightarr[x][z+1]-heightarr[x][z];
-                	
-                    List<IBiomeBlockReplacer> reps = biomeBlockReplacers.get(biomes.getBiome(new BlockPos(cubeX*16 + x, 0, cubeZ*16 + z)));
                     IBlockState block = Blocks.STONE.getDefaultState();
                     for(IBiomeBlockReplacer rep : reps) {
                         block = rep.getReplacedBlock(block, cubeX*16 + x, cubeY*16 + y + 63, cubeZ*16 + z, dx, -1, dz, Y - (cubeY*16 + y));
@@ -188,21 +188,26 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
                     primer.setBlockState(x, y, z, block);
                 }
-                
+
+                int minblock = Coords.cubeToMinBlock(cubeY);
+
             	if(-5 < cubeX && cubeX < 5 && -5 < cubeZ && cubeZ < 5);//NULL ISLAND
             	else if (cfg.settings.osmwater){
             		if(wateroff>1) {
-            			int start = (int) (Y) - Coords.cubeToMinBlock(cubeY);
+            		    int start = (int)(Y);
+            		    if(start==0) start = -1; //elev 0 should still be treated as ocean when in ocean
+
+            			start -= minblock;
             			if(start<0)start = 0;
-            			for (int y = start; y < 16 && y <= -1-Coords.cubeToMinBlock(cubeY); y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
+            			for (int y = start; y < 16 && y <= -1-minblock; y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
             		}
             		else if(wateroff>0.4) {
-	            		int start = (int) (Y - (wateroff-0.4)*4) - Coords.cubeToMinBlock(cubeY);
+	            		int start = (int) (Y - (wateroff-0.4)*4) - minblock;
 	            		if(start<0)start = 0;
-	            		for (int y = start; y < 16 && y < Y - Coords.cubeToMinBlock(cubeY); y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
+	            		for (int y = start; y < 16 && y < Y - minblock; y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
 	            	}
             	}
-            	else for (int y = 0; y < 16 && y < 0 - Coords.cubeToMinBlock(cubeY); y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
+            	else for (int y = (int)Math.max(Y - minblock,0); y < 16 && y < 0 - minblock; y++) primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
             }
         }
         
@@ -331,7 +336,17 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
     @Override
     public BlockPos getClosestStructure(String name, BlockPos pos, boolean findUnexplored) {
-        // eyes of ender are the new F3 for finding the origin :P
-        return name.equals("Stronghold") ? new BlockPos(0, 0, 0) : null;
+        // eyes of ender are now compasses
+        if(name.equals("Stronghold")) {
+            double[] vec = projection.vector(pos.getX(), pos.getZ(), 1, 0); //direction's to one meter north of here
+
+            //normalize vector
+            double mag = Math.sqrt(vec[0]*vec[0] + vec[1]*vec[1]);
+            vec[0] /= mag; vec[1] /= mag;
+
+            //project vector 100 blocks out to get "stronghold" position
+            return new BlockPos((int)(pos.getX() + vec[0]*100.0), pos.getY(), (int)(pos.getZ() + vec[1]*100.0));
+        }
+        return null;
     }
 }

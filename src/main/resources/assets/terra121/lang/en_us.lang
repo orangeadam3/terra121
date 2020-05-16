@@ -12,11 +12,17 @@ terra121.gui.dynamicbaseheight=Elevation Based Ores
 terra121.gui.osmwater=Advanced Water (experimental)
 terra121.gui.buildings=OSM Building Outlines
 
+terra121.gui.biomemap=Debug Map
+
 ## Projection types
 terra121.projection.web_mercator=Mercator
 terra121.projection.equirectangular=Equirectangular
 terra121.projection.sinusoidal=Sinusoidal
 terra121.projection.equal_earth=Equal Earth
+terra121.projection.transverse_mercator=Transverse Mercator
+terra121.projection.airocean=Airocean (Not BTE)
+terra121.projection.conformal=Conformal Approx. (Not BTE)
+terra121.projection.bteairocean=Build The Earth
 
 ## Projection orientations
 terra121.orientation.upright=Upright
@@ -31,6 +37,8 @@ terra121.commands.terra.usage=/terra [where:ou] [player]\n/terra world\n/terra o
 terra121.commands.terra.gensettings=Generator Settings: 
 terra121.commands.terra.latlon=lat lon: %.7f %.7f
 terra121.commands.terra.xy=x y: %.7f %.7f
+terra121.commands.terra.environment=%.1f °C; %.1f mm/yr; soil id: %d
+terra121.commands.terra.tissot= ~%.5f blocks/meter ± %.5f°
 
 ## command errors
 terra121.error.notcc=Must be in a Cubic Chunks world!
