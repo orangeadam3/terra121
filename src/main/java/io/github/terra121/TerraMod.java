@@ -18,6 +18,9 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
+import net.minecraftforge.server.permission.DefaultPermissionLevel;
+import net.minecraftforge.server.permission.PermissionAPI;
+
 import io.github.terra121.letsencryptcraft.ILetsEncryptMod;
 import io.github.terra121.letsencryptcraft.LetsEncryptAdder;
 
@@ -49,6 +52,7 @@ public class TerraMod implements ILetsEncryptMod
     	MinecraftForge.TERRAIN_GEN_BUS.register(GenerationEventDenier.class);
     	MinecraftForge.EVENT_BUS.register(WaterDenier.class);
         MinecraftForge.EVENT_BUS.register(TerraConfig.class);
+	PermissionAPI.registerNode("terra121.commands.tpll", DefaultPermissionLevel.OP, "Allows a player to do /tpll");
     }
     
     @EventHandler
