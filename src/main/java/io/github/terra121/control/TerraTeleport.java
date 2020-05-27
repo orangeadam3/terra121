@@ -66,6 +66,34 @@ public class TerraTeleport extends CommandBase {
 				args[0] = args[0].substring(0, args[0].length() - 1);
 			if(args.length>1&&args[1].endsWith(","))
 				args[1] = args[1].substring(0, args[1].length() - 1);
+			
+			String[] dmsCoordsLat = args[0].split("\"|'|\u00B0");
+			String[] dmsCoordsLon = args[1].split("\"|'|\u00B0");
+			if (dmsCoordsLat.length == 4 && dmsCoordsLat.length == 4) {
+				try {
+					double latDec = Double.parseDouble(dmsCoordsLat[0]) + (Double.parseDouble(dmsCoordsLat[1])/60.0) + (Double.parseDouble(dmsCoordsLat[2])/3600.0);
+					double lonDec = Double.parseDouble(dmsCoordsLon[0]) + (Double.parseDouble(dmsCoordsLon[1])/60.0) + (Double.parseDouble(dmsCoordsLon[2])/3600.0);
+
+					if(dmsCoordsLat[3].equalsIgnoreCase("S")) {
+						latDec *= -1;
+					}
+
+					if(dmsCoordsLon[3].equalsIgnoreCase("W")) {
+						lonDec *= -1;
+					}
+				
+				
+					args[0] = Double.toString(latDec);
+					args[1] = Double.toString(lonDec);
+				} catch (Exception e) {
+					throw new CommandException("terra121.error.numbers", new Object[0]);
+				}
+
+				if (args.length == 3) {
+					alt = args[2];
+				}
+			}
+			
 			if(args.length!=2&&args.length!=3) {
 				throw new WrongUsageException(getUsage(sender), new Object[0]);
 			}
