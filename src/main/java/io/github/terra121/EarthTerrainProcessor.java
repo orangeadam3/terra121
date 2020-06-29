@@ -85,10 +85,14 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         if(cfg.settings.lidar) {
         	
         	String file_prefix = localTerrain;
-        	File[] zoomdirs = {};
-        	if((new File(file_prefix)).exists()) {
-        		zoomdirs = (new File(file_prefix)).listFiles();
+        	
+        	
+        	if(!(new File(file_prefix)).exists()) {
+        		(new File(file_prefix)).mkdir();
         	}
+        	
+        	File[] zoomdirs = {};
+        	zoomdirs = (new File(file_prefix)).listFiles();
         	int zoomL = zoomdirs.length;
         	
         	if(zoomL != 0) {
@@ -170,12 +174,14 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 	            	if(cfg.settings.lidar) {
 	            		String file_prefix = localTerrain;
 	            		
-	            		for(int i = 0; i < heightsLidar.length; i++) {
-	            			if(new File(file_prefix + "/" + zooms[i] + "/" + (cubeX*16+x)*(1<<(zooms[i]+8)) + "/" + (cubeZ*16+z)*(1<<(zooms[i]+8)) + ".png").exists()) {
-	            				Y = heightsLidar[i].estimateLocal(projected[0], projected[1]);
-	            				zind = i;
-	            			}
-	            		}
+	            		if(heightsLidar != null) {
+		            		for(int i = 0; i < heightsLidar.length; i++) {
+		            			if(new File(file_prefix + "/" + zooms[i] + "/" + (cubeX*16+x)*(1<<(zooms[i]+8)) + "/" + (cubeZ*16+z)*(1<<(zooms[i]+8)) + ".png").exists()) {
+		            				Y = heightsLidar[i].estimateLocal(projected[0], projected[1]);
+		            				zind = i;
+		            			}
+		            		}
+		            	}
 	            	}
 	            	
 	                if(Y == -100000000) Y = heights.estimateLocal(projected[0], projected[1]);
