@@ -27,6 +27,7 @@ public class EarthGeneratorSettings {
 		public Boolean dynamicbaseheight = true;
 		public Boolean osmwater = false;
 		public Boolean buildings = false;
+		public Boolean lidar = false; // Experimental LIDAR data
 	}
 	public JsonSettings settings;
 	
