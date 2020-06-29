@@ -13,6 +13,8 @@ import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
 import org.apache.commons.imaging.formats.tiff.TiffImageParser;
 import org.apache.logging.log4j.LogManager;
+
+import io.github.terra121.EarthTerrainProcessor;
 import io.github.terra121.TerraConfig;
 import io.github.terra121.TerraMod;
 import io.github.terra121.projection.MapsProjection;
@@ -20,71 +22,109 @@ import io.github.terra121.projection.MapsProjection;
 public class Heights extends TiledDataset{
     private int zoom;
     private String url_prefix = TerraConfig.serverTerrain;
+    private String file_prefix = EarthTerrainProcessor.localTerrain;
+    private boolean lidar = false;
 
     private Water water;
     
     private double oceanRadius = 2.0/(60*60);
 	
-    public Heights(int zoom, boolean smooth, Water water) {
+    public Heights(int zoom, boolean lidar, boolean smooth, Water water) {
     	super(256, 256, TerraConfig.cacheSize, new MapsProjection(), 1<<(zoom+8), 1<<(zoom+8), smooth);
     	this.zoom = zoom;
     	url_prefix += zoom+"/";
+    	file_prefix += zoom+"/";
     	this.water = water;
+    	this.lidar = lidar;
     }
     
     public Heights(int zoom, Water water) {
-    	this(zoom, false, water);
+    	this(zoom, false, false, water);
     }
 
-    //request a mapzen tile from amazon, this should only be needed evrey 2 thousand blocks or so if the cache is large enough
+    //request a mapzen tile from amazon, this should only be needed every 2 thousand blocks or so if the cache is large enough
     //TODO: better error handle
     protected int[] request(Coord place) {
-        int out[] = new int[256 * 256];
-
-        for(int i=0; i<5; i++) {
-
-            InputStream is = null;
-
-            try {
-                String urlText = url_prefix + place.x + "/" + place.y + ".png";
-                TerraMod.LOGGER.info(urlText);
-                
-                URL url = new URL(urlText);
-                URLConnection con = url.openConnection();
-                con.addRequestProperty("User-Agent", TerraMod.USERAGENT);
-                is = con.getInputStream();
-                
-                BufferedImage img = ImageIO.read(is);
-                is.close();
-                is = null;
-
-                if(img == null) {
-                    throw new IOException("Invalid image file");
-                }
-                
-                //compile height data from image, stored in 256ths of a meter units
-                img.getRGB(0, 0, 256, 256, out, 0, 256);
-
-                for (int x = 0; x < img.getWidth(); x++) {
-                    for (int y = 0; y < img.getHeight(); y++) {
-                        int c = y * 256 + x;
-                        out[c] = (out[c] & 0x00ffffff) - 8388608;
-                        if(zoom > 10 && out[c]<-1500*256) out[c] = 0; //terrain glitch (default to 0), comment this for fun dataset glitches
-                    }
-                }
-                return out;
-
-            } catch (IOException ioe) {
-                if(is!=null) {
-                    try {
-                        is.close();
-                    } catch (IOException e) {}
-                }
-
-                TerraMod.LOGGER.error("Failed to get elevation " + place.x + " " + place.y + " : " + ioe);
-            }
-        }
-
+	    	
+	    int out[] = new int[256 * 256];
+	
+	    for(int i=0; i<5; i++) {
+	
+	    	
+	    	
+	    	BufferedImage img = null;
+	        InputStream is = null;
+	        int lidarzoom = zoom;
+	
+	        try {
+	        	
+	        	if(lidar) { //Check if LIDAR data is enabled
+	        		
+	        		File data = new File(file_prefix + place.x + "/" + place.y + ".png");
+	        		if(data.exists()) img = ImageIO.read(data); //img == null if there is no LIDAR data for that coord.
+	        		
+	        	}
+	        	
+	        	if(img == null) { //Catches if LIDAR data is disabled or if there is no LIDAR data for that coord.
+		        	
+		            String urlText = url_prefix + place.x + "/" + place.y + ".png";
+		            TerraMod.LOGGER.info(urlText);
+		            
+		            URL url = new URL(urlText);
+		            URLConnection con = url.openConnection();
+		            con.addRequestProperty("User-Agent", TerraMod.USERAGENT);
+		            is = con.getInputStream();
+		            img = ImageIO.read(is);
+		            is.close();
+		            is = null;
+		            
+	        	}	            
+	
+	            if(img == null) { //If img is still null at this point, that's a problem
+	                throw new IOException("Invalid image file");
+	            }
+	            /*
+	            if(!lidar) {
+		            //Get some sample data files
+		            BufferedImage img2 = null;
+			        InputStream is2 = null;
+		            String urlText2 = url_prefix.substring(0,url_prefix.length()-3) + "15/" + place.x + "/" + place.y + ".png";
+		            TerraMod.LOGGER.info(urlText2);
+		            URL url2 = new URL(urlText2);
+		            URLConnection con2 = url2.openConnection();
+		            con2.addRequestProperty("User-Agent", TerraMod.USERAGENT);
+		            is2 = con2.getInputStream();
+		            img2 = ImageIO.read(is2);
+		            is2.close();
+		            is2 = null;
+		            File outputfile = new File("C:\\Terrain\\15-" + place.x + "-" + place.y + ".png");
+		            ImageIO.write(img2, "png", outputfile);
+	            }
+	            */
+	            
+	            //compile height data from image, stored in 256ths of a meter units
+	            img.getRGB(0, 0, 256, 256, out, 0, 256);
+	
+	            for (int x = 0; x < img.getWidth(); x++) {
+	                for (int y = 0; y < img.getHeight(); y++) {
+	                    int c = y * 256 + x;
+	                    out[c] = (out[c] & 0x00ffffff) - 8388608;
+	                    if(zoom > 10 && out[c]<-1500*256) out[c] = 0; //terrain glitch (default to 0), comment this for fun dataset glitches
+	                }
+	            }
+	            return out;
+	
+	        } catch (IOException ioe) {
+	            if(is!=null) {
+	                try {
+	                    is.close();
+	                } catch (IOException e) {}
+	            }
+	
+	            TerraMod.LOGGER.error("Failed to get elevation " + place.x + " " + place.y + " : " + ioe);
+	        }
+	    }
+	        
         TerraMod.LOGGER.error("Failed too many times chunks will be set to 0");
         return out;
     }
