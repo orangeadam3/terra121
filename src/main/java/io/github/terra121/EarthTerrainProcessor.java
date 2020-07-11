@@ -175,8 +175,10 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 	            		String file_prefix = localTerrain;
 	            		
 	            		if(heightsLidar != null) {
+	            			
 		            		for(int i = 0; i < heightsLidar.length; i++) {
-		            			if(new File(file_prefix + zooms[i] + "/" + (cubeX*16+x)*(1<<(zooms[i]+8)) + "/" + (cubeZ*16+z)*(1<<(zooms[i]+8)) + ".png").exists()) {
+		            			
+		            			if(new File(file_prefix + zooms[i] + "/" + (int)Math.floor( (projected[0] + 180) / 360 * (1<<zooms[i]) ) + "/" + (int)Math.floor( (1 - Math.log(Math.tan(Math.toRadians(projected[1])) + 1 / Math.cos(Math.toRadians(projected[1]))) / Math.PI) / 2 * (1<<zooms[i]) ) + ".png").exists()) {  //Line courtesy of 0413#4162 on Discord
 		            				Y = heightsLidar[i].estimateLocal(projected[0], projected[1]);
 		            				zind = i;
 		            			}
