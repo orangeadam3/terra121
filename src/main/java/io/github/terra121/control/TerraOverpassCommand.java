@@ -1,5 +1,10 @@
 package io.github.terra121.control;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import io.github.terra121.TerraConfig;
 import io.github.terra121.dataset.OpenStreetMaps;
 import net.minecraft.client.resources.I18n;
@@ -7,10 +12,10 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 
-//TODO Tab completion
 //TODO Permissions
 //TODO Cancel tread
 public class TerraOverpassCommand extends CommandBase {
@@ -62,5 +67,13 @@ public class TerraOverpassCommand extends CommandBase {
 			throw new CommandException("terra121.commands.overpass.usage");
 		}
 	}
+	
+	@Override
+	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos) {
+		String[] s = {"status", "list", "default", "fallback"};
+        if (args.length == 1) {
+            return getListOfStringsMatchingLastWord(args, s);
+        } else return new ArrayList<String>();
+    }
 
 }
