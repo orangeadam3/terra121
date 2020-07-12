@@ -1,5 +1,6 @@
 package io.github.terra121;
 
+import io.github.terra121.dataset.OpenStreetMaps;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.Config.*;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -13,7 +14,11 @@ public class TerraConfig {
 			  "Make sure you follow the instances guidelines",
 			  "URL must be able to take interpreter input by adding a \'?\'",
 			  "e.x. \"https://.../api/interpreter\""})
-	public static String serverOverpass = "https://overpass.kumi.systems/api/interpreter"; //"https://overpass-api.de/api/interpreter"
+	public static String serverOverpassDefault = "https://overpass.kumi.systems/api/interpreter"; //"https://overpass-api.de/api/interpreter"
+	
+	@Name("fallback_overpass_interpreter")
+	@Comment("This is the same as overpass_interpreter, except it's only used as a fallback when overpass_interpreter is down")
+	public static String serverOverpassFallback = "";
 	
 	@Name("rest_tree_services")
 	@Comment({"An ArcGIS REST API instance with tree cover support",
@@ -51,7 +56,9 @@ public class TerraConfig {
 
 	@SubscribeEvent
 	public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-		if(TerraMod.MODID.equals(event.getModID()))
+		if(TerraMod.MODID.equals(event.getModID())) {
 			ConfigManager.sync(TerraMod.MODID, Config.Type.INSTANCE);
+			OpenStreetMaps.setOverpassEndpoint(serverOverpassDefault);
+		}
 	}
 }
