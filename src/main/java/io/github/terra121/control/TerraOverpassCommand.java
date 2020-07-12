@@ -11,16 +11,18 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.server.permission.PermissionAPI;
 
-//TODO Permissions
-//TODO Cancel tread
+//TODO Cancel thread
 public class TerraOverpassCommand extends CommandBase {
 
 	public static final String COMMAND_NAME = "overpass";
+	public static final String PERMISSION_NODE = "terra121.commands.overpass";
 	
 	@Override
 	public String getName() {
@@ -34,6 +36,7 @@ public class TerraOverpassCommand extends CommandBase {
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+		if(!canUse(sender)) return;
 		if(args.length != 1) throw new CommandException("terra121.commands.overpass.usage");
 		String inUse = OpenStreetMaps.getOverpassEndpoint();
 		boolean isDefault = inUse.equals(TerraConfig.serverOverpassDefault);
@@ -75,5 +78,12 @@ public class TerraOverpassCommand extends CommandBase {
             return getListOfStringsMatchingLastWord(args, s);
         } else return new ArrayList<String>();
     }
+	
+	private boolean canUse(ICommandSender sender) {
+		if (sender instanceof EntityPlayer) {
+			return PermissionAPI.hasPermission((EntityPlayer) sender, PERMISSION_NODE);
+		}
+		return sender.canUseCommand(4, "");
+	}
 
 }
