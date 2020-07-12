@@ -2,8 +2,11 @@ package io.github.terra121;
 
 import org.apache.logging.log4j.Logger;
 
-import io.github.terra121.control.TerraTeleport;
 import io.github.terra121.control.TerraCommand;
+import io.github.terra121.control.TerraOverpassCommand;
+import io.github.terra121.control.TerraTeleport;
+import io.github.terra121.letsencryptcraft.ILetsEncryptMod;
+import io.github.terra121.letsencryptcraft.LetsEncryptAdder;
 import io.github.terra121.provider.EarthWorldProvider;
 import io.github.terra121.provider.GenerationEventDenier;
 import io.github.terra121.provider.WaterDenier;
@@ -17,12 +20,8 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-
 import net.minecraftforge.server.permission.DefaultPermissionLevel;
 import net.minecraftforge.server.permission.PermissionAPI;
-
-import io.github.terra121.letsencryptcraft.ILetsEncryptMod;
-import io.github.terra121.letsencryptcraft.LetsEncryptAdder;
 
 @Mod(modid = TerraMod.MODID, name = TerraMod.NAME, version = TerraMod.VERSION, dependencies = "required-after:cubicchunks; required-after:cubicgen", acceptableRemoteVersions="*")
 public class TerraMod implements ILetsEncryptMod
@@ -65,6 +64,7 @@ public class TerraMod implements ILetsEncryptMod
     public void serverLoad(FMLServerStartingEvent event) {
         event.registerServerCommand(new TerraTeleport());
         event.registerServerCommand(new TerraCommand());
+        event.registerServerCommand(new TerraOverpassCommand());
     }
     
     //set custom provider

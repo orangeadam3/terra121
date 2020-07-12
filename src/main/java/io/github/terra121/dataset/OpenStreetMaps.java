@@ -650,6 +650,10 @@ public class OpenStreetMaps {
     public static void main(String[] args) {
     }
     
+    public static String getOverpassEndpoint() {
+    	return overpassInstance;
+    }
+    
     public static void setOverpassEndpoint(String urlBase) {
     	OpenStreetMaps.overpassInstance = urlBase;
     }
