@@ -18,7 +18,6 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.server.permission.PermissionAPI;
 
-//TODO Cancel thread
 public class TerraOverpassCommand extends CommandBase {
 
 	public static final String COMMAND_NAME = "overpass";
@@ -57,12 +56,14 @@ public class TerraOverpassCommand extends CommandBase {
 			break;
 		case "default":
 			OpenStreetMaps.setOverpassEndpoint(TerraConfig.serverOverpassDefault);
+			OpenStreetMaps.cancelFallbackThread();
 			msg = new TextComponentString(I18n.format("terra121.commands.overpass.set.default"));
 			sender.sendMessage(msg);
 			break;
 		case "fallback":
 			if(!hasFallback) throw new CommandException(I18n.format("terra121.commands.overpass.list.nofallback"));
 			OpenStreetMaps.setOverpassEndpoint(TerraConfig.serverOverpassFallback);
+			OpenStreetMaps.cancelFallbackThread();
 			msg = new TextComponentString(I18n.format("terra121.commands.overpass.set.fallback"));
 			sender.sendMessage(msg);
 			break;

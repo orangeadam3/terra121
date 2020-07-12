@@ -48,6 +48,8 @@ public class OpenStreetMaps {
     private Gson gson;
 
     private GeographicProjection projection;
+    
+    private static Thread fallbackCancellerThread;
 
     public static enum Type {
         IGNORE, ROAD, MINOR, SIDE, MAIN, INTERCHANGE, LIMITEDACCESS, FREEWAY, STREAM, RIVER, BUILDING, RAIL
@@ -184,19 +186,20 @@ public class OpenStreetMaps {
         		TerraMod.LOGGER.error("We were using the main overpass instance (" + TerraConfig.serverOverpassDefault
         				+ "), switching to the backup one (" + TerraConfig.serverOverpassFallback + ")");
         		overpassInstance = TerraConfig.serverOverpassFallback;
-        		Thread checker = new Thread(() -> {
+        		cancelFallbackThread();
+        		fallbackCancellerThread = new Thread(() -> {
         			try {
         				TerraMod.LOGGER.info("Started fallback thread, it will try to switch back to the main endpoint in " + TerraConfig.overpassCheckDelay + "mn");
 						Thread.sleep(TerraConfig.overpassCheckDelay * 60000);
 						TerraMod.LOGGER.info("Trying to switch back to the main overpass endpoint");
 	        			overpassInstance = TerraConfig.serverOverpassDefault;
 					} catch (InterruptedException e1) {
-						e1.printStackTrace();
+						TerraMod.LOGGER.info("Stopping fallback sleeping thread");
 					}
         			
         		});
-        		checker.setName("Overpass fallback check thread");
-        		checker.start();
+        		fallbackCancellerThread.setName("Overpass fallback check thread");
+        		fallbackCancellerThread.start();
         		return this.regiondownload(region);
         	} else {
         		TerraMod.LOGGER.error("We were already using the backup Overpass endpoint or no backup endpoint is set, no structures will spawn");
@@ -656,5 +659,11 @@ public class OpenStreetMaps {
     
     public static void setOverpassEndpoint(String urlBase) {
     	OpenStreetMaps.overpassInstance = urlBase;
+    }
+    
+    public static void cancelFallbackThread() {
+    	if(fallbackCancellerThread != null && fallbackCancellerThread.isAlive())
+    		fallbackCancellerThread.interrupt();
+    	fallbackCancellerThread = null;
     }
 }

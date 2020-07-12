@@ -9,6 +9,7 @@ import net.minecraftforge.common.config.ConfigManager;
 
 @Config(modid = TerraMod.MODID)
 public class TerraConfig {
+	
 	@Name("overpass_interpreter")
 	@Comment({"Overpass interpreter for road and water OpenStreetMap data",
 			  "Make sure you follow the instances guidelines",
@@ -24,6 +25,7 @@ public class TerraConfig {
 	@Comment({"The delay for which to switch to the fallback overpass endpoint",
 		      "After that time, the game will try switching back to the main one if possible,",
 		      "This is in minutes"})
+	@RangeInt(min = 1)
 	public static int overpassCheckDelay = 30;
 	
 	@Name("rest_tree_services")
@@ -64,6 +66,7 @@ public class TerraConfig {
 	public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
 		if(TerraMod.MODID.equals(event.getModID())) {
 			ConfigManager.sync(TerraMod.MODID, Config.Type.INSTANCE);
+			OpenStreetMaps.cancelFallbackThread();
 			OpenStreetMaps.setOverpassEndpoint(serverOverpassDefault);
 		}
 	}
