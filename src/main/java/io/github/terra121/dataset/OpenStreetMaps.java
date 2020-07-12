@@ -184,6 +184,19 @@ public class OpenStreetMaps {
         		TerraMod.LOGGER.error("We were using the main overpass instance (" + TerraConfig.serverOverpassDefault
         				+ "), switching to the backup one (" + TerraConfig.serverOverpassFallback + ")");
         		overpassInstance = TerraConfig.serverOverpassFallback;
+        		Thread checker = new Thread(() -> {
+        			try {
+        				TerraMod.LOGGER.info("Started fallback thread, it will try to switch back to the main endpoint in " + TerraConfig.overpassCheckDelay + "mn");
+						Thread.sleep(TerraConfig.overpassCheckDelay * 60000);
+						TerraMod.LOGGER.info("Trying to switch back to the main overpass endpoint");
+	        			overpassInstance = TerraConfig.serverOverpassDefault;
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+        			
+        		});
+        		checker.setName("Overpass fallback check thread");
+        		checker.start();
         		return this.regiondownload(region);
         	} else {
         		TerraMod.LOGGER.error("We were already using the backup Overpass endpoint or no backup endpoint is set, no structures will spawn");

@@ -20,6 +20,12 @@ public class TerraConfig {
 	@Comment("This is the same as overpass_interpreter, except it's only used as a fallback when overpass_interpreter is down")
 	public static String serverOverpassFallback = "";
 	
+	@Name("overpass_fallback_check_delay")
+	@Comment({"The delay for which to switch to the fallback overpass endpoint",
+		      "After that time, the game will try switching back to the main one if possible,",
+		      "This is in minutes"})
+	public static int overpassCheckDelay = 30;
+	
 	@Name("rest_tree_services")
 	@Comment({"An ArcGIS REST API instance with tree cover support",
 		  	  "Should allow all tree data sources used (just TreeCover2000 right now)",
