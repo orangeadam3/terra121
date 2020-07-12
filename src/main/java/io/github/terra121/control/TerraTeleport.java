@@ -12,6 +12,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
+// allow command usage via the permission node terra121.commands.tpll
+import net.minecraftforge.server.permission.PermissionAPI;
+import net.minecraft.entity.player.EntityPlayer;
 
 public class TerraTeleport extends CommandBase {
 
@@ -86,8 +89,11 @@ public class TerraTeleport extends CommandBase {
 				String.valueOf(proj[0]), alt, String.valueOf(proj[1])});
 		}
 	}
-
+	
 	private boolean isOp(ICommandSender sender) {
+		if (sender instanceof EntityPlayer) {
+			return PermissionAPI.hasPermission((EntityPlayer) sender, "terra121.commands.tpll");
+		}
 		return sender.canUseCommand(2, "");
 	}
 
