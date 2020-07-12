@@ -40,6 +40,15 @@ terra121.commands.terra.xy=x y: %.7f %.7f
 terra121.commands.terra.environment=%.1f °C; %.1f mm/yr; soil id: %d
 terra121.commands.terra.tissot= ~%.5f blocks/meter ± %.5f°
 
+terra121.commands.overpass.usage=/overpass [status:list:default:fallback]"
+terra121.commands.overpass.list.default=Default:  %s
+terra121.commands.overpass.list.fallback=Fallback: %s
+terra121.commands.overpass.list.nofallback=No fallback endpoint is set in the config
+terra121.commands.overpass.set.default=Now using the default endpoint
+terra121.commands.overpass.set.fallback=Now using the fallback endpoint
+terra121.commands.overpass.status.default=Currently using default Overpass endpoint: %s
+terra121.commands.overpass.status.fallback=Currently using fallback Overpass endpoint: %s
+
 ## command errors
 terra121.error.notcc=Must be in a Cubic Chunks world!
 terra121.error.notterra=Must be in a Terra 1 to 1 world!
