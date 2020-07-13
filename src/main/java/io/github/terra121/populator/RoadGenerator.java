@@ -3,6 +3,7 @@ package io.github.terra121.populator;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.io.File;
 
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
@@ -10,6 +11,7 @@ import io.github.terra121.TerraMod;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
 import io.github.terra121.projection.GeographicProjection;
+import io.github.terra121.EarthTerrainProcessor;
 import net.minecraft.block.BlockColored;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
