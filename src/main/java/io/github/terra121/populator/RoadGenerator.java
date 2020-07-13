@@ -29,6 +29,8 @@ public class RoadGenerator implements ICubicPopulator {
 
     private OpenStreetMaps osm;
     private Heights heights;
+    private Heights[] heightsLidar;
+    private byte[] zooms;
     private GeographicProjection projection;
 
     // only use for roads with markings
@@ -39,6 +41,14 @@ public class RoadGenerator implements ICubicPopulator {
     public RoadGenerator(OpenStreetMaps osm, Heights heights, GeographicProjection proj) {
         this.osm = osm;
         this.heights = heights;
+        projection = proj;
+    }
+    
+    public RoadGenerator(OpenStreetMaps osm, Heights heights, Heights[] heightsLidar, byte[] zooms, GeographicProjection proj) {
+        this.osm = osm;
+        this.heights = heights;
+        this.heightsLidar = heightsLidar;
+        this.zooms = zooms;
         projection = proj;
     }
 
@@ -181,7 +191,24 @@ public class RoadGenerator implements ICubicPopulator {
                 	distance = Math.sqrt(distance);
 
                     double[] geo = projection.toGeo(mainX + cubeX*(16), mainZ + cubeZ*(16));
-                    int y = (int)Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY*16);
+                    
+                    int y = -100000000;
+                    
+                    if(cfg.settings.lidar) { //Let's hope this works properly
+	            		String file_prefix = EarthTerrainProcessor.localTerrain;
+	            		
+	            		if(heightsLidar != null) {
+	            			
+		            		for(int i = 0; i < heightsLidar.length; i++) {
+		            			
+		            			if(new File(file_prefix + zooms[i] + "/" + (int)Math.floor( (geo[0] + 180) / 360 * (1<<zooms[i]) ) + "/" + (int)Math.floor( (1 - Math.log(Math.tan(Math.toRadians(geo[1])) + 1 / Math.cos(Math.toRadians(geo[1]))) / Math.PI) / 2 * (1<<zooms[i]) ) + ".png").exists()) {
+		            				y = (int)Math.floor(heightsLidar[i].estimateLocal(geo[0], geo[1]) - cubeY*16);
+		            			}
+		            		}
+		            	}
+	            	}
+                    
+                    if (y == -100000000) y = (int)Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY*16);
 
                     if (y >= 0 && y < 16) { //if not in this range, someone else will handle it
                     	
