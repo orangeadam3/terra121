@@ -114,7 +114,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         unnaturals.add(Blocks.BRICK_BLOCK);
         
         surfacePopulators = new HashSet<ICubicPopulator>();
-        if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
+        if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, heightsLidar, zooms, projection));
         surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
 
@@ -178,7 +178,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 	            			
 		            		for(int i = 0; i < heightsLidar.length; i++) {
 		            			
-		            			if(new File(file_prefix + zooms[i] + "/" + (int)Math.floor( (projected[0] + 180) / 360 * (1<<zooms[i]) ) + "/" + (int)Math.floor( (1 - Math.log(Math.tan(Math.toRadians(projected[1])) + 1 / Math.cos(Math.toRadians(projected[1]))) / Math.PI) / 2 * (1<<zooms[i]) ) + ".png").exists()) {  //Line courtesy of 0413#4162 on Discord
+		            			if(new File(file_prefix + zooms[i] + "/" + (int)Math.floor( (projected[0] + 180) / 360 * (1<<zooms[i]) ) + "/" + (int)Math.floor( (1 - Math.log(Math.tan(Math.toRadians(projected[1])) + 1 / Math.cos(Math.toRadians(projected[1]))) / Math.PI) / 2 * (1<<zooms[i]) ) + ".png").exists()) {
 		            				Y = heightsLidar[i].estimateLocal(projected[0], projected[1]);
 		            				zind = i;
 		            			}
