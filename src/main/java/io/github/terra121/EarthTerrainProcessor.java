@@ -114,7 +114,10 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         unnaturals.add(Blocks.BRICK_BLOCK);
         
         surfacePopulators = new HashSet<ICubicPopulator>();
-        if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, heightsLidar, zooms, projection));
+        
+        if(cfg.settings.lidar) if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, heightsLidar, zooms, projection));
+        else if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
+        
         surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
 
