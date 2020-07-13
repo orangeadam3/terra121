@@ -34,6 +34,7 @@ public class RoadGenerator implements ICubicPopulator {
     private Heights[] heightsLidar;
     private byte[] zooms;
     private GeographicProjection projection;
+    private boolean lidar = false;
 
     // only use for roads with markings
     public double calculateRoadWidth(int w, int l) {
@@ -52,6 +53,7 @@ public class RoadGenerator implements ICubicPopulator {
         this.heightsLidar = heightsLidar;
         this.zooms = zooms;
         projection = proj;
+        lidar = true;
     }
 
     public void generate(World world, Random rand, CubePos pos, Biome biome) {
@@ -196,7 +198,7 @@ public class RoadGenerator implements ICubicPopulator {
                     
                     int y = -100000000;
                     
-                    if(cfg.settings.lidar) { //Let's hope this works properly
+                    if(lidar) { //Let's hope this works properly
 	            		String file_prefix = EarthTerrainProcessor.localTerrain;
 	            		
 	            		if(heightsLidar != null) {
