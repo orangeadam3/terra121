@@ -1,14 +1,17 @@
 package io.github.terra121.control;
 
+import java.awt.*;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import com.sun.prism.shader.Solid_TextureFirstPassLCD_AlphaTest_Loader;
 import io.github.terra121.TerraMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiSlot;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
 
 public class DynamicOptions extends GuiSlot { 
@@ -44,7 +47,7 @@ public class DynamicOptions extends GuiSlot {
 
             if (i >= 0)
             {
-                elements[i].click(mc);
+                elements[i].click(mc, mouseX, mouseY, mouseEvent);
                 if(handler!=null)
                 	handler.onDynOptClick(elements[i]);
             }
@@ -71,9 +74,32 @@ public class DynamicOptions extends GuiSlot {
     
     public abstract static class Element {
     	public abstract void draw(Minecraft mc, int x, int y, int height, int mouseX, int mouseY, float partialTicks);
-    	public void click(Minecraft mc) {}
+    	public abstract void click(Minecraft mc, int mouseX, int mouseY, int mouseEvent);
     }
-    
+
+    public static class TextFieldElement extends Element {
+    	public GuiTextField gui;
+    	int id;
+    	String defaultText;
+    	Field outf;
+    		public TextFieldElement(int id, Field outfield, String defaultText){
+				this.id = id;
+				this.outf = outfield;
+				this.defaultText = defaultText;
+			}
+			public void click(Minecraft mc, int mouseX, int mouseY, int mouseEvent){
+				gui.mouseClicked(mouseX, mouseY, mouseEvent);
+			}
+			public void draw(Minecraft mc, int x, int y, int height, int mouseX, int mouseY, float partialTicks){
+				gui = new GuiTextField(this.id, mc.fontRenderer, x, y, 200,height>20?20:height);
+				gui.drawTextBox();
+				gui.setText(this.defaultText);
+			}
+			public String getText(){
+    			return(gui.getText());
+			}
+	}
+
     public static class CycleButtonElement<E> extends Element {
     	public GuiButton gui;
     	public E[] options;
@@ -98,7 +124,7 @@ public class DynamicOptions extends GuiSlot {
     		gui = new GuiButton(id, 0, 0, tostring.apply(options[current]));
     	}
     	
-    	public void click(Minecraft mc) {
+    	public void click(Minecraft mc, int mouseX, int mouseY, int mouseEvent) {
     		current++;
     		if(current>=options.length)
     			current = 0;

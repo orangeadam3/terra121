@@ -206,13 +206,13 @@ public class RoadGenerator implements ICubicPopulator {
 		            		for(int i = 0; i < heightsLidar.length; i++) {
 		            			
 		            			if(new File(file_prefix + zooms[i] + "/" + (int)Math.floor( (geo[0] + 180) / 360 * (1<<zooms[i]) ) + "/" + (int)Math.floor( (1 - Math.log(Math.tan(Math.toRadians(geo[1])) + 1 / Math.cos(Math.toRadians(geo[1]))) / Math.PI) / 2 * (1<<zooms[i]) ) + ".png").exists()) {
-		            				y = (int)Math.floor(heightsLidar[i].estimateLocal(geo[0], geo[1]) - cubeY*16);
+		            				if(heightsLidar[i].estimateLocal(geo[0], geo[1], true) != -10000000)y = (int)Math.floor(heightsLidar[i].estimateLocal(geo[0], geo[1], true) - cubeY*16);
 		            			}
 		            		}
 		            	}
 	            	}
                     
-                    if (y == -100000000) y = (int)Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY*16);
+                    if (y == -100000000) y = (int)Math.floor(heights.estimateLocal(geo[0], geo[1], false) - cubeY*16);
 
                     if (y >= 0 && y < 16) { //if not in this range, someone else will handle it
                     	

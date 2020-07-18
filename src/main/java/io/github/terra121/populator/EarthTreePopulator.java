@@ -47,7 +47,7 @@ public class EarthTreePopulator implements ICubicPopulator {
 
 		double[] projected = projection.toGeo(pos.getX()*16, pos.getZ()*16);
 		
-	    double canopy = trees.estimateLocal(projected[0], projected[1]);
+	    double canopy = trees.estimateLocal(projected[0], projected[1], false);
 	    
 	    //got this fun formula messing around with data on desmos, estimate of tree cover -> number
 	    int treeCount = 30; //max so it doesn't go to infinity (which would technically be required to guarantee full coverage, but no)

@@ -55,14 +55,14 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     public static String localTerrain;
 
     public Set<Block> unnaturals;
-    private CustomGeneratorSettings cubiccfg;
-    private Set<ICubicPopulator> surfacePopulators;
-    private Map<Biome, ICubicPopulator> biomePopulators;
-    private CubicCaveGenerator caveGenerator;
-    private SnowPopulator snow;
+    private final CustomGeneratorSettings cubiccfg;
+    private final Set<ICubicPopulator> surfacePopulators;
+    private final Map<Biome, ICubicPopulator> biomePopulators;
+    private final CubicCaveGenerator caveGenerator;
+    private final SnowPopulator snow;
 	public EarthGeneratorSettings cfg;
-	private boolean doRoads;
-	private boolean doBuildings;
+	private final boolean doRoads;
+	private final boolean doBuildings;
 	private byte[] zooms;
 
     public EarthTerrainProcessor(World world) {
@@ -70,8 +70,9 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
         cfg = new EarthGeneratorSettings(world.getWorldInfo().getGeneratorOptions());
     	projection = cfg.getProjection();
-    	localTerrain = FMLCommonHandler.instance().getSavesDirectory().getPath() + "/" + FMLCommonHandler.instance().getMinecraftServerInstance().getFolderName() + "/lidardata/";
-    	
+    	if (!cfg.settings.customdataset.equals(""))localTerrain = cfg.settings.customdataset;
+    	else localTerrain = FMLCommonHandler.instance().getSavesDirectory().getPath() + "/" + FMLCommonHandler.instance().getMinecraftServerInstance().getFolderName() + "/lidardata/";
+	
     	doRoads = cfg.settings.roads && world.getWorldInfo().isMapFeaturesEnabled();
         doBuildings = cfg.settings.buildings && world.getWorldInfo().isMapFeaturesEnabled();
         
@@ -155,7 +156,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     public CubePrimer generateCube(int cubeX, int cubeY, int cubeZ) {
         CubePrimer primer = new CubePrimer();
 
-        double heightarr[][] = new double[16][16];
+        double[][] heightarr = new double[16][16];
         boolean surface = false;
         int zind = -1;
         
@@ -182,14 +183,15 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 		            		for(int i = 0; i < heightsLidar.length; i++) {
 		            			
 		            			if(new File(file_prefix + zooms[i] + "/" + (int)Math.floor( (projected[0] + 180) / 360 * (1<<zooms[i]) ) + "/" + (int)Math.floor( (1 - Math.log(Math.tan(Math.toRadians(projected[1])) + 1 / Math.cos(Math.toRadians(projected[1]))) / Math.PI) / 2 * (1<<zooms[i]) ) + ".png").exists()) {
-		            				Y = heightsLidar[i].estimateLocal(projected[0], projected[1]);
+		            				double heightreturn = heightsLidar[i].estimateLocal(projected[0], projected[1], true);
+		            			    if(heightreturn != -10000000)Y = heightreturn;
 		            				zind = i;
 		            			}
 		            		}
 		            	}
 	            	}
 	            	
-	                if(Y == -100000000) Y = heights.estimateLocal(projected[0], projected[1]);
+	                if(Y == -100000000) Y = heights.estimateLocal(projected[0], projected[1], false);
 	                heightarr[x][z] = Y;
 	                
 	                if(Coords.cubeToMinBlock(cubeY)<Y && Coords.cubeToMinBlock(cubeY)+16>Y) {
@@ -204,16 +206,18 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             for(int z=0; z<16; z++) {
             	double Y = heightarr[x][z];  
             	double depth = -100000000;
-            	
-            	double[] projected = projection.toGeo((cubeX*16 + x), (cubeZ*16 + z));
+                double depthreturn = -10000000;
+
+                double[] projected = projection.toGeo((cubeX*16 + x), (cubeZ*16 + z));
             	double wateroff = 0;
             	if(cfg.settings.osmwater)wateroff = osm.water.estimateLocal(projected[0], projected[1]);
-            	
-            	if(zind != -1) depth = heightsLidar[zind].estimateLocal(projected[0], projected[1]); //Get bathymetric data from local directory if available
+
+            	if(zind != -1)depthreturn = heightsLidar[zind].estimateLocal(projected[0], projected[1], true);
+            	if(depthreturn != -10000000) depth = depthreturn;  //Get bathymetric data from local directory if available
             	
             	//ocean?
             	if(-0.001 < Y && Y < 0.001) {
-                    if(depth == -100000000) depth = depths.estimateLocal(projected[0], projected[1]);
+                    if(depth == -100000000) depth = depths.estimateLocal(projected[0], projected[1], false);
                     
                     if(depth < 0) {
                     	Y = depth;
@@ -269,7 +273,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             }
         }
         
-        caveGenerator.generate(world, primer, new CubePos(cubeX, cubeY, cubeZ));
+        if(cfg.settings.caves)caveGenerator.generate(world, primer, new CubePos(cubeX, cubeY, cubeZ));
 
         //spawn roads
         if((doRoads || doBuildings || cfg.settings.osmwater) && surface) {
@@ -354,7 +358,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
             if(cfg.settings.dynamicbaseheight) {
 				double[] proj = projection.toGeo((cube.getX()*16 + 8), (cube.getZ()*16 + 8));
-				cubiccfg.expectedBaseHeight = (float) heights.estimateLocal(proj[0], proj[1]);
+				cubiccfg.expectedBaseHeight = (float) heights.estimateLocal(proj[0], proj[1], false);
             }
 
             MinecraftForge.EVENT_BUS.post(new PopulateCubeEvent.Pre(world, rand, cube.getX(), cube.getY(), cube.getZ(), false));

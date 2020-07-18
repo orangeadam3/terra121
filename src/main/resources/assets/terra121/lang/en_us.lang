@@ -11,6 +11,8 @@ terra121.gui.smoothblend=Smooth Blending
 terra121.gui.dynamicbaseheight=Elevation Based Ores
 terra121.gui.osmwater=Advanced Water (experimental)
 terra121.gui.buildings=OSM Building Outlines
+terra121.gui.lidar=Custom Terrain
+terra121.gui.caves=Caves
 
 terra121.gui.biomemap=Debug Map
 
@@ -31,6 +33,7 @@ terra121.orientation.swapped=Flipped Axis
 
 ## command messages
 terra121.commands.tpll.usage=/tpll lat lon [altitude]
+terra121.commands.dataset.usage=/dataset [dataset folder path]
 
 terra121.commands.terra.usage=/terra [where:ou] [player]\n/terra world\n/terra osm\n/terra conv[ert] [x z]:[lat lon]
 

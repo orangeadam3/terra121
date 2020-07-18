@@ -12,6 +12,7 @@ import io.github.opencubicchunks.cubicchunks.cubicgen.preset.fixer.CustomGenerat
 import io.github.opencubicchunks.cubicchunks.cubicgen.preset.fixer.PresetLoadError;
 import io.github.terra121.projection.GeographicProjection;
 import io.github.terra121.projection.ScaleProjection;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class EarthGeneratorSettings {
 	
@@ -28,6 +29,8 @@ public class EarthGeneratorSettings {
 		public Boolean osmwater = false;
 		public Boolean buildings = false;
 		public Boolean lidar = false; // Experimental LIDAR data
+		public Boolean caves = true;
+		public String customdataset = "";
 	}
 	public JsonSettings settings;
 	

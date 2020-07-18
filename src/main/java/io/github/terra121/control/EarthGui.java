@@ -66,11 +66,23 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 						toggleButton(6965, "osmwater", null),
 						toggleButton(6964, "dynamicbaseheight", null),
 						toggleButton(6963, "buildings", null),
-						toggleButton(6962, "lidar", null),
+						toggleButton(6962, "caves", null),
+						toggleButton(6961, "lidar", null),
+						textField(6960, "customdataset", "Custom Terrain Directory")
 		};
 		projectMap(false);
 	}
-	
+
+	private DynamicOptions.TextFieldElement textField(int id, String field, String defaultText){
+		try {
+			return new DynamicOptions.TextFieldElement(id, EarthGeneratorSettings.JsonSettings.class.getField(field), defaultText);
+		} catch (NoSuchFieldException | SecurityException e) {
+			TerraMod.LOGGER.error("This should never happen, but find field reflection error");
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	private <E> DynamicOptions.CycleButtonElement<E> cycleButton(int id, String field, E[] list, Function<E, String> tostring) {
 		try {
 			return new DynamicOptions.CycleButtonElement<E>(id, list, EarthGeneratorSettings.JsonSettings.class.getField(field), cfg.settings, tostring);

@@ -9,15 +9,11 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
-import org.apache.commons.imaging.ImageReadException;
-import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
-import org.apache.commons.imaging.formats.tiff.TiffImageParser;
-import org.apache.logging.log4j.LogManager;
-
 import io.github.terra121.EarthTerrainProcessor;
 import io.github.terra121.TerraConfig;
 import io.github.terra121.TerraMod;
 import io.github.terra121.projection.MapsProjection;
+import scala.xml.Null;
 
 public class Heights extends TiledDataset{
     private int zoom;
@@ -44,10 +40,10 @@ public class Heights extends TiledDataset{
 
     //request a mapzen tile from amazon, this should only be needed every 2 thousand blocks or so if the cache is large enough
     //TODO: better error handle
-    protected int[] request(Coord place) {
+    protected int[] request(Coord place, boolean lidar) {
 	    	
 	    int out[] = new int[256 * 256];
-	
+
 	    for(int i=0; i<5; i++) {
 	
 	    	
@@ -105,6 +101,7 @@ public class Heights extends TiledDataset{
 	            //compile height data from image, stored in 256ths of a meter units
 	            img.getRGB(0, 0, 256, 256, out, 0, 256);
 	
+	            /*
 	            for (int x = 0; x < img.getWidth(); x++) {
 	                for (int y = 0; y < img.getHeight(); y++) {
 	                    int c = y * 256 + x;
@@ -112,6 +109,10 @@ public class Heights extends TiledDataset{
 	                    if(zoom > 10 && out[c]<-1500*256) out[c] = 0; //terrain glitch (default to 0), comment this for fun dataset glitches
 	                }
 	            }
+	            */
+
+
+
 	            return out;
 	
 	        } catch (IOException ioe) {
@@ -129,8 +130,8 @@ public class Heights extends TiledDataset{
         return out;
     }
 
-    protected double getOfficialHeight(Coord coord) {
-    	double ret = super.getOfficialHeight(coord);
+    protected double getOfficialHeight(Coord coord, boolean lidar) {
+    	double ret = super.getOfficialHeight(coord, lidar);
     	
     	//shoreline smoothing
         if(water!=null && ret>-1 && ret != 0 && ret < 200) {
@@ -147,7 +148,12 @@ public class Heights extends TiledDataset{
     }
     
 	protected double dataToDouble(int data) {
+    	if (data >> 24 != 0){ //check for alpha value
+    	data = (data & 0x00ffffff) - 8388608;
+			if (zoom > 10 && data<-1500*256)data = 0;
 		return data/256.0;
+    	}
+    	return -10000000;
 	}
 	
 	/*public static void main(String args[]) {
