@@ -15,7 +15,7 @@ Barranca del Cobre (Copper Canyon), Chihuahua, Mexico
 
 ## Build The Earth Notice
 
-Terra 1-to-1 is not affiliated with Build The Earth-- it is a separate mod that is used in the modpack, however we don't work directly with them. Any and all inquiries about Build The Earth should go to the Build The Earth Discord server, not to us.
+Terra 1-to-1 is not affiliated with Build The Earth-- it is a separate mod that is used in their modpack, however we do work directly with the Build The Earth team as Staff. Any and all inquiries about Build The Earth itself should go to the Build The Earth Discord server under the #support and #suggestions channels, not to this GitHub's issues page.
 
 ## What is it?
 
