@@ -1,12 +1,11 @@
 package io.github.terra121.control;
 
-import java.awt.*;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import com.sun.prism.shader.Solid_TextureFirstPassLCD_AlphaTest_Loader;
+//import com.sun.prism.shader.Solid_TextureFirstPassLCD_AlphaTest_Loader;
 import io.github.terra121.TerraMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -14,7 +13,8 @@ import net.minecraft.client.gui.GuiSlot;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.resources.I18n;
 
-public class DynamicOptions extends GuiSlot { 
+public class DynamicOptions extends GuiSlot {
+	
 	private Element[] elements;
 	private Handler handler;
 	
@@ -25,7 +25,8 @@ public class DynamicOptions extends GuiSlot {
         this.handler = handler;
     }
 
-    protected int getSize()
+    @Override
+	protected int getSize()
     {
         return elements.length;
     }
@@ -34,12 +35,13 @@ public class DynamicOptions extends GuiSlot {
      * The element in the slot that was clicked, boolean for whether it was double clicked or not
      * This don't work idk why, so using mouseClicked
      */
-    protected void elementClicked(int slotIndex, boolean isDoubleClick, int mouseX, int mouseY)
+    @Override
+	protected void elementClicked(int slotIndex, boolean isDoubleClick, int mouseX, int mouseY)
     {
     }
     
     //click the proper button
-    public void mouseClicked(int mouseX, int mouseY, int mouseEvent)
+    public void mouseClicked(int mouseX, int mouseY, int mouseButton)
     {
         if (this.isMouseYWithinSlotBounds(mouseY))
         {
@@ -47,57 +49,101 @@ public class DynamicOptions extends GuiSlot {
 
             if (i >= 0)
             {
-                elements[i].click(mc, mouseX, mouseY, mouseEvent);
+                elements[i].click(mc, mouseX, mouseY, mouseButton);
                 if(handler!=null)
                 	handler.onDynOptClick(elements[i]);
             }
         }
     }
+    
+	public void update() {
+		for(Element e:this.elements) e.update();
+	}
+	
+	public void keyTyped(char typedChar, int keyCode) {
+		for(Element e:this.elements) e.keyTyped(typedChar, keyCode);
+	}
 
     /**
      * Returns true if the element passed in is currently selected
      */
-    protected boolean isSelected(int slotIndex)
+    @Override
+	protected boolean isSelected(int slotIndex)
     {
         return false;
     }
 
-    protected void drawBackground()
+    @Override
+	protected void drawBackground()
     {
         //EarthGui.this.drawDefaultBackground();
     }
     
-    protected void drawSlot(int slotIndex, int xPos, int yPos, int heightIn, int mouseXIn, int mouseYIn, float partialTicks)
+    @Override
+	protected void drawSlot(int slotIndex, int xPos, int yPos, int heightIn, int mouseXIn, int mouseYIn, float partialTicks)
     {
         elements[slotIndex].draw(mc, xPos, yPos, heightIn, mouseXIn, mouseYIn, partialTicks);
     }
     
     public abstract static class Element {
     	public abstract void draw(Minecraft mc, int x, int y, int height, int mouseX, int mouseY, float partialTicks);
-    	public abstract void click(Minecraft mc, int mouseX, int mouseY, int mouseEvent);
+    	public void click(Minecraft mc, int mouseX, int mouseY, int mouseEvent) {}
+    	public void keyTyped(char typedChar, int keyCode) {}
+    	public void update() {}
     }
 
     public static class TextFieldElement extends Element {
+    	
     	public GuiTextField gui;
     	int id;
-    	String defaultText;
-    	Field outf;
-    		public TextFieldElement(int id, Field outfield, String defaultText){
+    	public String defaultText;
+    	public Field outf;
+    	public Object outO;
+    	
+    		public TextFieldElement(int id, Field outfield, Object outO, String defaultText) {
+    			this.defaultText = defaultText;
+    			this.gui = new GuiTextField(this.id, Minecraft.getMinecraft().fontRenderer, 0, 0, 200, 20);
+    			this.gui.setMaxStringLength(1000); //TODO Make that as long as it needs to be
+    			this.gui.setText(this.defaultText);
 				this.id = id;
 				this.outf = outfield;
-				this.defaultText = defaultText;
+				this.outO = outO;
 			}
-			public void click(Minecraft mc, int mouseX, int mouseY, int mouseEvent){
+    		
+			@Override
+			public void click(Minecraft mc, int mouseX, int mouseY, int mouseEvent) {
 				gui.mouseClicked(mouseX, mouseY, mouseEvent);
 			}
+			
+			@Override
 			public void draw(Minecraft mc, int x, int y, int height, int mouseX, int mouseY, float partialTicks){
-				gui = new GuiTextField(this.id, mc.fontRenderer, x, y, 200,height>20?20:height);
+				gui.x = x;
+				gui.y = y;
+				gui.height = height>20?20:height;
+				gui.width = 200;
 				gui.drawTextBox();
-				gui.setText(this.defaultText);
 			}
+			
 			public String getText(){
     			return(gui.getText());
 			}
+			
+			@Override
+			public void update() {
+				gui.updateCursorCounter();
+				try {
+					outf.set(this.outO, this.gui.getText());
+				} catch (IllegalAccessException e) {
+					TerraMod.LOGGER.error("This should never happen, but set reflection error");
+					e.printStackTrace();
+				}
+			}
+			
+			@Override
+			public void keyTyped(char typedChar, int keyCode) {
+		        gui.textboxKeyTyped(typedChar, keyCode);
+			}
+			
 	}
 
     public static class CycleButtonElement<E> extends Element {
@@ -124,7 +170,8 @@ public class DynamicOptions extends GuiSlot {
     		gui = new GuiButton(id, 0, 0, tostring.apply(options[current]));
     	}
     	
-    	public void click(Minecraft mc, int mouseX, int mouseY, int mouseEvent) {
+    	@Override
+		public void click(Minecraft mc, int mouseX, int mouseY, int mouseEvent) {
     		current++;
     		if(current>=options.length)
     			current = 0;
@@ -139,7 +186,8 @@ public class DynamicOptions extends GuiSlot {
     		gui.displayString = tostring.apply(options[current]);
     	}
     	
-    	public void draw(Minecraft mc, int x, int y, int height, int mouseX, int mouseY, float partialTicks) {
+    	@Override
+		public void draw(Minecraft mc, int x, int y, int height, int mouseX, int mouseY, float partialTicks) {
     		gui.height = height>20?20:height;
     		gui.x = x;
     		gui.y = y;

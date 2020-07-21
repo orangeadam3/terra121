@@ -8,11 +8,9 @@ import io.github.opencubicchunks.cubicchunks.cubicgen.blue.endless.jankson.api.D
 import io.github.opencubicchunks.cubicchunks.cubicgen.blue.endless.jankson.api.SyntaxError;
 import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.CustomGeneratorSettings;
 import io.github.opencubicchunks.cubicchunks.cubicgen.preset.CustomGenSettingsSerialization;
-import io.github.opencubicchunks.cubicchunks.cubicgen.preset.fixer.CustomGeneratorSettingsFixer;
 import io.github.opencubicchunks.cubicchunks.cubicgen.preset.fixer.PresetLoadError;
 import io.github.terra121.projection.GeographicProjection;
 import io.github.terra121.projection.ScaleProjection;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class EarthGeneratorSettings {
 	
@@ -53,6 +51,7 @@ public class EarthGeneratorSettings {
 		}
 	}
 	
+	@Override
 	public String toString() {
 		return gson.toJson(settings, JsonSettings.class);
 	}
