@@ -13,6 +13,10 @@ Special thanks to other developers and community who have helped us along the wa
 
 Barranca del Cobre (Copper Canyon), Chihuahua, Mexico
 
+## Build The Earth Notice
+
+Terra 1-to-1 is not affiliated with Build The Earth-- it is a separate mod that is used in their modpack, however we do work directly with the Build The Earth team as Staff. Any and all inquiries about Build The Earth itself should go to the Build The Earth Discord server under the #support and #suggestions channels, not to this GitHub's issues page.
+
 ## What is it?
 
 Terra 1-to-1 is a Minecraft Forge mod that adds a new world generation type to Minecraft that utilizes public online datasets to generate the earth's structures and features (in Minecraft) without any unfamiliar blocks or biomes at a 1 to 1 scale. 
