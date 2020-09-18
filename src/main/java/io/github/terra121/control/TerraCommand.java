@@ -16,6 +16,8 @@ import net.minecraft.world.chunk.IChunkProvider;
 import io.github.terra121.EarthTerrainProcessor;
 import io.github.terra121.projection.GeographicProjection;
 import io.github.terra121.EarthBiomeProvider;
+import io.github.terra121.dataset.Water;
+import io.github.terra121.dataset.OpenStreetMaps;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.event.ClickEvent;
 import java.util.List;
@@ -57,7 +59,8 @@ public class TerraCommand extends CommandBase {
 
 		String result = "";
 		double[] c;
-		GeographicProjection projection = ((EarthTerrainProcessor)gen).projection;
+		EarthTerrainProcessor terrain = (EarthTerrainProcessor)gen;
+		GeographicProjection projection = terrain.projection;
 
 		switch (args.length==0?"":args[0].toLowerCase())
 		{
@@ -69,7 +72,7 @@ public class TerraCommand extends CommandBase {
 
 		case "world":
 			//TODO: specifiy what setting to get
-			result = I18n.format("terra121.commands.terra.gensettings") + ((EarthTerrainProcessor)gen).cfg.toString();
+			result = I18n.format("terra121.commands.terra.gensettings") + terrain.cfg.toString();
 			break;
 
 		case "osm":
@@ -119,6 +122,15 @@ public class TerraCommand extends CommandBase {
 			c = projection.tissot(c[0], c[1], 0.0000001);
 
 			result =  I18n.format("terra121.commands.terra.tissot", Math.sqrt(Math.abs(c[0])), c[1]*180.0/Math.PI);
+			break;
+
+		case "invertwater": case "invwtr": case "restorewater": case "rstwtr":
+			
+			if(!isOp(sender)) {
+				throw new CommandException("terra121.error.notop", new Object[0]);
+			}
+
+			result = doInvert( getCoordArgs(sender, args, projection), terrain, args[0].toLowerCase().charAt(0)=='r');
 			break;
 
 		default:
@@ -178,6 +190,27 @@ public class TerraCommand extends CommandBase {
 		double[] proj = projection.toGeo(pos.x, pos.z);
 
 		return proj;
+	}
+	
+	//invert water
+	private String doInvert(double[] pos, EarthTerrainProcessor terrain, boolean restore) throws CommandException {
+		if( !terrain.cfg.settings.osmwater || terrain.osm == null || terrain.osm.water == null ) {
+			throw new CommandException("terra121.error.nowtr", new Object[0]);
+		}
+		
+		OpenStreetMaps.Coord region = terrain.osm.getRegion(pos[0],pos[1]);
+		
+		Water water = terrain.osm.water;
+		water.doingInverts = true;
+		
+		System.out.println(region);
+		
+		if( restore ? water.inverts.remove(region) : water.inverts.add(region) ) {
+			
+			return I18n.format(restore?"terra121.commands.terra.rstwtr":"terra121.commands.terra.invwtr", region.x, region.y);
+		}
+		
+		throw new CommandException(I18n.format("terra121.error.invwtr", region.x, region.y), new Object[0]);
 	}
 
 	private boolean isOp(ICommandSender sender) {

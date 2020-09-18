@@ -39,6 +39,8 @@ terra121.commands.terra.latlon=lat lon: %.7f %.7f
 terra121.commands.terra.xy=x y: %.7f %.7f
 terra121.commands.terra.environment=%.1f °C; %.1f mm/yr; soil id: %d
 terra121.commands.terra.tissot= ~%.5f blocks/meter ± %.5f°
+terra121.commands.terra.rstwtr=Water generation of Region ( %d, %d ) restored to default (This will only show up on newly generated chunks)
+terra121.commands.terra.invwtr=Water generation of Region ( %d, %d ) inverted (This will only show up on newly generated chunks)
 
 ## command errors
 terra121.error.notcc=Must be in a Cubic Chunks world!
@@ -48,3 +50,6 @@ terra121.error.getcoords=Failed to get Coordinates!
 terra121.error.notplayer=You are not a player, please specify one!
 terra121.error.unknownplayer=Unknown player!
 terra121.error.notopothers=OP required for info on other players!
+terra121.error.notop=Permissions or OP required to use this command!
+terra121.error.nowtr=This world does not use Advanced Water!
+terra121.error.invwtr=Region ( %d, %d ) is already in that state!
