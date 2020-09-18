@@ -10,7 +10,11 @@ terra121.gui.roads=Drogi
 terra121.gui.smoothblend=Wygładzanie terenu
 terra121.gui.dynamicbaseheight=Wypiętrzone rudy
 terra121.gui.osmwater=Wody śródlądowe (eksperymentalne)
-terra121.gui.buildings=Krawędzie budynków z OSM
+
+# Building generation types
+terra121.buildings.none=Brak Budynków
+terra121.buildings.outlines=Krawędzie Budynków z OSM
+terra121.buildings.shells=Skorupy Budynków z OSM
 
 ## Projection types
 terra121.projection.web_mercator=Merkatora

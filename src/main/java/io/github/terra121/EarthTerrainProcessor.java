@@ -25,6 +25,7 @@ import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.CustomGenerato
 import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.structure.CubicCaveGenerator;
 import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
+import io.github.terra121.populator.BuildingGenerator;
 import io.github.terra121.populator.CliffReplacer;
 import io.github.terra121.populator.EarthTreePopulator;
 import io.github.terra121.populator.RoadGenerator;
@@ -54,11 +55,12 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     private CustomGeneratorSettings cubiccfg;
     private Set<ICubicPopulator> surfacePopulators;
     private Map<Biome, ICubicPopulator> biomePopulators;
+    private BuildingGenerator buildingGenerator;
     private CubicCaveGenerator caveGenerator;
     private SnowPopulator snow;
 	public EarthGeneratorSettings cfg;
 	private boolean doRoads;
-	private boolean doBuildings;
+	private OpenStreetMaps.BuildingGenerationType buildingGenerationType;
 
     public EarthTerrainProcessor(World world) {
         super(world);
@@ -67,11 +69,11 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     	projection = cfg.getProjection();
     	
     	doRoads = cfg.settings.roads && world.getWorldInfo().isMapFeaturesEnabled();
-        doBuildings = cfg.settings.buildings && world.getWorldInfo().isMapFeaturesEnabled();
+        buildingGenerationType = world.getWorldInfo().isMapFeaturesEnabled() ? cfg.settings.buildingGenerationType : OpenStreetMaps.BuildingGenerationType.NONE;
         
         biomes = world.getBiomeProvider(); //TODO: make this not order dependent
 
-        osm = new OpenStreetMaps(projection, doRoads, cfg.settings.osmwater, doBuildings);
+        osm = new OpenStreetMaps(projection, doRoads, cfg.settings.osmwater, buildingGenerationType);
         heights = new Heights(13, cfg.settings.smoothblend, cfg.settings.osmwater?osm.water:null);
         depths = new Heights(10, cfg.settings.osmwater?osm.water:null); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
         
@@ -82,6 +84,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         
         surfacePopulators = new HashSet<ICubicPopulator>();
         if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
+        if(buildingGenerationType != OpenStreetMaps.BuildingGenerationType.NONE) buildingGenerator = new BuildingGenerator(osm, heights, projection, cfg.settings.buildingMaterialSetting);
         surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
 
@@ -213,8 +216,11 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         
         caveGenerator.generate(world, primer, new CubePos(cubeX, cubeY, cubeZ));
 
+        if (buildingGenerator != null)
+        buildingGenerator.generate(world, primer, new CubePos(cubeX, cubeY, cubeZ));
+
         //spawn roads
-        if((doRoads || doBuildings || cfg.settings.osmwater) && surface) {
+        if((doRoads || buildingGenerationType == OpenStreetMaps.BuildingGenerationType.OUTLINES || cfg.settings.osmwater) && surface) {
             Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeZ);
 
             if(edges != null) {

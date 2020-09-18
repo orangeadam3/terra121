@@ -10,7 +10,23 @@ terra121.gui.roads=Spawn Roads
 terra121.gui.smoothblend=Smooth Blending
 terra121.gui.dynamicbaseheight=Elevation Based Ores
 terra121.gui.osmwater=Advanced Water (experimental)
-terra121.gui.buildings=OSM Building Outlines
+
+# Building generation types
+terra121.buildings.none=No Buildings
+terra121.buildings.outlines=OSM Building Outlines
+terra121.buildings.shells=OSM Building Shells
+
+# Building generation materials
+terra121.building_material.brick=Bricks
+terra121.building_material.stone_brick=Stone Bricks
+terra121.building_material.concrete=Light Gray Concrete
+terra121.building_material.osm_brick=Bricks or OSM
+terra121.building_material.osm_stone_brick=Stone Bricks or OSM
+terra121.building_material.osm_concrete=Light Gray Concrete or OSM
+terra121.building_material.random_concrete=Random Color of Concrete
+terra121.building_material.random_plus=Random Solid Block
+terra121.building_material.osm_random_concrete=Random Color of Concrete or OSM
+terra121.building_material.osm_random_plus=Random Solid Block or OSM
 
 terra121.gui.biomemap=Debug Map
 

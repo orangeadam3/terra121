@@ -10,6 +10,8 @@ import io.github.opencubicchunks.cubicchunks.cubicgen.customcubic.CustomGenerato
 import io.github.opencubicchunks.cubicchunks.cubicgen.preset.CustomGenSettingsSerialization;
 import io.github.opencubicchunks.cubicchunks.cubicgen.preset.fixer.CustomGeneratorSettingsFixer;
 import io.github.opencubicchunks.cubicchunks.cubicgen.preset.fixer.PresetLoadError;
+import io.github.terra121.dataset.Building;
+import io.github.terra121.dataset.OpenStreetMaps;
 import io.github.terra121.projection.GeographicProjection;
 import io.github.terra121.projection.ScaleProjection;
 
@@ -26,7 +28,10 @@ public class EarthGeneratorSettings {
 		public String customcubic = "";
 		public Boolean dynamicbaseheight = true;
 		public Boolean osmwater = false;
-		public Boolean buildings = false;
+		// Kept for backward compatibility
+		public Boolean buildings = null;
+		public OpenStreetMaps.BuildingGenerationType buildingGenerationType = OpenStreetMaps.BuildingGenerationType.NONE;
+		public Building.BuildingMaterial buildingMaterialSetting = Building.BuildingMaterial.OSM_RANDOM_PLUS;
 	}
 	public JsonSettings settings;
 	
@@ -46,6 +51,14 @@ public class EarthGeneratorSettings {
 		} catch(JsonSyntaxException e) {
 			TerraMod.LOGGER.error("Invalid Earth Generator Settings, using default settings");
 			settings = new JsonSettings();
+		}
+		// Convert old field to new field
+		if (settings.buildings != null) {
+			if (settings.buildings) {
+				settings.buildingGenerationType = OpenStreetMaps.BuildingGenerationType.OUTLINES;
+			} else {
+				settings.buildingGenerationType = OpenStreetMaps.BuildingGenerationType.NONE;
+			}
 		}
 	}
 	

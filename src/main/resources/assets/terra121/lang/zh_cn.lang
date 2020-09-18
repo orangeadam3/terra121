@@ -20,8 +20,13 @@ terra121.gui.dynamicbaseheight=高海拔生成矿物
 
 terra121.gui.osmwater=高级水面（实验性）
 
-terra121.gui.buildings=OSM建筑轮廓
+# Building generation types
 
+terra121.buildings.none=没有建筑物
+
+terra121.buildings.outlines=OSM建筑轮廓
+
+terra121.buildings.shells=OSM建筑物
 
 
 ## Projection types

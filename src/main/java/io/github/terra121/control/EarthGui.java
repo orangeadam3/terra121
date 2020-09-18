@@ -8,6 +8,8 @@ import java.util.function.Function;
 
 import javax.imageio.ImageIO;
 
+import io.github.terra121.dataset.Building;
+import io.github.terra121.dataset.OpenStreetMaps;
 import org.apache.commons.io.IOUtils;
 
 import io.github.terra121.EarthGeneratorSettings;
@@ -65,9 +67,17 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 						toggleButton(6966, "roads", null),
 						toggleButton(6965, "osmwater", null),
 						toggleButton(6964, "dynamicbaseheight", null),
-						toggleButton(6963, "buildings", null),
+						cycleButton(6963, "buildingGenerationType", OpenStreetMaps.BuildingGenerationType.values(), e -> I18n.format("terra121.buildings." + e.toString().toLowerCase())),
+						conditionalShowElement(
+								cycleButton(6963, "buildingMaterialSetting", Building.BuildingMaterial.values(), e -> I18n.format("terra121.building_material." + e.toString().toLowerCase())),
+								nothing -> cfg.settings.buildingGenerationType == OpenStreetMaps.BuildingGenerationType.SHELLS
+						),
 		};
 		projectMap(false);
+	}
+
+	private DynamicOptions.ConditionalShowElement conditionalShowElement(DynamicOptions.Element element, Function<Void, Boolean> shouldDraw) {
+		return new DynamicOptions.ConditionalShowElement(element, shouldDraw);
 	}
 	
 	private <E> DynamicOptions.CycleButtonElement<E> cycleButton(int id, String field, E[] list, Function<E, String> tostring) {

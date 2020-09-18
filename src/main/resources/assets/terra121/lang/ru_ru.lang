@@ -10,7 +10,11 @@ terra121.gui.roads=Создать дороги
 terra121.gui.smoothblend=Гладкое смешивание
 terra121.gui.dynamicbaseheight=Высота руды
 terra121.gui.osmwater=Продвинутая вода (экспериментально)
-terra121.gui.buildings=Контуры здания OSM
+
+# Building generation types
+terra121.buildings.none=Нет зданий
+terra121.buildings.outlines=Контуры здания OSM
+terra121.buildings.shells=Здания OSM
 
 ## Projection types
 terra121.projection.web_mercator=Меркатор

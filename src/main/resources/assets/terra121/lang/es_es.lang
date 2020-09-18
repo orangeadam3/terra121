@@ -10,7 +10,11 @@ terra121.gui.roads=Crear Calles
 terra121.gui.smoothblend=Suavizado
 terra121.gui.dynamicbaseheight=Altura de Minerales Dinámica
 terra121.gui.osmwater=Agua Avanzada (experimental)
-terra121.gui.buildings=Guías de Construcciones
+
+# Building generation types
+terra121.buildings.none=No Edificios
+terra121.buildings.outlines=Guías de Construcciones
+terra121.buildings.shells=Edificios de OSM
 
 ## Projection types
 terra121.projection.web_mercator=Mercator
