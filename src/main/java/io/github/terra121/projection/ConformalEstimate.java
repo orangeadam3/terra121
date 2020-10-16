@@ -7,9 +7,9 @@ import java.util.Scanner;
 public class ConformalEstimate extends Airocean {
 
     InvertableVectorField forward;
-    InvertableVectorField inverse;
+    final InvertableVectorField inverse;
 
-    double VECTOR_SCALE_FACTOR = 1 / 1.1473979730192934;
+    final double VECTOR_SCALE_FACTOR = 1 / 1.1473979730192934;
 
     public ConformalEstimate() {
         InputStream is = null;

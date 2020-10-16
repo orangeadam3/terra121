@@ -8,7 +8,7 @@ public class RandomAccessRunlength<E> {
     int size;
 
     public RandomAccessRunlength() {
-        this.data = new ArrayList<Run>();
+        this.data = new ArrayList<>();
         this.size = 0;
     }
 
@@ -17,14 +17,14 @@ public class RandomAccessRunlength<E> {
     }
 
     public void add(E point) {
-        if (this.data.size() == 0 || !point.equals(this.data.get(this.data.size() - 1).value)) {
+        if (this.data.isEmpty() || !point.equals(this.data.get(this.data.size() - 1).value)) {
             this.data.add(new Run(point, this.size));
         }
         this.size++;
     }
 
     public void addRun(E point, int num) {
-        if (this.data.size() == 0 || !point.equals(this.data.get(this.data.size() - 1).value)) {
+        if (this.data.isEmpty() || !point.equals(this.data.get(this.data.size() - 1).value)) {
             this.data.add(new Run(point, this.size));
         }
         this.size += num;
@@ -86,8 +86,8 @@ public class RandomAccessRunlength<E> {
     }*/
 
     private class Run {
-        public E value;
-        public int index;
+        public final E value;
+        public final int index;
 
         public Run(E val, int idx) {
             this.value = val;

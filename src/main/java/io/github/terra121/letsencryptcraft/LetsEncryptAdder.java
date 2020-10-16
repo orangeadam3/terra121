@@ -47,7 +47,7 @@ public class LetsEncryptAdder {
         int minorVersion;
         if (matcher.matches()) {
             majorVersion = matcher.group(1);
-            minorVersion = Integer.valueOf(matcher.group(2));
+            minorVersion = Integer.parseInt(matcher.group(2));
         } else {
             majorVersion = "1.7";
             minorVersion = 110;

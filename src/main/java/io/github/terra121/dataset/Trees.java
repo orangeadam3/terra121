@@ -17,8 +17,8 @@ import java.util.HashMap;
 public class Trees extends TiledDataset {
     public static final double BLOCK_SIZE = 16 / 100000.0;
     public static final double REGION_SIZE = BLOCK_SIZE * 256;
-    public String URL_PREFIX = TerraConfig.serverTree + "TreeCover2000/ImageServer/exportImage?f=image&bbox=";
-    public String URL_SUFFIX = "&imageSR=4152&bboxSR=4152&format=tiff&adjustAspectRatio=false&&interpolation=RSP_CubicConvolution&size=256,256";
+    public final String URL_PREFIX = TerraConfig.serverTree + "TreeCover2000/ImageServer/exportImage?f=image&bbox=";
+    public final String URL_SUFFIX = "&imageSR=4152&bboxSR=4152&format=tiff&adjustAspectRatio=false&&interpolation=RSP_CubicConvolution&size=256,256";
 
     public Trees() {
         super(256, 256, TerraConfig.cacheSize, new ImageProjection(), 1.0 / BLOCK_SIZE, 1.0 / BLOCK_SIZE);
@@ -36,7 +36,7 @@ public class Trees extends TiledDataset {
             InputStream is = null;
 
             try {
-                String urlText = this.URL_PREFIX + (place.x * REGION_SIZE - 180) + "," + (90 - place.y * REGION_SIZE) + "," + ((place.x + 1) * REGION_SIZE - 180) + "," + (90 - (place.y + 1) * REGION_SIZE) + this.URL_SUFFIX;
+                String urlText = this.URL_PREFIX + (place.x * REGION_SIZE - 180) + ',' + (90 - place.y * REGION_SIZE) + ',' + ((place.x + 1) * REGION_SIZE - 180) + ',' + (90 - (place.y + 1) * REGION_SIZE) + this.URL_SUFFIX;
                 TerraMod.LOGGER.info(urlText);
 
                 URL url = new URL(urlText);
@@ -46,7 +46,7 @@ public class Trees extends TiledDataset {
 
                 ByteSourceInputStream by = new ByteSourceInputStream(is, "shits and giggles");
                 TiffImageParser p = new TiffImageParser();
-                BufferedImage img = p.getBufferedImage(by, new HashMap<String, Object>());
+                BufferedImage img = p.getBufferedImage(by, new HashMap<>());
                 is.close();
                 is = null;
 
@@ -74,7 +74,7 @@ public class Trees extends TiledDataset {
                     }
                 }
 
-                TerraMod.LOGGER.error("Failed to get tree cover data " + place.x + " " + place.y + " : " + ioe);
+                TerraMod.LOGGER.error("Failed to get tree cover data " + place.x + ' ' + place.y + " : " + ioe);
             }
         }
 

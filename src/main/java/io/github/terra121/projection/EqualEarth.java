@@ -8,14 +8,14 @@ public class EqualEarth extends GeographicProjection {
     private static final double A2 = -0.081106;
     private static final double A3 = 0.000893;
     private static final double A4 = 0.003796;
-    private final int newton = 5;
 
     public double[] toGeo(double x, double y) {
 
         double theta = y / A1; //start with initial guess at y/A1 since A1 is by far the largest term
 
         //Using newtons method to find theta
-        for (int i = 0; i < this.newton; i++) {
+        int newton = 5;
+        for (int i = 0; i < newton; i++) {
             double tpow = theta;
 
             //calculate a pseudo-y - goal and pseduo-dy/dt at theta to use newtons method root finding

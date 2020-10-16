@@ -29,14 +29,16 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
     GeographicProjection projection;
     DynamicOptions settings;
     private final DynamicOptions.Element[] settingElems;
-    private GuiButton done, cancel, biomemapbutt;
+    private GuiButton done;
+    private GuiButton cancel;
+    private GuiButton biomemapbutt;
     private BiomeMap biomemap;
 
     private int mapsize;
 
     private final EarthGeneratorSettings cfg;
 
-    GuiCreateWorld guiCreateWorld;
+    final GuiCreateWorld guiCreateWorld;
 
     public EarthGui(GuiCreateWorld guiCreateWorld, Minecraft mc) {
 
@@ -54,7 +56,7 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
             IOUtils.closeQuietly(is);
         }
 
-        String[] projs = GeographicProjection.projections.keySet().toArray(new String[GeographicProjection.projections.size()]);
+        String[] projs = GeographicProjection.projections.keySet().toArray(new String[0]);
 
         this.settingElems = new DynamicOptions.Element[]{
                 this.cycleButton(6969, "projection", projs, e -> {
@@ -76,7 +78,7 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 
     private <E> DynamicOptions.CycleButtonElement<E> cycleButton(int id, String field, E[] list, Function<E, String> tostring) {
         try {
-            return new DynamicOptions.CycleButtonElement<E>(id, list, EarthGeneratorSettings.JsonSettings.class.getField(field), this.cfg.settings, tostring);
+            return new DynamicOptions.CycleButtonElement<>(id, list, EarthGeneratorSettings.JsonSettings.class.getField(field), this.cfg.settings, tostring);
         } catch (NoSuchFieldException | SecurityException e) {
             TerraMod.LOGGER.error("This should never happen, but find field reflection error");
             e.printStackTrace();

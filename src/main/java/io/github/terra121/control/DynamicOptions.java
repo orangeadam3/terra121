@@ -73,12 +73,12 @@ public class DynamicOptions extends GuiSlot {
     }
 
     public static class CycleButtonElement<E> extends Element {
-        public GuiButton gui;
-        public E[] options;
+        public final GuiButton gui;
+        public final E[] options;
         public int current;
-        Function<E, String> tostring;
-        Field outf;
-        Object outo;
+        final Function<E, String> tostring;
+        final Field outf;
+        final Object outo;
 
         public CycleButtonElement(int id, E[] options, Field outfield, Object outobject, Function<E, String> tostring) {
             this.outo = outobject;

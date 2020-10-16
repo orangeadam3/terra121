@@ -42,20 +42,20 @@ import java.util.Set;
 
 public class EarthTerrainProcessor extends BasicCubeGenerator {
 
-    public Heights heights;
-    public Heights depths;
-    public OpenStreetMaps osm;
-    public HashMap<Biome, List<IBiomeBlockReplacer>> biomeBlockReplacers;
-    public BiomeProvider biomes;
-    public GeographicProjection projection;
+    public final Heights heights;
+    public final Heights depths;
+    public final OpenStreetMaps osm;
+    public final HashMap<Biome, List<IBiomeBlockReplacer>> biomeBlockReplacers;
+    public final BiomeProvider biomes;
+    public final GeographicProjection projection;
 
-    public Set<Block> unnaturals;
+    public final Set<Block> unnaturals;
     private final CustomGeneratorSettings cubiccfg;
     private final Set<ICubicPopulator> surfacePopulators;
     private final Map<Biome, ICubicPopulator> biomePopulators;
     private final CubicCaveGenerator caveGenerator;
     private final SnowPopulator snow;
-    public EarthGeneratorSettings cfg;
+    public final EarthGeneratorSettings cfg;
     private final boolean doRoads;
     private final boolean doBuildings;
 
@@ -74,12 +74,12 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         this.heights = new Heights(13, this.cfg.settings.smoothblend, this.cfg.settings.osmwater ? this.osm.water : null);
         this.depths = new Heights(10, this.cfg.settings.osmwater ? this.osm.water : null); //below sea level only generates a level 10, this shouldn't lag too bad cause a zoom 10 tile is frickin massive (64x zoom 13)
 
-        this.unnaturals = new HashSet<Block>();
+        this.unnaturals = new HashSet<>();
         this.unnaturals.add(Blocks.STONEBRICK);
         this.unnaturals.add(Blocks.CONCRETE);
         this.unnaturals.add(Blocks.BRICK_BLOCK);
 
-        this.surfacePopulators = new HashSet<ICubicPopulator>();
+        this.surfacePopulators = new HashSet<>();
         if (this.doRoads || this.cfg.settings.osmwater) {
             this.surfacePopulators.add(new RoadGenerator(this.osm, this.heights, this.projection));
         }
@@ -91,14 +91,14 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         //InitCubicStructureGeneratorEvent caveEvent = new InitCubicStructureGeneratorEvent(EventType.CAVE, new CubicCaveGenerator());
         this.caveGenerator = new CubicCaveGenerator();
 
-        this.biomePopulators = new HashMap<Biome, ICubicPopulator>();
+        this.biomePopulators = new HashMap<>();
 
         for (Biome biome : ForgeRegistries.BIOMES) {
             CubicBiome cubicBiome = CubicBiome.getCubic(biome);
             this.biomePopulators.put(biome, cubicBiome.getDecorator(this.cubiccfg));
         }
 
-        this.biomeBlockReplacers = new HashMap<Biome, List<IBiomeBlockReplacer>>();
+        this.biomeBlockReplacers = new HashMap<>();
         BiomeBlockReplacerConfig conf = this.cubiccfg.replacerConfig;
         CliffReplacer cliffs = new CliffReplacer();
 
@@ -173,7 +173,8 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
             	}*/
 
                 //estimate slopes
-                double dx, dz;
+                double dx;
+                double dz;
                 if (x == 16 - 1) {
                     dx = heightarr[x][z] - heightarr[x - 1][z];
                 } else {
@@ -318,9 +319,9 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
     @Override
     public void populate(ICube cube) {
-        /**
-         * If event is not canceled we will use cube populators from registry.
-         **/
+        /*
+          If event is not canceled we will use cube populators from registry.
+         */
         if (!MinecraftForge.EVENT_BUS.post(new CubePopulatorEvent(this.world, cube))) {
             Random rand = Coords.coordsSeedRandom(this.world.getSeed(), cube.getX(), cube.getY(), cube.getZ());
 
@@ -373,7 +374,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
     @Override
     public BlockPos getClosestStructure(String name, BlockPos pos, boolean findUnexplored) {
         // eyes of ender are now compasses
-        if (name.equals("Stronghold")) {
+        if ("Stronghold".equals(name)) {
             double[] vec = this.projection.vector(pos.getX(), pos.getZ(), 1, 0); //direction's to one meter north of here
 
             //normalize vector

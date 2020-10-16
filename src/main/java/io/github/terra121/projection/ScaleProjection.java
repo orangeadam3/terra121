@@ -2,7 +2,8 @@ package io.github.terra121.projection;
 
 public class ScaleProjection extends ProjectionTransform {
 
-    double scaleX, scaleY;
+    final double scaleX;
+    final double scaleY;
 
     public ScaleProjection(GeographicProjection input, double scaleX, double scaleY) {
         super(input);

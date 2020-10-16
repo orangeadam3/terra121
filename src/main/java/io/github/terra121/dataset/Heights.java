@@ -17,8 +17,6 @@ public class Heights extends TiledDataset {
 
     private final Water water;
 
-    private final double oceanRadius = 2.0 / (60 * 60);
-
     public Heights(int zoom, boolean smooth, Water water) {
         super(256, 256, TerraConfig.cacheSize, new MapsProjection(), 1 << (zoom + 8), 1 << (zoom + 8), smooth);
         this.zoom = zoom;
@@ -40,7 +38,7 @@ public class Heights extends TiledDataset {
             InputStream is = null;
 
             try {
-                String urlText = this.url_prefix + place.x + "/" + place.y + ".png";
+                String urlText = this.url_prefix + place.x + '/' + place.y + ".png";
                 TerraMod.LOGGER.info(urlText);
 
                 URL url = new URL(urlText);
@@ -78,7 +76,7 @@ public class Heights extends TiledDataset {
                     }
                 }
 
-                TerraMod.LOGGER.error("Failed to get elevation " + place.x + " " + place.y + " : " + ioe);
+                TerraMod.LOGGER.error("Failed to get elevation " + place.x + ' ' + place.y + " : " + ioe);
             }
         }
 
@@ -94,9 +92,10 @@ public class Heights extends TiledDataset {
             double[] proj = this.projection.toGeo(coord.x / this.scaleX, coord.y / this.scaleY); //another projection, i know (horrendous)
             double mine = this.water.estimateLocal(proj[0], proj[1]);
 
+            double oceanRadius = 2.0 / (60 * 60);
             if (mine > 1.4 || (ret > 10 & (mine > 1 ||
-                                           this.water.estimateLocal(proj[0] + this.oceanRadius, proj[1]) > 1 || this.water.estimateLocal(proj[0] - this.oceanRadius, proj[1]) > 1 ||
-                                           this.water.estimateLocal(proj[0], proj[1] + this.oceanRadius) > 1 || this.water.estimateLocal(proj[0], proj[1] - this.oceanRadius) > 1))) {
+                                           this.water.estimateLocal(proj[0] + oceanRadius, proj[1]) > 1 || this.water.estimateLocal(proj[0] - oceanRadius, proj[1]) > 1 ||
+                                           this.water.estimateLocal(proj[0], proj[1] + oceanRadius) > 1 || this.water.estimateLocal(proj[0], proj[1] - oceanRadius) > 1))) {
                 return -1;
             }
         }

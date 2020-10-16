@@ -36,9 +36,8 @@ public class OpenStreetMaps {
     public static void main(String[] args) {
     }
     private String URL_A = ")";
-    private final String URL_SUFFIX = ");area._[~\"natural|waterway\"~\"water|riverbank\"];out%20ids;";
     private final HashMap<Coord, Set<Edge>> chunks;
-    public LinkedHashMap<Coord, Region> regions;
+    public final LinkedHashMap<Coord, Region> regions;
     public Water water;
     private final int numcache = TerraConfig.osmCacheSize;
     private final ArrayList<Edge> allEdges;
@@ -46,14 +45,14 @@ public class OpenStreetMaps {
     private final GeographicProjection projection;
     Type wayType;
     byte wayLanes;
-    boolean doRoad;
-    boolean doWater;
-    boolean doBuildings;
+    final boolean doRoad;
+    final boolean doWater;
+    final boolean doBuildings;
     public OpenStreetMaps(GeographicProjection proj, boolean doRoad, boolean doWater, boolean doBuildings) {
         this.gson = new GsonBuilder().create();
-        this.chunks = new LinkedHashMap<Coord, Set<Edge>>();
-        this.allEdges = new ArrayList<Edge>();
-        this.regions = new LinkedHashMap<Coord, Region>();
+        this.chunks = new LinkedHashMap<>();
+        this.allEdges = new ArrayList<>();
+        this.regions = new LinkedHashMap<>();
         this.projection = proj;
         try {
             this.water = new Water(this, 256);
@@ -130,7 +129,7 @@ public class OpenStreetMaps {
 
             if (i == 5) {
                 region.failedDownload = true;
-                TerraMod.LOGGER.error("OSM region" + region.coord.x + " " + region.coord.y + " failed to download several times, no structures will spawn");
+                TerraMod.LOGGER.error("OSM region" + region.coord.x + ' ' + region.coord.y + " failed to download several times, no structures will spawn");
                 return null;
             }
         } else if (region.failedDownload) {
@@ -151,11 +150,12 @@ public class OpenStreetMaps {
 
         try {
             String bottomleft = Y + "," + X;
-            String bbox = bottomleft + "," + (Y + TILE_SIZE) + "," + (X + TILE_SIZE);
+            String bbox = bottomleft + ',' + (Y + TILE_SIZE) + ',' + (X + TILE_SIZE);
 
             String urltext = URL_PREFACE + bbox + this.URL_A + bbox + URL_B;
             if (this.doWater) {
-                urltext += URL_C + bottomleft + this.URL_SUFFIX;
+                String URL_SUFFIX = ");area._[~\"natural|waterway\"~\"water|riverbank\"];out%20ids;";
+                urltext += URL_C + bottomleft + URL_SUFFIX;
             }
 
             TerraMod.LOGGER.info(urltext);
@@ -203,9 +203,9 @@ public class OpenStreetMaps {
 
         Data data = this.gson.fromJson(str, Data.class);
 
-        Map<Long, Element> allWays = new HashMap<Long, Element>();
-        Set<Element> unusedWays = new HashSet<Element>();
-        Set<Long> ground = new HashSet<Long>();
+        Map<Long, Element> allWays = new HashMap<>();
+        Set<Element> unusedWays = new HashSet<>();
+        Set<Long> ground = new HashSet<>();
 
         for (Element elem : data.elements) {
             Attributes attributes = Attributes.NONE;
@@ -217,7 +217,12 @@ public class OpenStreetMaps {
                     continue;
                 }
 
-                String naturalv = null, highway = null, waterway = null, building = null, istunnel = null, isbridge = null;
+                String naturalv = null;
+                String highway = null;
+                String waterway = null;
+                String building = null;
+                String istunnel = null;
+                String isbridge = null;
 
                 if (this.doWater) {
                     naturalv = elem.tags.get("natural");
@@ -235,16 +240,16 @@ public class OpenStreetMaps {
                     building = elem.tags.get("building");
                 }
 
-                if (naturalv != null && naturalv.equals("coastline")) {
+                if (naturalv != null && "coastline".equals(naturalv)) {
                     this.waterway(elem, -1, region, null);
-                } else if (highway != null || (waterway != null && (waterway.equals("river") ||
-                                                                    waterway.equals("canal") || waterway.equals("stream"))) || building != null) { //TODO: fewer equals
+                } else if (highway != null || (waterway != null && ("river".equals(waterway) ||
+                                                                    "canal".equals(waterway) || "stream".equals(waterway))) || building != null) { //TODO: fewer equals
 
                     Type type = Type.ROAD;
 
                     if (waterway != null) {
                         type = Type.STREAM;
-                        if (waterway.equals("river") || waterway.equals("canal")) {
+                        if ("river".equals(waterway) || "canal".equals(waterway)) {
                             type = Type.RIVER;
                         }
 
@@ -254,11 +259,11 @@ public class OpenStreetMaps {
                         type = Type.BUILDING;
                     }
 
-                    if (istunnel != null && istunnel.equals("yes")) {
+                    if (istunnel != null && "yes".equals(istunnel)) {
 
                         attributes = Attributes.ISTUNNEL;
 
-                    } else if (isbridge != null && isbridge.equals("yes")) {
+                    } else if (isbridge != null && "yes".equals(isbridge)) {
 
                         attributes = Attributes.ISBRIDGE;
 
@@ -289,12 +294,12 @@ public class OpenStreetMaps {
                                     type = Type.MINOR;
                                     break;
                                 default:
-                                    if (highway.equals("primary_link") ||
-                                        highway.equals("secondary_link") ||
-                                        highway.equals("living_street") ||
-                                        highway.equals("bus_guideway") ||
-                                        highway.equals("service") ||
-                                        highway.equals("unclassified")) {
+                                    if ("primary_link".equals(highway) ||
+                                        "secondary_link".equals(highway) ||
+                                        "living_street".equals(highway) ||
+                                        "bus_guideway".equals(highway) ||
+                                        "service".equals(highway) ||
+                                        "unclassified".equals(highway)) {
                                         type = Type.SIDE;
                                     }
                                     break;
@@ -358,7 +363,7 @@ public class OpenStreetMaps {
                     String waterv = elem.tags.get("water");
                     String wway = elem.tags.get("waterway");
 
-                    if (waterv != null || (naturalv != null && naturalv.equals("water")) || (wway != null && wway.equals("riverbank"))) {
+                    if (waterv != null || (naturalv != null && "water".equals(naturalv)) || (wway != null && "riverbank".equals(wway))) {
                         for (Member member : elem.members) {
                             if (member.type == EType.way) {
                                 Element way = allWays.get(member.ref);
@@ -396,7 +401,7 @@ public class OpenStreetMaps {
                     String waterv = way.tags.get("water");
                     String wway = way.tags.get("waterway");
 
-                    if (waterv != null || (naturalv != null && naturalv.equals("water")) || (wway != null && wway.equals("riverbank"))) {
+                    if (waterv != null || (naturalv != null && "water".equals(naturalv)) || (wway != null && "riverbank".equals(wway))) {
                         this.waterway(way, way.id + 2400000000L, region, null);
                     }
                 }
@@ -478,7 +483,7 @@ public class OpenStreetMaps {
     private void assoiateWithChunk(Coord c, Edge edge) {
         Set<Edge> list = this.chunks.get(c);
         if (list == null) {
-            list = new HashSet<Edge>();
+            list = new HashSet<>();
             this.chunks.put(c, list);
         }
         list.add(edge);
@@ -504,12 +509,7 @@ public class OpenStreetMaps {
             for (int z = lowZ; z < highZ; z++) {
                 Set<Edge> edges = this.chunks.get(new Coord(x, z));
                 if (edges != null) {
-                    Iterator<Edge> it = edges.iterator();
-                    while (it.hasNext()) {
-                        if (it.next().region.equals(delete)) {
-                            it.remove();
-                        }
-                    }
+                    edges.removeIf(edge -> edge.region.equals(delete));
 
                     if (edges.size() <= 0) {
                         this.chunks.remove(new Coord(x, z));
@@ -538,8 +538,8 @@ public class OpenStreetMaps {
 
     //integer coordinate class
     public static class Coord {
-        public int x;
-        public int y;
+        public final int x;
+        public final int y;
 
         private Coord(int x, int y) {
             this.x = x;
@@ -556,24 +556,24 @@ public class OpenStreetMaps {
         }
 
         public String toString() {
-            return "(" + this.x + ", " + this.y + ")";
+            return "(" + this.x + ", " + this.y + ')';
         }
     }
 
     public static class Edge {
-        public Type type;
-        public double slat;
-        public double slon;
-        public double elat;
-        public double elon;
-        public Attributes attribute;
-        public byte layer_number;
-        public double slope;
-        public double offset;
+        public final Type type;
+        public final double slat;
+        public final double slon;
+        public final double elat;
+        public final double elon;
+        public final Attributes attribute;
+        public final byte layer_number;
+        public final double slope;
+        public final double offset;
 
-        public byte lanes;
+        public final byte lanes;
 
-        Region region;
+        final Region region;
 
         private Edge(double slon, double slat, double elon, double elat, Type type, byte lanes, Region region, Attributes att, byte ly) {
             //slope must not be infinity, slight inaccuracy shouldn't even be noticible unless you go looking for it
@@ -616,7 +616,7 @@ public class OpenStreetMaps {
         }
 
         public String toString() {
-            return "(" + this.slat + ", " + this.slon + "," + this.elat + "," + this.elon + ")";
+            return "(" + this.slat + ", " + this.slon + ',' + this.elat + ',' + this.elon + ')';
         }
     }
 

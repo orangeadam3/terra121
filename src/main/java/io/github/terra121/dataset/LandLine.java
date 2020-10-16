@@ -6,10 +6,10 @@ import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
 public class LandLine {
-    public TreeMap<Double, Long> breaks;
+    public final TreeMap<Double, Long> breaks;
 
     public LandLine() {
-        this.breaks = new TreeMap<Double, Long>();
+        this.breaks = new TreeMap<>();
     }
 
     public void add(double pos, long type) {
@@ -74,7 +74,7 @@ public class LandLine {
         byte[] value = new byte[this.breaks.size() + 1];
 
         index[0] = 0;
-        value[0] = (byte) (current.size() == 0 ? 0 : current.contains(-1L) ? 2 : 1);
+        value[0] = (byte) (current.isEmpty() ? 0 : current.contains(-1L) ? 2 : 1);
 
         int idx = 1;
 
@@ -90,7 +90,7 @@ public class LandLine {
                 }
 
                 index[idx] = (short) pos;
-                value[idx] = (byte) (current.size() == 0 ? 0 : current.contains(-1L) ? 2 : 1);
+                value[idx] = (byte) (current.isEmpty() ? 0 : current.contains(-1L) ? 2 : 1);
 
                 idx++;
             }

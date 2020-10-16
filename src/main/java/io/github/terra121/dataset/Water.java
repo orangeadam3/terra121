@@ -17,7 +17,7 @@ public class Water {
         this.grounding = new WaterGround(is);
         this.osm = osm;
         this.hres = horizontalres;
-        this.inverts = new HashSet<OpenStreetMaps.Coord>();
+        this.inverts = new HashSet<>();
         this.doingInverts = false;
     }
 

@@ -5,11 +5,12 @@ import java.util.Set;
 
 public class Region {
     public boolean failedDownload;
-    public OpenStreetMaps.Coord coord;
-    public Water water;
+    public final OpenStreetMaps.Coord coord;
+    public final Water water;
     public LandLine southLine;
     public LandLine[] lines;
-    public double south, west;
+    public final double south;
+    public final double west;
 
     public short[][] indexes;
     public byte[][] states;
@@ -87,7 +88,7 @@ public class Region {
         this.indexes = new short[this.water.hres][];
         this.states = new byte[this.water.hres][];
 
-        this.southLine.run(this.water.hres, ground, (status, x) -> this.addComp(this.lines[x].compileBreaks(new HashSet<Long>(status), this.water.hres), x));
+        this.southLine.run(this.water.hres, ground, (status, x) -> this.addComp(this.lines[x].compileBreaks(new HashSet<>(status), this.water.hres), x));
 
         //we are done with these resources, now that they are compiled
         this.lines = null;

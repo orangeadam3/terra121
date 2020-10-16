@@ -7,7 +7,7 @@ import java.io.InputStream;
 public class Soil {
     public static final int COLS = 10800;
     public static final int ROWS = 5400;
-    RandomAccessRunlength<Byte> data;
+    final RandomAccessRunlength<Byte> data;
 
     public Soil(InputStream input) throws IOException {
         //save some memory by tying the same bytes to the same object (idk if java does this already)
@@ -18,7 +18,7 @@ public class Soil {
 
         //save in a random access run lenth to save ram at the slight cost of efficiency
         //this works because one soil type tends to stretch more than 4km
-        this.data = new RandomAccessRunlength<Byte>();
+        this.data = new RandomAccessRunlength<>();
 
         BufferedInputStream is = new BufferedInputStream(input);
 

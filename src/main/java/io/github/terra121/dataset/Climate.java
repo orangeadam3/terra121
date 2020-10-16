@@ -58,8 +58,8 @@ public class Climate {
     }
 
     public static class ClimateData {
-        public double temp;
-        public double precip;
+        public final double temp;
+        public final double precip;
 
         public ClimateData(double temp, double precip) {
             this.temp = temp;

@@ -1,10 +1,10 @@
 package io.github.terra121.projection;
 
 public class InvertableVectorField {
-    protected static double ROOT3 = Math.sqrt(3);
-    protected double[][] VECTOR_X;
-    protected double[][] VECTOR_Y;
-    public int sideLength;
+    protected static final double ROOT3 = Math.sqrt(3);
+    protected final double[][] VECTOR_X;
+    protected final double[][] VECTOR_Y;
+    public final int sideLength;
 
     public InvertableVectorField(double[][] vx, double[][] vy) {
         this.sideLength = vx.length - 1;
@@ -37,8 +37,14 @@ public class InvertableVectorField {
             v1 = this.sideLength - u1 - 1;
         }
 
-        double valx1, valy1, valx2, valy2, valx3, valy3;
-        double y3, x3;
+        double valx1;
+        double valy1;
+        double valx2;
+        double valy2;
+        double valx3;
+        double valy3;
+        double y3;
+        double x3;
 
         double flip = 1;
 
@@ -81,9 +87,12 @@ public class InvertableVectorField {
         for (int i = 0; i < iter; i++) {
             double[] c = this.getInterpolatedVector(xest, yest);
 
-            double f = c[0] - expectedf, g = c[1] - expectedg;
-            double dfdx = c[2], dfdy = c[3];
-            double dgdx = c[4], dgdy = c[5];
+            double f = c[0] - expectedf;
+            double g = c[1] - expectedg;
+            double dfdx = c[2];
+            double dfdy = c[3];
+            double dgdx = c[4];
+            double dgdy = c[5];
 
             double determinant = 1 / (dfdx * dgdy - dfdy * dgdx);
 

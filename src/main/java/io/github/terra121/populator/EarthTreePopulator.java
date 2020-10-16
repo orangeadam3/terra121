@@ -19,14 +19,14 @@ import java.util.Set;
 
 public class EarthTreePopulator implements ICubicPopulator {
 
-    Trees trees;
+    final Trees trees;
 
-    public Set<Block> extraSurface;
+    public final Set<Block> extraSurface;
     private final GeographicProjection projection;
 
     public EarthTreePopulator(GeographicProjection proj) {
         this.trees = new Trees();
-        this.extraSurface = new HashSet<Block>();
+        this.extraSurface = new HashSet<>();
         this.extraSurface.add(Blocks.CLAY);
         this.extraSurface.add(Blocks.RED_SANDSTONE);
         this.extraSurface.add(Blocks.SANDSTONE);

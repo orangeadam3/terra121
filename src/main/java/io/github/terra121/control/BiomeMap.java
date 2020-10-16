@@ -7,14 +7,14 @@ import net.minecraft.world.biome.Biome;
 import java.util.HashMap;
 
 class BiomeMap {
-    EarthBiomeProvider biomes;
+    final EarthBiomeProvider biomes;
 
-    public HashMap<Biome, Integer> map;
+    public final HashMap<Biome, Integer> map;
 
     public BiomeMap() {
         //I don't like this but BiomeMap was always gonna be slow anyways
         this.biomes = new EarthBiomeProvider(Biomes.MUSHROOM_ISLAND);
-        this.map = new HashMap<Biome, Integer>();
+        this.map = new HashMap<>();
 
         //Full credit to Amidst for these colors
         this.map.put(Biomes.OCEAN, 0xFF000070);

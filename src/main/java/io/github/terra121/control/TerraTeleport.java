@@ -73,7 +73,8 @@ public class TerraTeleport extends CommandBase {
                 throw new WrongUsageException(this.getUsage(sender));
             }
 
-            double lon, lat;
+            double lon;
+            double lat;
 
             try {
                 lat = Double.parseDouble(args[0]);

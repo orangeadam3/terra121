@@ -9,11 +9,11 @@ import java.io.InputStream;
 
 public class Airocean extends GeographicProjection {
 
-    protected static double ARC = 2 * Math.asin(Math.sqrt(5 - Math.sqrt(5)) / Math.sqrt(10));
+    protected static final double ARC = 2 * Math.asin(Math.sqrt(5 - Math.sqrt(5)) / Math.sqrt(10));
 
     protected static final double TO_RADIANS = Math.PI / 180.0;
     protected static final double ROOT3 = Math.sqrt(3);
-    protected static double[] VERT = {
+    protected static final double[] VERT = {
             10.536199, 64.700000,
             -5.245390, 2.300882,
             58.157706, 10.447378,
@@ -51,7 +51,7 @@ public class Airocean extends GeographicProjection {
             11, 6, 7, //child of 14
             3, 7, 8, //child of 15
     };
-    public static double[] CENTER_MAP = {
+    public static final double[] CENTER_MAP = {
             -3, 7,
             -2, 5,
             -1, 7,
@@ -75,7 +75,7 @@ public class Airocean extends GeographicProjection {
             -5, -5, //20, pseudo triangle, child of 14
             -2, -7, //21 , pseudo triangle, child of 15
     };
-    public static byte[] FLIP_TRIANGLE = {
+    public static final byte[] FLIP_TRIANGLE = {
             1, 0, 1, 0, 0,
             1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
             1, 1, 1, 0, 0,
@@ -94,7 +94,7 @@ public class Airocean extends GeographicProjection {
     protected static final double EL6 = EL / 6;
     protected static final double DVE = Math.sqrt(3 + Math.sqrt(5)) / Math.sqrt(5 + Math.sqrt(5));
     protected static final double R = -3 * EL6 / DVE;
-    public static double[] OUT_OF_BOUNDS = { 0.0 / 0, 0.0 / 0 };
+    public static final double[] OUT_OF_BOUNDS = { 0.0 / 0, 0.0 / 0 };
 
     static {
 
@@ -141,7 +141,12 @@ public class Airocean extends GeographicProjection {
 
     public static void produceZYZRotationMatrix(double[] out, int offset, double a, double b, double c) {
 
-        double sina = Math.sin(a), cosa = Math.cos(a), sinb = Math.sin(b), cosb = Math.cos(b), sinc = Math.sin(c), cosc = Math.cos(c);
+        double sina = Math.sin(a);
+        double cosa = Math.cos(a);
+        double sinb = Math.sin(b);
+        double cosb = Math.cos(b);
+        double sinc = Math.sin(c);
+        double cosc = Math.cos(c);
 
         out[offset + 0] = cosa * cosb * cosc - sinc * sina;
         out[offset + 1] = -sina * cosb * cosc - sinc * cosa;
@@ -368,9 +373,12 @@ public class Airocean extends GeographicProjection {
         double bnumer = tanboff * tanboff + 1;
 
         //we will be solving for tanc, starting at t=0, tan(0) = 0
-        double tana = tanaoff, tanb = tanboff, tanc = 0;
+        double tana = tanaoff;
+        double tanb = tanboff;
+        double tanc = 0;
 
-        double adenom = 1, bdenom = 1;
+        double adenom = 1;
+        double bdenom = 1;
 
         //double fp = anumer + bnumer + 1; //derivative relative to tanc
 
@@ -454,7 +462,8 @@ public class Airocean extends GeographicProjection {
         double n = 3 + R * sumtmp - 2 * l;
         double o = sumtmp - R;
 
-        double l3 = 3 * l, m2 = 2 * m;
+        double l3 = 3 * l;
+        double m2 = 2 * m;
 
         double x = -o / n; //x = tanc
 

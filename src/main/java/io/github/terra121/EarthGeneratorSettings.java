@@ -22,7 +22,7 @@ public class EarthGeneratorSettings {
 
         this.gson = new GsonBuilder().create();
 
-        if (generatorSettings.length() == 0) { //blank string means default
+        if (generatorSettings.isEmpty()) { //blank string means default
             this.settings = new JsonSettings();
         } else {
             try {
@@ -39,7 +39,7 @@ public class EarthGeneratorSettings {
     }
 
     public CustomGeneratorSettings getCustomCubic() {
-        if (this.settings.customcubic.length() == 0) {
+        if (this.settings.customcubic.isEmpty()) {
             CustomGeneratorSettings cfg = CustomGeneratorSettings.defaults();
             cfg.ravines = false;
             cfg.dungeonCount = 3; //there are way too many of these by default (in my humble opinion)
@@ -62,7 +62,7 @@ public class EarthGeneratorSettings {
         } catch (PresetLoadError | DeserializationException err) {
             throw new RuntimeException(err);
         } catch (SyntaxError err) {
-            String message = err.getMessage() + "\n" + err.getLineMessage();
+            String message = err.getMessage() + '\n' + err.getLineMessage();
             throw new RuntimeException(message, err);
         }
     }
@@ -89,15 +89,15 @@ public class EarthGeneratorSettings {
 
     //json template to be filled by Gson
     public static class JsonSettings {
-        public String projection = "equirectangular";
-        public GeographicProjection.Orientation orentation = GeographicProjection.Orientation.swapped;
+        public final String projection = "equirectangular";
+        public final GeographicProjection.Orientation orentation = GeographicProjection.Orientation.swapped;
         public Double scaleX = 100000.0;
         public Double scaleY = 100000.0;
-        public Boolean smoothblend = true;
-        public Boolean roads = true;
-        public String customcubic = "";
-        public Boolean dynamicbaseheight = true;
-        public Boolean osmwater = false;
-        public Boolean buildings = false;
+        public final Boolean smoothblend = true;
+        public final Boolean roads = true;
+        public final String customcubic = "";
+        public final Boolean dynamicbaseheight = true;
+        public final Boolean osmwater = false;
+        public final Boolean buildings = false;
     }
 }

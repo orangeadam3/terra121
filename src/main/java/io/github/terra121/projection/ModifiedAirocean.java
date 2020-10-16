@@ -2,23 +2,24 @@ package io.github.terra121.projection;
 
 public class ModifiedAirocean extends ConformalEstimate {
 
-    protected static double THETA = -150 * TO_RADIANS;
-    protected static double SIN_THETA = Math.sin(THETA);
-    protected static double COS_THETA = Math.cos(THETA);
-    protected static double BERING_X = -0.3420420960118339;//-0.3282152608138795;
-    protected static double BERING_Y = -0.322211064085279;//-0.3281491467713469;
-    protected static double ARCTIC_Y = -0.2;//-0.3281491467713469;
-    protected static double ARCTIC_M = (ARCTIC_Y - ROOT3 * ARC / 4) / (BERING_X - -0.5 * ARC);
-    protected static double ARCTIC_B = ARCTIC_Y - ARCTIC_M * BERING_X;
-    protected static double ALEUTIAN_Y = -0.5000446805492526;//-0.5127463765943157;
-    protected static double ALEUTIAN_XL = -0.5149231279757507;//-0.4957832938238718;
-    protected static double ALEUTIAN_XR = -0.45;
-    protected static double ALEUTIAN_M = (BERING_Y - ALEUTIAN_Y) / (BERING_X - ALEUTIAN_XR);
-    protected static double ALEUTIAN_B = BERING_Y - ALEUTIAN_M * BERING_X;
+    protected static final double THETA = -150 * TO_RADIANS;
+    protected static final double SIN_THETA = Math.sin(THETA);
+    protected static final double COS_THETA = Math.cos(THETA);
+    protected static final double BERING_X = -0.3420420960118339;//-0.3282152608138795;
+    protected static final double BERING_Y = -0.322211064085279;//-0.3281491467713469;
+    protected static final double ARCTIC_Y = -0.2;//-0.3281491467713469;
+    protected static final double ARCTIC_M = (ARCTIC_Y - ROOT3 * ARC / 4) / (BERING_X - -0.5 * ARC);
+    protected static final double ARCTIC_B = ARCTIC_Y - ARCTIC_M * BERING_X;
+    protected static final double ALEUTIAN_Y = -0.5000446805492526;//-0.5127463765943157;
+    protected static final double ALEUTIAN_XL = -0.5149231279757507;//-0.4957832938238718;
+    protected static final double ALEUTIAN_XR = -0.45;
+    protected static final double ALEUTIAN_M = (BERING_Y - ALEUTIAN_Y) / (BERING_X - ALEUTIAN_XR);
+    protected static final double ALEUTIAN_B = BERING_Y - ALEUTIAN_M * BERING_X;
 
     public double[] fromGeo(double lon, double lat) {
         double[] c = super.fromGeo(lon, lat);
-        double x = c[0], y = c[1];
+        double x = c[0];
+        double y = c[1];
 
         boolean easia = this.isEurasianPart(x, y);
 

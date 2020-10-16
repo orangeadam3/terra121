@@ -11,7 +11,7 @@ import java.util.Set;
 //shear cliff faces should not be grass or dirt
 public class CliffReplacer implements IBiomeBlockReplacer {
 
-    public static Set<Block> badSlope = new HashSet<Block>();
+    public static final Set<Block> badSlope = new HashSet<>();
 
     static {
         badSlope.add(Blocks.GRASS);

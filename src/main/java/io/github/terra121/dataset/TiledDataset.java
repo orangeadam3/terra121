@@ -8,19 +8,19 @@ import java.util.LinkedHashMap;
 public abstract class TiledDataset {
     //TODO: better datatypes
     private final LinkedHashMap<Coord, int[]> cache;
-    protected int numcache;
+    protected final int numcache;
     protected final int width;
     protected final int height;
-    protected GeographicProjection projection;
+    protected final GeographicProjection projection;
     //TODO: scales are obsolete with new ScaleProjection type
-    protected double scaleX;
-    protected double scaleY;
-    protected double[] bounds;
+    protected final double scaleX;
+    protected final double scaleY;
+    protected final double[] bounds;
     //enable smooth interpolation?
-    public boolean smooth;
+    public final boolean smooth;
 
     public TiledDataset(int width, int height, int numcache, GeographicProjection proj, double projScaleX, double projScaleY, boolean smooth) {
-        this.cache = new LinkedHashMap<Coord, int[]>();
+        this.cache = new LinkedHashMap<>();
         this.numcache = numcache;
         this.width = width;
         this.height = height;
@@ -176,7 +176,7 @@ public abstract class TiledDataset {
         }
 
         public String toString() {
-            return "(" + this.x + ", " + this.y + ")";
+            return "(" + this.x + ", " + this.y + ')';
         }
 
     }

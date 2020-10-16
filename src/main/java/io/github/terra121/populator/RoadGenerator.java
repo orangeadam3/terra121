@@ -53,7 +53,9 @@ public class RoadGenerator implements ICubicPopulator {
 
     public void generate(World world, Random rand, CubePos pos, Biome biome) {
 
-        int cubeX = pos.getX(), cubeY = pos.getY(), cubeZ = pos.getZ();
+        int cubeX = pos.getX();
+        int cubeY = pos.getY();
+        int cubeZ = pos.getZ();
 
         Set<OpenStreetMaps.Edge> edges = this.osm.chunkStructures(cubeX, cubeZ);
 

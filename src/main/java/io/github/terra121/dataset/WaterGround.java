@@ -5,12 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class WaterGround {
-    public RandomAccessRunlength<Byte> data;
+    public final RandomAccessRunlength<Byte> data;
     private final int width;
     private final int height;
 
     public WaterGround(InputStream input) throws IOException {
-        this.data = new RandomAccessRunlength<Byte>();
+        this.data = new RandomAccessRunlength<>();
         DataInputStream in = new DataInputStream(input);
 
         //save some memory by tying the same bytes to the same object (idk if java does this already) //TODO: static share with Soil.java

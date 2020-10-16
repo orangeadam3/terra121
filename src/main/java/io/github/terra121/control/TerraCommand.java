@@ -173,7 +173,8 @@ public class TerraCommand extends CommandBase {
     }
 
     double[] getNumbers(String s1, String s2) throws CommandException {
-        double x, y;
+        double x;
+        double y;
         try {
             x = Double.parseDouble(s1);
             y = Double.parseDouble(s2);
