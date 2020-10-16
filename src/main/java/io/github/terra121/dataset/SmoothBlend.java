@@ -10,9 +10,9 @@ public class SmoothBlend {
     // Standard splines require 16 control points.
     // This requires only 9 control points to produce a smooth interpolation.
     public static double compute(double x, double y,
-            double v00, double v01, double v02,
-            double v10, double v11, double v12,
-            double v20,double v21, double v22) {
+                                 double v00, double v01, double v02,
+                                 double v10, double v11, double v12,
+                                 double v20, double v21, double v22) {
 
         // Smooth fade curve. Using this directly in a lerp wouldn't work well for steep slopes.
         // But using it here with gradient ramps does a better job.

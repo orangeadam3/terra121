@@ -1,4 +1,5 @@
 package io.github.terra121.letsencryptcraft;
+
 import org.apache.commons.io.IOUtils;
 
 import javax.net.ssl.SSLContext;
@@ -11,18 +12,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
-import java.security.cert.*;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LetsEncryptAdder
-{
-    public static void addLetsEncryptCertificate() throws Exception
-    {
+public class LetsEncryptAdder {
+    public static void addLetsEncryptCertificate() throws Exception {
         InputStream cert = LetsEncryptAdder.class.getResourceAsStream("/assets/terra121/letsencryptroot/lets-encrypt-x3-cross-signed.der");
 
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        Path ksPath = Paths.get(System.getProperty("java.home"),"lib", "security", "cacerts");
+        Path ksPath = Paths.get(System.getProperty("java.home"), "lib", "security", "cacerts");
         keyStore.load(Files.newInputStream(ksPath), "changeit".toCharArray());
 
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -39,15 +39,13 @@ public class LetsEncryptAdder
         SSLContext.setDefault(sslContext);
     }
 
-    public static void doStuff(ILetsEncryptMod mod)
-    {
+    public static void doStuff(ILetsEncryptMod mod) {
         String version = System.getProperty("java.version");
         Pattern p = Pattern.compile("^(\\d+\\.\\d+).*?_(\\d+).*");
         Matcher matcher = p.matcher(version);
         String majorVersion;
         int minorVersion;
-        if (matcher.matches())
-        {
+        if (matcher.matches()) {
             majorVersion = matcher.group(1);
             minorVersion = Integer.valueOf(matcher.group(2));
         } else {
@@ -56,18 +54,15 @@ public class LetsEncryptAdder
             mod.info("Regex to parse Java version failed - applying anyway.");
         }
 
-        switch (majorVersion)
-        {
+        switch (majorVersion) {
             case "1.7":
-                if (minorVersion >= 111)
-                {
+                if (minorVersion >= 111) {
                     mod.info("Not running as Java version is at least Java 7u111.");
                     return;
                 }
                 break;
             case "1.8":
-                if (minorVersion >= 101)
-                {
+                if (minorVersion >= 101) {
                     mod.info("Not running as Java version is at least Java 8u101.");
                     return;
                 }
@@ -89,8 +84,7 @@ public class LetsEncryptAdder
             mod.error("An error occurred whilst adding the Let's Encrypt root certificate. I'm afraid you wont be able to access resources with a Let's Encrypt certificate D:", e);
         }
 
-        if (body.isEmpty())
-        {
+        if (body.isEmpty()) {
             mod.error("An unknown error occurred whilst adding the Let's Encrypt root certificate. I'm afraid you may not be able to access resources with a Let's Encrypt certificate D:");
         } else {
             mod.info("Done - you are now able to access resources with a Let's Encrypt certificate :D");

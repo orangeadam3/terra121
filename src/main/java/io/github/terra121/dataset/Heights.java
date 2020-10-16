@@ -1,67 +1,61 @@
 package io.github.terra121.dataset;
 
+import io.github.terra121.TerraConfig;
+import io.github.terra121.TerraMod;
+import io.github.terra121.projection.MapsProjection;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.io.File;
 
-import javax.imageio.ImageIO;
-
-import org.apache.commons.imaging.ImageReadException;
-import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
-import org.apache.commons.imaging.formats.tiff.TiffImageParser;
-import org.apache.logging.log4j.LogManager;
-import io.github.terra121.TerraConfig;
-import io.github.terra121.TerraMod;
-import io.github.terra121.projection.MapsProjection;
-
-public class Heights extends TiledDataset{
-    private int zoom;
+public class Heights extends TiledDataset {
+    private final int zoom;
     private String url_prefix = TerraConfig.serverTerrain;
 
-    private Water water;
-    
-    private double oceanRadius = 2.0/(60*60);
-	
+    private final Water water;
+
+    private final double oceanRadius = 2.0 / (60 * 60);
+
     public Heights(int zoom, boolean smooth, Water water) {
-    	super(256, 256, TerraConfig.cacheSize, new MapsProjection(), 1<<(zoom+8), 1<<(zoom+8), smooth);
-    	this.zoom = zoom;
-    	url_prefix += zoom+"/";
-    	this.water = water;
+        super(256, 256, TerraConfig.cacheSize, new MapsProjection(), 1 << (zoom + 8), 1 << (zoom + 8), smooth);
+        this.zoom = zoom;
+        this.url_prefix += zoom + "/";
+        this.water = water;
     }
-    
+
     public Heights(int zoom, Water water) {
-    	this(zoom, false, water);
+        this(zoom, false, water);
     }
 
     //request a mapzen tile from amazon, this should only be needed evrey 2 thousand blocks or so if the cache is large enough
     //TODO: better error handle
     protected int[] request(Coord place) {
-        int out[] = new int[256 * 256];
+        int[] out = new int[256 * 256];
 
-        for(int i=0; i<5; i++) {
+        for (int i = 0; i < 5; i++) {
 
             InputStream is = null;
 
             try {
-                String urlText = url_prefix + place.x + "/" + place.y + ".png";
+                String urlText = this.url_prefix + place.x + "/" + place.y + ".png";
                 TerraMod.LOGGER.info(urlText);
-                
+
                 URL url = new URL(urlText);
                 URLConnection con = url.openConnection();
                 con.addRequestProperty("User-Agent", TerraMod.USERAGENT);
                 is = con.getInputStream();
-                
+
                 BufferedImage img = ImageIO.read(is);
                 is.close();
                 is = null;
 
-                if(img == null) {
+                if (img == null) {
                     throw new IOException("Invalid image file");
                 }
-                
+
                 //compile height data from image, stored in 256ths of a meter units
                 img.getRGB(0, 0, 256, 256, out, 0, 256);
 
@@ -69,16 +63,19 @@ public class Heights extends TiledDataset{
                     for (int y = 0; y < img.getHeight(); y++) {
                         int c = y * 256 + x;
                         out[c] = (out[c] & 0x00ffffff) - 8388608;
-                        if(zoom > 10 && out[c]<-1500*256) out[c] = 0; //terrain glitch (default to 0), comment this for fun dataset glitches
+                        if (this.zoom > 10 && out[c] < -1500 * 256) {
+                            out[c] = 0; //terrain glitch (default to 0), comment this for fun dataset glitches
+                        }
                     }
                 }
                 return out;
 
             } catch (IOException ioe) {
-                if(is!=null) {
+                if (is != null) {
                     try {
                         is.close();
-                    } catch (IOException e) {}
+                    } catch (IOException e) {
+                    }
                 }
 
                 TerraMod.LOGGER.error("Failed to get elevation " + place.x + " " + place.y + " : " + ioe);
@@ -90,25 +87,25 @@ public class Heights extends TiledDataset{
     }
 
     protected double getOfficialHeight(Coord coord) {
-    	double ret = super.getOfficialHeight(coord);
-    	
-    	//shoreline smoothing
-        if(water!=null && ret>-1 && ret != 0 && ret < 200) {
-	        double[] proj = projection.toGeo(coord.x/scaleX, coord.y/scaleY); //another projection, i know (horrendous)
-	        double mine = water.estimateLocal(proj[0], proj[1]);
-	        
-	        if(mine>1.4 || ( ret>10 & ( mine>1 ||
-	        		water.estimateLocal(proj[0]+oceanRadius, proj[1])>1 || water.estimateLocal(proj[0]-oceanRadius, proj[1])>1 ||
-	        		water.estimateLocal(proj[0], proj[1]+oceanRadius)>1 || water.estimateLocal(proj[0], proj[1]-oceanRadius)>1))) {
-	            return -1;
+        double ret = super.getOfficialHeight(coord);
+
+        //shoreline smoothing
+        if (this.water != null && ret > -1 && ret != 0 && ret < 200) {
+            double[] proj = this.projection.toGeo(coord.x / this.scaleX, coord.y / this.scaleY); //another projection, i know (horrendous)
+            double mine = this.water.estimateLocal(proj[0], proj[1]);
+
+            if (mine > 1.4 || (ret > 10 & (mine > 1 ||
+                                           this.water.estimateLocal(proj[0] + this.oceanRadius, proj[1]) > 1 || this.water.estimateLocal(proj[0] - this.oceanRadius, proj[1]) > 1 ||
+                                           this.water.estimateLocal(proj[0], proj[1] + this.oceanRadius) > 1 || this.water.estimateLocal(proj[0], proj[1] - this.oceanRadius) > 1))) {
+                return -1;
             }
-    	}
-    	return ret;
+        }
+        return ret;
     }
-    
-	protected double dataToDouble(int data) {
-		return data/256.0;
-	}
+
+    protected double dataToDouble(int data) {
+        return data / 256.0;
+    }
 	
 	/*public static void main(String args[]) {
 		TerraMod.LOGGER = LogManager.getLogger();
