@@ -496,6 +496,7 @@ public class Airocean extends GeographicProjection {
         return this.inverseTriangleTransformNewton(x, y);
     }
 
+    @Override
     public double[] fromGeo(double lon, double lat) {
 
         lat = 90 - lat;
@@ -538,6 +539,7 @@ public class Airocean extends GeographicProjection {
         return out;
     }
 
+    @Override
     public double[] toGeo(double x, double y) {
         int face = findTriangleGrid(x, y);
 
@@ -597,10 +599,12 @@ public class Airocean extends GeographicProjection {
         return new double[]{ Math.atan2(yp, xp) / TO_RADIANS, 90 - Math.acos(zp) / TO_RADIANS };
     }
 
+    @Override
     public double[] bounds() {
         return new double[]{ -3 * ARC, -0.75 * ARC * ROOT3, 2.5 * ARC, 0.75 * ARC * ROOT3 };
     }
 
+    @Override
     public boolean upright() {
         return false;
     }
@@ -655,6 +659,7 @@ public class Airocean extends GeographicProjection {
         ImageIO.write(img, "png", new File("out.png"));
     }*/
 
+    @Override
     public double metersPerUnit() {
         return Math.sqrt(510100000000000.0 / (20 * ROOT3 * ARC * ARC / 4));
     }

@@ -24,6 +24,7 @@ public class EarthWorldType extends WorldType implements ICubicWorldType {
         super("EarthCubic");
     }
 
+    @Override
     public ICubeGenerator createCubeGenerator(World world) {
         return new EarthTerrainProcessor(world);
     }

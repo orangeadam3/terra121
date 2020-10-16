@@ -127,6 +127,7 @@ public class ConformalEstimate extends Airocean {
         inverse = new InvertableVectorField(xs, ys);
     }*/
 
+    @Override
     protected double[] triangleTransform(double x, double y, double z) {
         double[] c = super.triangleTransform(x, y, z);
 
@@ -164,6 +165,7 @@ public class ConformalEstimate extends Airocean {
         return c;
     }
 
+    @Override
     protected double[] inverseTriangleTransform(double x, double y) {
 
         //System.out.println(x+" "+y);
@@ -189,6 +191,7 @@ public class ConformalEstimate extends Airocean {
         return super.inverseTriangleTransform(c[0], c[1]);
     }
 
+    @Override
     public double metersPerUnit() {
         return (40075017 / (2 * Math.PI)) / this.VECTOR_SCALE_FACTOR;
     }

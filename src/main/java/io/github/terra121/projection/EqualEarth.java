@@ -9,6 +9,7 @@ public class EqualEarth extends GeographicProjection {
     private static final double A3 = 0.000893;
     private static final double A4 = 0.003796;
 
+    @Override
     public double[] toGeo(double x, double y) {
 
         double theta = y / A1; //start with initial guess at y/A1 since A1 is by far the largest term
@@ -45,6 +46,7 @@ public class EqualEarth extends GeographicProjection {
                 Math.asin(Math.sin(theta) * 2 / ROOT3) / TO_RADIANS };
     }
 
+    @Override
     public double[] fromGeo(double lon, double lat) {
         double sintheta = ROOT3 * Math.sin(lat * TO_RADIANS) / 2;
         double theta = Math.asin(sintheta);
@@ -64,6 +66,7 @@ public class EqualEarth extends GeographicProjection {
         return new double[]{ (2 * ROOT3 * TO_RADIANS * lon * costheta / 3) / x, y };
     }
 
+    @Override
     public double metersPerUnit() {
         return EARTH_CIRCUMFERENCE / (2 * this.bounds()[2]);
     }

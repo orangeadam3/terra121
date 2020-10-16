@@ -16,6 +16,7 @@ public class ModifiedAirocean extends ConformalEstimate {
     protected static final double ALEUTIAN_M = (BERING_Y - ALEUTIAN_Y) / (BERING_X - ALEUTIAN_XR);
     protected static final double ALEUTIAN_B = BERING_Y - ALEUTIAN_M * BERING_X;
 
+    @Override
     public double[] fromGeo(double lon, double lat) {
         double[] c = super.fromGeo(lon, lat);
         double x = c[0];
@@ -41,6 +42,7 @@ public class ModifiedAirocean extends ConformalEstimate {
         return c;
     }
 
+    @Override
     public double[] toGeo(double x, double y) {
         boolean easia;
         if (y < 0) {
@@ -107,6 +109,7 @@ public class ModifiedAirocean extends ConformalEstimate {
         return y > ALEUTIAN_M * x + ALEUTIAN_B;
     }
 
+    @Override
     public double[] bounds() {
         return new double[]{ -1.5 * ARC * ROOT3, -1.5 * ARC, 3 * ARC, ROOT3 * ARC }; //TODO: 3*ARC is prly to high
     }

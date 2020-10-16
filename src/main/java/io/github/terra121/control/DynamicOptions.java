@@ -96,6 +96,7 @@ public class DynamicOptions extends GuiSlot {
             this.gui = new GuiButton(id, 0, 0, tostring.apply(options[this.current]));
         }
 
+        @Override
         public void click(Minecraft mc) {
             this.current++;
             if (this.current >= this.options.length) {
@@ -112,6 +113,7 @@ public class DynamicOptions extends GuiSlot {
             this.gui.displayString = this.tostring.apply(this.options[this.current]);
         }
 
+        @Override
         public void draw(Minecraft mc, int x, int y, int height, int mouseX, int mouseY, float partialTicks) {
             this.gui.height = height > 20 ? 20 : height;
             this.gui.x = x;

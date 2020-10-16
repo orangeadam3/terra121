@@ -16,6 +16,7 @@ public class SaturationTrees extends Trees {
 
     public final String URL_PREFIX = TerraConfig.serverTree + "ForestCover_last/ImageServer/exportImage?f=image&bbox=";
 
+    @Override
     protected int[] request(Coord place) {
         int[] out = new int[256 * 256];
 
@@ -77,6 +78,7 @@ public class SaturationTrees extends Trees {
         return out;
     }
 
+    @Override
     protected double dataToDouble(int data) {
         return data / 256.0;
     }

@@ -71,14 +71,17 @@ public class TerraMod implements ILetsEncryptMod {
     }
 
     //stuff to implement ILetsEncryptMod
+    @Override
     public void info(String log) {
         LOGGER.info(log);
     }
 
+    @Override
     public void error(String log) {
         LOGGER.error(log);
     }
 
+    @Override
     public void error(String log, Throwable t) {
         LOGGER.error(log, t);
     }

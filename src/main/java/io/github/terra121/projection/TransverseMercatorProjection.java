@@ -8,6 +8,7 @@ public class TransverseMercatorProjection extends GeographicProjection {
         return (Math.floor(longitude / zoneWidth) + 0.5) * zoneWidth;
     }
 
+    @Override
     public double[] fromGeo(double lon, double lat) {
         double lam = Math.toRadians(lon);
         double phi = Math.toRadians(lat);
@@ -21,6 +22,7 @@ public class TransverseMercatorProjection extends GeographicProjection {
         return new double[]{ x, y };
     }
 
+    @Override
     public double[] toGeo(double x, double y) {
         double centralMeridian = getCentralMeridian(x);
         x -= centralMeridian;

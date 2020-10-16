@@ -24,10 +24,12 @@ public class Trees extends TiledDataset {
         super(256, 256, TerraConfig.cacheSize, new ImageProjection(), 1.0 / BLOCK_SIZE, 1.0 / BLOCK_SIZE);
     }
 
+    @Override
     protected double dataToDouble(int data) {
         return data / 100.0;
     }
 
+    @Override
     protected int[] request(Coord place) {
         int[] out = new int[256 * 256];
 

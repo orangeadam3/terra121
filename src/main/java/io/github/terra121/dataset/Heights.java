@@ -30,6 +30,7 @@ public class Heights extends TiledDataset {
 
     //request a mapzen tile from amazon, this should only be needed evrey 2 thousand blocks or so if the cache is large enough
     //TODO: better error handle
+    @Override
     protected int[] request(Coord place) {
         int[] out = new int[256 * 256];
 
@@ -84,6 +85,7 @@ public class Heights extends TiledDataset {
         return out;
     }
 
+    @Override
     protected double getOfficialHeight(Coord coord) {
         double ret = super.getOfficialHeight(coord);
 
@@ -102,6 +104,7 @@ public class Heights extends TiledDataset {
         return ret;
     }
 
+    @Override
     protected double dataToDouble(int data) {
         return data / 256.0;
     }
