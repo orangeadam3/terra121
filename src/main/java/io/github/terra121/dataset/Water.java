@@ -1,106 +1,103 @@
 package io.github.terra121.dataset;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
-import java.util.Arrays;
 import java.util.HashSet;
 
-import javax.imageio.ImageIO;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import io.github.terra121.TerraMod;
-import io.github.terra121.dataset.TiledDataset.Coord;
-import io.github.terra121.projection.GeographicProjection;
-
 public class Water {
-	public WaterGround grounding;
-	public OpenStreetMaps osm;
-	public int hres;
-	
-	public HashSet<OpenStreetMaps.Coord> inverts;
-	public boolean doingInverts;
-	
-	public Water(OpenStreetMaps osm, int horizontalres) throws IOException {
-		InputStream is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/ground.dat");
-		grounding = new WaterGround(is);
-		this.osm = osm;
-		this.hres = horizontalres;
-		this.inverts = new HashSet<OpenStreetMaps.Coord>();
-		this.doingInverts = false;
-	}
-	
-	public byte getState(double lon, double lat) {
-		
-		Region region = osm.regionCache(new double[] {lon,lat});
-		
-		//default if download failed
-		if(region==null)
-			return 0;
-		
-		//transform to water render res
-		lon -= region.west;
-		lat -= region.south;
-		lon /= osm.TILE_SIZE / hres;
-		lat /= osm.TILE_SIZE / hres;
-		
-		//System.out.println(lon + " " + lat);
-		
-		//TODO: range check
-		int idx = region.getStateIdx((short)lon, (short)lat);
+    public WaterGround grounding;
+    public OpenStreetMaps osm;
+    public int hres;
 
-		byte state = region.states[(int)lon][idx];
-		
-		if(doingInverts && (state==0||state==1) && inverts.contains(region.coord))
-			state = state==1?(byte)0:(byte)1; //invert state if in an inverted region
+    public HashSet<OpenStreetMaps.Coord> inverts;
+    public boolean doingInverts;
 
-		return state;
-	}
-	
-	//TODO: more efficient
-	public float estimateLocal(double lon, double lat) {
-		//bound check
-        if(!(lon <= 180 && lon >= -180 && lat <= 80 && lat >= -80)) {
-            if(lat<-80) //antartica is land
-            	return 0;
-        	return 2; //all other out of bounds is water
+    public Water(OpenStreetMaps osm, int horizontalres) throws IOException {
+        InputStream is = this.getClass().getClassLoader().getResourceAsStream("assets/terra121/data/ground.dat");
+        this.grounding = new WaterGround(is);
+        this.osm = osm;
+        this.hres = horizontalres;
+        this.inverts = new HashSet<>();
+        this.doingInverts = false;
+    }
+
+    public byte getState(double lon, double lat) {
+
+        Region region = this.osm.regionCache(new double[]{ lon, lat });
+
+        //default if download failed
+        if (region == null) {
+            return 0;
         }
 
-        double oshift = osm.TILE_SIZE / hres;
-        double ashift = osm.TILE_SIZE / hres;
-        
+        //transform to water render res
+        lon -= region.west;
+        lat -= region.south;
+        lon /= OpenStreetMaps.TILE_SIZE / this.hres;
+        lat /= OpenStreetMaps.TILE_SIZE / this.hres;
+
+        //System.out.println(lon + " " + lat);
+
+        //TODO: range check
+        int idx = region.getStateIdx((short) lon, (short) lat);
+
+        byte state = region.states[(int) lon][idx];
+
+        if (this.doingInverts && (state == 0 || state == 1) && this.inverts.contains(region.coord)) {
+            state = state == 1 ? (byte) 0 : (byte) 1; //invert state if in an inverted region
+        }
+
+        return state;
+    }
+
+    //TODO: more efficient
+    public float estimateLocal(double lon, double lat) {
+        //bound check
+        if (!(lon <= 180 && lon >= -180 && lat <= 80 && lat >= -80)) {
+            if (lat < -80) //antartica is land
+            {
+                return 0;
+            }
+            return 2; //all other out of bounds is water
+        }
+
+        double oshift = OpenStreetMaps.TILE_SIZE / this.hres;
+        double ashift = OpenStreetMaps.TILE_SIZE / this.hres;
+
         //rounding errors fixed by recalculating values from scratch (wonder if this glitch also causes the oddly strait terrain that sometimes appears)
-        double Ob = Math.floor(lon/oshift)*oshift;
-        double Ab = Math.floor(lat/ashift)*ashift;
-        
-        double Ot = Math.ceil(lon/oshift)*oshift;
-        double At = Math.ceil(lat/ashift)*ashift;
-        
-        float u = (float) ((lon-Ob)/oshift);
-        float v = (float) ((lat-Ab)/ashift);
-        
-        float ll = getState(Ob, Ab);
-        float lr = getState(Ot, Ab);
-        float ur = getState(Ot, At);
-        float ul = getState(Ob, At);
-        
+        double Ob = Math.floor(lon / oshift) * oshift;
+        double Ab = Math.floor(lat / ashift) * ashift;
+
+        double Ot = Math.ceil(lon / oshift) * oshift;
+        double At = Math.ceil(lat / ashift) * ashift;
+
+        float u = (float) ((lon - Ob) / oshift);
+        float v = (float) ((lat - Ab) / ashift);
+
+        float ll = this.getState(Ob, Ab);
+        float lr = this.getState(Ot, Ab);
+        float ur = this.getState(Ot, At);
+        float ul = this.getState(Ob, At);
+
         //all is ocean
-        if(ll==2||lr==2||ur==2||ul==2) {
-        	if(ll<2)ll += 1;
-        	if(lr<2)lr += 1;
-        	if(ur<2)ur += 1;
-        	if(ul<2)ul += 1;
+        if (ll == 2 || lr == 2 || ur == 2 || ul == 2) {
+            if (ll < 2) {
+                ll += 1;
+            }
+            if (lr < 2) {
+                lr += 1;
+            }
+            if (ur < 2) {
+                ur += 1;
+            }
+            if (ul < 2) {
+                ul += 1;
+            }
         }
-        
+
         //get perlin style interpolation on this block
-        return (1-v)*(ll*(1-u) + lr*u) + (ul*(1-u) + ur*u)*v;
-	}
+        return (1 - v) * (ll * (1 - u) + lr * u) + (ul * (1 - u) + ur * u) * v;
+    }
 	
 	/*public static void main(String args[]) {
 		TerraMod.LOGGER = LogManager.getLogger();

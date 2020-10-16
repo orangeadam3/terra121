@@ -1,56 +1,54 @@
 package io.github.terra121.dataset;
 
-import java.awt.image.BufferedImage;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.DataInputStream;
-
-import javax.imageio.ImageIO;
 
 public class WaterGround {
-	public RandomAccessRunlength<Byte> data;
-	private int width;
-	private int height;
-	
-	public WaterGround(InputStream input) throws IOException {
-		data = new RandomAccessRunlength<Byte>();
-		DataInputStream in = new DataInputStream(input);
+    public final RandomAccessRunlength<Byte> data;
+    private final int width;
+    private final int height;
 
-		//save some memory by tying the same bytes to the same object (idk if java does this already) //TODO: static share with Soil.java
-		Byte[] bytes = new Byte[256];
-		for (int x = 0; x < bytes.length; x++) {
-			bytes[x] = (byte) x;
-		}
+    public WaterGround(InputStream input) throws IOException {
+        this.data = new RandomAccessRunlength<>();
+        DataInputStream in = new DataInputStream(input);
 
-		while(in.available()>0) {
-			int v = in.readInt();
-			data.addRun(bytes[v>>>30], v&((1<<30)-1));
-		}
+        //save some memory by tying the same bytes to the same object (idk if java does this already) //TODO: static share with Soil.java
+        Byte[] bytes = new Byte[256];
+        for (int x = 0; x < bytes.length; x++) {
+            bytes[x] = (byte) x;
+        }
 
-		in.close();
-		input.close();
+        while (in.available() > 0) {
+            int v = in.readInt();
+            this.data.addRun(bytes[v >>> 30], v & ((1 << 30) - 1));
+        }
 
-		height = (int)Math.sqrt(data.size()/2);
-		width = height*2;
+        in.close();
+        input.close();
 
-		//System.out.println(data.size()+" "+height);
-	}
+        this.height = (int) Math.sqrt(this.data.size() / 2);
+        this.width = this.height * 2;
 
-	public int getWidth() {
-		return width;
-	}
-
-	public int getHeight() {
-		return height;
-	}
-	
-    public byte getOfficial(int x, int y) {
-        if(x>=width || x<0 || y>=height || y<0)
-            return 0;
-        return data.get(x + y*width);
+        //System.out.println(data.size()+" "+height);
     }
-    
+
+    public int getWidth() {
+        return this.width;
+    }
+
+    public int getHeight() {
+        return this.height;
+    }
+
+    public byte getOfficial(int x, int y) {
+        if (x >= this.width || x < 0 || y >= this.height || y < 0) {
+            return 0;
+        }
+        return this.data.get(x + y * this.width);
+    }
+
     public byte state(int x, int y) {
-		return getOfficial(x+(width/2), y+(height/2));
+        return this.getOfficial(x + (this.width / 2), y + (this.height / 2));
     }
 }

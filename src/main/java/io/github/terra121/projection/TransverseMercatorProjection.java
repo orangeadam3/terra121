@@ -2,11 +2,13 @@ package io.github.terra121.projection;
 
 public class TransverseMercatorProjection extends GeographicProjection {
     public static final double zoneWidth = Math.toRadians(6.0);
+    private static final double metersPerUnit = EARTH_CIRCUMFERENCE / (2 * Math.PI);
 
     public static double getCentralMeridian(double longitude) {
         return (Math.floor(longitude / zoneWidth) + 0.5) * zoneWidth;
     }
 
+    @Override
     public double[] fromGeo(double lon, double lat) {
         double lam = Math.toRadians(lon);
         double phi = Math.toRadians(lat);
@@ -17,9 +19,10 @@ public class TransverseMercatorProjection extends GeographicProjection {
         double x = Math.log((1.0 + b) / (1.0 - b)) / 2;
         double y = Math.atan2(Math.tan(phi), Math.cos(lam));
         x += centralMeridian;
-        return new double[] {x, y};
+        return new double[]{ x, y };
     }
 
+    @Override
     public double[] toGeo(double x, double y) {
         double centralMeridian = getCentralMeridian(x);
         x -= centralMeridian;
@@ -27,10 +30,8 @@ public class TransverseMercatorProjection extends GeographicProjection {
         double phi = Math.asin(Math.sin(y) / Math.cosh(x));
         double lon = Math.toDegrees(lam);
         double lat = Math.toDegrees(phi);
-        return new double[] {lon, lat};
+        return new double[]{ lon, lat };
     }
-
-    private static final double metersPerUnit = EARTH_CIRCUMFERENCE / (2 * Math.PI);
 
     @Override
     public double metersPerUnit() {

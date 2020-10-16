@@ -15,11 +15,16 @@ import net.minecraft.world.biome.BiomeProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class EarthWorldType extends WorldType implements ICubicWorldType  {
-    public EarthWorldType () { super("EarthCubic"); }
+public class EarthWorldType extends WorldType implements ICubicWorldType {
+    public static EarthWorldType create() {
+        return new EarthWorldType();
+    }
 
-    public static EarthWorldType create() { return new EarthWorldType(); }
+    public EarthWorldType() {
+        super("EarthCubic");
+    }
 
+    @Override
     public ICubeGenerator createCubeGenerator(World world) {
         return new EarthTerrainProcessor(world);
     }
@@ -29,29 +34,30 @@ public class EarthWorldType extends WorldType implements ICubicWorldType  {
         return new EarthBiomeProvider(Biomes.FOREST, world);
     }
 
-    @Override public IntRange calculateGenerationHeightRange(WorldServer world) {
+    @Override
+    public IntRange calculateGenerationHeightRange(WorldServer world) {
         return new IntRange(-12000, 9000);
     }
 
-    @Override public boolean hasCubicGeneratorForWorld(World w) {
+    @Override
+    public boolean hasCubicGeneratorForWorld(World w) {
         return w.provider instanceof WorldProviderSurface; // an even more general way to check if it's overworld (need custom providers)
     }
 
     public boolean isCustomizable() {
         return true;
     }
-    
-    public float getCloudHeight()
-    {
+
+    public float getCloudHeight() {
         return 5000;
     }
-    
+
     public double voidFadeMagnitude() {
-    	return 0;
+        return 0;
     }
-    
+
     @SideOnly(Side.CLIENT)
     public void onCustomizeButton(Minecraft mc, GuiCreateWorld guiCreateWorld) {
-    	mc.displayGuiScreen(new EarthGui(guiCreateWorld, mc));
+        mc.displayGuiScreen(new EarthGui(guiCreateWorld, mc));
     }
 }

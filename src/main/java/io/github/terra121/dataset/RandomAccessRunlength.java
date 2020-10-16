@@ -4,55 +4,57 @@ import java.util.ArrayList;
 
 public class RandomAccessRunlength<E> {
 
-    private ArrayList<Run> data;
+    private final ArrayList<Run> data;
     int size;
 
     public RandomAccessRunlength() {
-        data = new ArrayList<Run>();
-        size = 0;
+        this.data = new ArrayList<>();
+        this.size = 0;
     }
 
     public int size() {
-        return size;
+        return this.size;
     }
 
     public void add(E point) {
-        if(data.size()==0 || !point.equals(data.get(data.size()-1).value)) {
-            data.add(new Run(point, size));
+        if (this.data.isEmpty() || !point.equals(this.data.get(this.data.size() - 1).value)) {
+            this.data.add(new Run(point, this.size));
         }
-        size++;
+        this.size++;
     }
 
     public void addRun(E point, int num) {
-        if(data.size()==0 || !point.equals(data.get(data.size()-1).value)) {
-            data.add(new Run(point, size));
+        if (this.data.isEmpty() || !point.equals(this.data.get(this.data.size() - 1).value)) {
+            this.data.add(new Run(point, this.size));
         }
-        size += num;
+        this.size += num;
     }
 
     private int getIdx(int idx) {
-        if(idx >= size) {
-            throw new IndexOutOfBoundsException(idx + " >= " + size);
+        if (idx >= this.size) {
+            throw new IndexOutOfBoundsException(idx + " >= " + this.size);
         }
 
         int low = 0;
-        int high = data.size();
+        int high = this.data.size();
 
-        while(low < high-1) {
+        while (low < high - 1) {
             int mid = low + (high - low) / 2;
-            int val = data.get(mid).index;
-            if(idx < val)
+            int val = this.data.get(mid).index;
+            if (idx < val) {
                 high = mid;
-            else if(val < idx)
+            } else if (val < idx) {
                 low = mid;
-            else return mid;
+            } else {
+                return mid;
+            }
         }
 
         return low;
     }
 
     public E get(int idx) {
-        return data.get(getIdx(idx)).value;
+        return this.data.get(this.getIdx(idx)).value;
     }
 
     /*public Iterator<E> iterator(int start) {
@@ -84,11 +86,12 @@ public class RandomAccessRunlength<E> {
     }*/
 
     private class Run {
-        public E value;
-        public int index;
+        public final E value;
+        public final int index;
+
         public Run(E val, int idx) {
-            value = val;
-            index = idx;
+            this.value = val;
+            this.index = idx;
         }
     }
 }

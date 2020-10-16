@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class Soil {
-    RandomAccessRunlength<Byte> data;
     public static final int COLS = 10800;
     public static final int ROWS = 5400;
+    final RandomAccessRunlength<Byte> data;
 
     public Soil(InputStream input) throws IOException {
         //save some memory by tying the same bytes to the same object (idk if java does this already)
@@ -18,31 +18,32 @@ public class Soil {
 
         //save in a random access run lenth to save ram at the slight cost of efficiency
         //this works because one soil type tends to stretch more than 4km
-        data = new RandomAccessRunlength<Byte>();
+        this.data = new RandomAccessRunlength<>();
 
         BufferedInputStream is = new BufferedInputStream(input);
 
         int i;
         while ((i = is.read()) >= 0) {
-            data.add(bytes[i]);
+            this.data.add(bytes[i]);
         }
 
 
-        if(data.size() != COLS*ROWS) {
-            throw new IOException("Soil data invalid, " + data.size());
+        if (this.data.size() != COLS * ROWS) {
+            throw new IOException("Soil data invalid, " + this.data.size());
         }
     }
 
     public byte getOfficial(int x, int y) {
-        if(x>=COLS || x<0 || y>=ROWS || y<0)
+        if (x >= COLS || x < 0 || y >= ROWS || y < 0) {
             return 0;
-        return data.get(x + y*COLS);
+        }
+        return this.data.get(x + y * COLS);
     }
 
     public byte getPoint(double x, double y) {
-        int X = (int)(COLS*(x+180)/360);
-        int Y = (int)(ROWS*(90-y)/180);
+        int X = (int) (COLS * (x + 180) / 360);
+        int Y = (int) (ROWS * (90 - y) / 180);
 
-        return getOfficial(X, Y);
+        return this.getOfficial(X, Y);
     }
 }
