@@ -83,7 +83,7 @@ public class TerraTeleport extends CommandBase {
 			double proj[] = terrain.projection.fromGeo(lon, lat);
 
 			if(alt==null)
-				alt = String.valueOf(terrain.heights.estimateLocal(lon, lat)+1);
+				alt = String.valueOf(terrain.heights.estimateLocal(lon, lat, false)+1);
 
 			new CommandTP().execute(server, sender, new String[] {
 				String.valueOf(proj[0]), alt, String.valueOf(proj[1])});

@@ -21,16 +21,16 @@ public class Trees extends TiledDataset {
 	
 	public static final double BLOCK_SIZE = 16/100000.0;
 	public static final double REGION_SIZE = BLOCK_SIZE*256;
-	
-	public Trees() {
-		super(256, 256, TerraConfig.cacheSize, new ImageProjection(), 1.0/BLOCK_SIZE, 1.0/BLOCK_SIZE);
-	}
+
+    public Trees() {
+        super(256, 256, TerraConfig.cacheSize, new ImageProjection(), 1.0 / BLOCK_SIZE, 1.0 / BLOCK_SIZE);
+    }
 
 	protected double dataToDouble(int data) {
 		return data/100.0;
 	}
 
-	protected int[] request(Coord place) {
+	protected int[] request(Coord place, boolean lidar) { //TODO: custom tree data
 		int out[] = new int[256 * 256];
 
         for(int i=0; i<5; i++) {

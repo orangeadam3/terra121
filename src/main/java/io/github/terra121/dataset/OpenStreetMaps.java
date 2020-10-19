@@ -30,8 +30,8 @@ public class OpenStreetMaps {
     public static final double TILE_SIZE = 1 / 60.0;//250*(360.0/40075000.0);
     private static final double NOTHING = 0.01;
 
-    private static final String OVERPASS_INSTANCE = "https://overpass-api.de";//"https://overpass.kumi.systems";
-    private static final String URL_PREFACE = TerraConfig.serverOverpass + "/api/interpreter?data=[out:json];way(";
+    private static String overpassInstance = TerraConfig.serverOverpassDefault;
+    private static final String URL_PREFACE = "/?data=[out:json];way(";
     private String URL_A = ")";
     private static final String URL_B = ")%20tags%20qt;(._<;);out%20body%20qt;";
     private static final String URL_C = "is_in(";
@@ -48,6 +48,8 @@ public class OpenStreetMaps {
     private Gson gson;
 
     private GeographicProjection projection;
+    
+    private static Thread fallbackCancellerThread;
 
     public static enum Type {
         IGNORE, ROAD, MINOR, SIDE, MAIN, INTERCHANGE, LIMITEDACCESS, FREEWAY, STREAM, RIVER, BUILDING, RAIL
@@ -155,14 +157,17 @@ public class OpenStreetMaps {
             return false;
         }
 
+
+        
         try {
+        	
             String bottomleft = Y + "," + X;
             String bbox = bottomleft + "," + (Y + TILE_SIZE) + "," + (X + TILE_SIZE);
 
-            String urltext = URL_PREFACE + bbox + URL_A + bbox + URL_B;
+            String urltext = overpassInstance + URL_PREFACE + bbox + URL_A + bbox + URL_B;
             if (doWater) urltext += URL_C + bottomleft + URL_SUFFIX;
-
-            TerraMod.LOGGER.info(urltext);
+            
+        	TerraMod.LOGGER.info(urltext);
 
             //kumi systems request a meaningful user-agent
             URL url = new URL(urltext);
@@ -173,10 +178,33 @@ public class OpenStreetMaps {
             doGson(is, region);
 
             is.close();
-
+            
         } catch (Exception e) {
-            TerraMod.LOGGER.error("Osm region download failed, no osm features will spawn, " + e);
+        	TerraMod.LOGGER.error("Osm region download failed, " + e);
             e.printStackTrace();
+        	if(!TerraConfig.serverOverpassFallback.equals("") && !TerraConfig.serverOverpassFallback.equals(overpassInstance)) {
+        		TerraMod.LOGGER.error("We were using the main overpass instance (" + TerraConfig.serverOverpassDefault
+        				+ "), switching to the backup one (" + TerraConfig.serverOverpassFallback + ")");
+        		overpassInstance = TerraConfig.serverOverpassFallback;
+        		cancelFallbackThread();
+        		fallbackCancellerThread = new Thread(() -> {
+        			try {
+        				TerraMod.LOGGER.info("Started fallback thread, it will try to switch back to the main endpoint in " + TerraConfig.overpassCheckDelay + "mn");
+						Thread.sleep(TerraConfig.overpassCheckDelay * 60000);
+						TerraMod.LOGGER.info("Trying to switch back to the main overpass endpoint");
+	        			overpassInstance = TerraConfig.serverOverpassDefault;
+					} catch (InterruptedException e1) {
+						TerraMod.LOGGER.info("Stopping fallback sleeping thread");
+					}
+        			
+        		});
+        		fallbackCancellerThread.setName("Overpass fallback check thread");
+        		fallbackCancellerThread.start();
+        		return this.regiondownload(region);
+        	} else {
+        		TerraMod.LOGGER.error("We were already using the backup Overpass endpoint or no backup endpoint is set, no structures will spawn");
+        	}
+            
             return false;
         }
 
@@ -623,5 +651,19 @@ public class OpenStreetMaps {
     }
 
     public static void main(String[] args) {
+    }
+    
+    public static String getOverpassEndpoint() {
+    	return overpassInstance;
+    }
+    
+    public static void setOverpassEndpoint(String urlBase) {
+    	OpenStreetMaps.overpassInstance = urlBase;
+    }
+    
+    public static void cancelFallbackThread() {
+    	if(fallbackCancellerThread != null && fallbackCancellerThread.isAlive())
+    		fallbackCancellerThread.interrupt();
+    	fallbackCancellerThread = null;
     }
 }

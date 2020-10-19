@@ -1,5 +1,6 @@
 package io.github.terra121;
 
+import io.github.terra121.dataset.OpenStreetMaps;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.Config.*;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -8,22 +9,36 @@ import net.minecraftforge.common.config.ConfigManager;
 
 @Config(modid = TerraMod.MODID)
 public class TerraConfig {
+	
 	@Name("overpass_interpreter")
 	@Comment({"Overpass interpreter for road and water OpenStreetMap data",
 			  "Make sure you follow the instances guidelines",
 			  "URL must be able to take interpreter input by adding a \'?\'",
 			  "e.x. \"https://.../api/interpreter\""})
-	public static String serverOverpass = "https://overpass.kumi.systems/api/interpreter"; //"https://overpass-api.de/api/interpreter"
+	public static String serverOverpassDefault = "https://overpass.kumi.systems/api/interpreter"; //"https://overpass-api.de/api/interpreter"
+	
+	@Name("fallback_overpass_interpreter")
+	@Comment("This is the same as overpass_interpreter, except it's only used as a fallback when overpass_interpreter is down")
+	public static String serverOverpassFallback = "https://lz4.overpass-api.de/api/interpreter";
+	
+	@Name("overpass_fallback_check_delay")
+	@Comment({"The delay for which to switch to the fallback overpass endpoint",
+		      "After that time, the game will try switching back to the main one if possible,",
+		      "This is in minutes"})
+	@RangeInt(min = 1)
+	public static int overpassCheckDelay = 30;
 	
 	@Name("rest_tree_services")
 	@Comment({"An ArcGIS REST API instance with tree cover support",
 		  	  "Should allow all tree data sources used (just TreeCover2000 right now)",
 			  "End with a \"/\" e.x. \"https://.../arcgis/rest/services/\""})
+	@RequiresMcRestart
 	public static String serverTree = "https://gis-treecover.wri.org/arcgis/rest/services/";
 	
 	@Name("terrarium_instance")
 	@Comment({"A Mapzen Terrain Tile terrarium instance allowing x/y.png queries",
 			  "End with a \"/\" e.x. https://.../terrarium/"})
+	@RequiresMcRestart
 	public static String serverTerrain = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/";
 	
 	@Name("cache_size")
@@ -33,6 +48,7 @@ public class TerraConfig {
 			  "The memory requirement for the tiles will be about cacheSize/2 MB",
 			  "Warning: This number should be at least 4*playerCount to prevent massive slowdowns and internet usage, lower at your own risk"})
 	@RangeInt(min = 1)
+	@RequiresWorldRestart
 	public static int cacheSize = 100;
 	
 	@Name("osm_cache_size")
@@ -41,6 +57,7 @@ public class TerraConfig {
 			  "Warning: The amount of memory taken by theses tiles fluctuates based on region and is not well studied, raise at your own risk",
 			  "Warning: This number should be at least 9*playerCount to prevent massive slowdowns and internet useage, lower at your own risk"})
 	@RangeInt(min = 1)
+	@RequiresMcRestart
 	public static int osmCacheSize = 1000;
 	
 	@Name("three_water")
@@ -51,7 +68,10 @@ public class TerraConfig {
 
 	@SubscribeEvent
 	public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-		if(TerraMod.MODID.equals(event.getModID()))
+		if(TerraMod.MODID.equals(event.getModID())) {
 			ConfigManager.sync(TerraMod.MODID, Config.Type.INSTANCE);
+			OpenStreetMaps.cancelFallbackThread();
+			OpenStreetMaps.setOverpassEndpoint(serverOverpassDefault);
+		}
 	}
 }

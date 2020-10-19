@@ -9,6 +9,7 @@ import java.util.function.Function;
 import javax.imageio.ImageIO;
 
 import org.apache.commons.io.IOUtils;
+import org.lwjgl.input.Keyboard;
 
 import io.github.terra121.EarthGeneratorSettings;
 import io.github.terra121.TerraMod;
@@ -66,10 +67,23 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 						toggleButton(6965, "osmwater", null),
 						toggleButton(6964, "dynamicbaseheight", null),
 						toggleButton(6963, "buildings", null),
+						toggleButton(6962, "caves", null),
+						toggleButton(6961, "lidar", null),
+						textField(6960, "customdataset", "Custom Terrain Directory")
 		};
 		projectMap(false);
 	}
-	
+
+	private DynamicOptions.TextFieldElement textField(int id, String field, String defaultText) {
+		try {
+			return new DynamicOptions.TextFieldElement(id, EarthGeneratorSettings.JsonSettings.class.getField(field), cfg.settings, defaultText);
+		} catch (NoSuchFieldException | SecurityException e) {
+			TerraMod.LOGGER.error("This should never happen, but find field reflection error");
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	private <E> DynamicOptions.CycleButtonElement<E> cycleButton(int id, String field, E[] list, Function<E, String> tostring) {
 		try {
 			return new DynamicOptions.CycleButtonElement<E>(id, list, EarthGeneratorSettings.JsonSettings.class.getField(field), cfg.settings, tostring);
@@ -162,6 +176,7 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 		done = new GuiButton(69, width-106, height-26, 100, 20, I18n.format("gui.done"));
 		cancel = new GuiButton(69, 6, height-26, 100, 20, I18n.format("gui.cancel"));
 		biomemapbutt = new GuiButton(69, width-106, 6, 100, 20, I18n.format("terra121.gui.biomemap"));
+		Keyboard.enableRepeatEvents(true); //Make it more comfortable to type in text fields
     }
 	
 	@Override
@@ -188,6 +203,7 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
+	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseEvent)
     {
 		if(done.mousePressed(mc, mouseX, mouseY)) {
@@ -216,5 +232,22 @@ public class EarthGui extends GuiScreen implements DynamicOptions.Handler {
 	
 	@Override
 	public void onDynOptClick(Element elem) {
+	}
+	
+	@Override
+	protected void keyTyped(char typedChar, int keyCode) {
+		this.settings.keyTyped(typedChar, keyCode);
+	}
+	
+	@Override
+	public void updateScreen() {
+		super.updateScreen();
+		this.settings.update();
+	}
+	
+	@Override
+	public void onGuiClosed() {
+		super.onGuiClosed();
+		Keyboard.enableRepeatEvents(false);
 	}
 }
