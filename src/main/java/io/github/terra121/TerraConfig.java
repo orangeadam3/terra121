@@ -20,6 +20,9 @@ public class TerraConfig {
 		  	  "Should allow all tree data sources used (just TreeCover2000 right now)",
 			  "End with a \"/\" e.x. \"https://.../arcgis/rest/services/\""})
 	public static String serverTree = "https://gis-treecover.wri.org/arcgis/rest/services/";
+	@Name("rest_tree_services_enabled")
+	@Comment({"If the ArcGIS TreeCover2000 should be used, if errors appear then disable it."})
+	public static boolean serverTreeEnabled = true;
 	
 	@Name("terrarium_instance")
 	@Comment({"A Mapzen Terrain Tile terrarium instance allowing x/y.png queries",
@@ -48,6 +51,10 @@ public class TerraConfig {
 			"This will make generated streams more stable but will disrupt vanilla water mechanics like 2x2 infinite water sources",
 			"Highly expiremental, use at your own risk"})
 	public static boolean threeWater = false;
+
+	@Name("caves")
+	@Comment({"Allows caves in the Terra121 world, not recommended because it can ruin the look of most terrain."})
+	public static boolean caves = false;
 
 	@SubscribeEvent
 	public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
