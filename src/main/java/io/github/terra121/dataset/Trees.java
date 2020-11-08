@@ -31,7 +31,11 @@ public class Trees extends TiledDataset {
 	}
 
 	protected int[] request(Coord place) {
-		int out[] = new int[256 * 256];
+        int out[] = new int[256 * 256];
+
+	    if (!TerraConfig.serverTreeEnabled) {
+	        return out;
+        }
 
         for(int i=0; i<5; i++) {
 

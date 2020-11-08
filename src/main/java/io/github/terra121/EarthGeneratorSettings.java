@@ -54,15 +54,21 @@ public class EarthGeneratorSettings {
 	}
 	
 	public CustomGeneratorSettings getCustomCubic() {
-		if(settings.customcubic.length()==0) {
+		if (settings.customcubic.length() == 0) {
 			CustomGeneratorSettings cfg = CustomGeneratorSettings.defaults();
 	        cfg.ravines = false;
-	        cfg.dungeonCount = 3; //there are way too many of these by default (in my humble opinion)
-	        
+	        if (TerraConfig.caves) {
+				cfg.dungeonCount = 3;
+			} else {
+				cfg.dungeonCount = 0;
+			}
 	        //no surface lakes by default
-	        for(CustomGeneratorSettings.LakeConfig lake: cfg.lakes)
+	        for (CustomGeneratorSettings.LakeConfig lake: cfg.lakes)
 	        	lake.surfaceProbability = new CustomGeneratorSettings.UserFunction();
-	        
+			if (!TerraConfig.caves) {
+				for (CustomGeneratorSettings.LakeConfig lake: cfg.lakes)
+					lake.mainProbability = new CustomGeneratorSettings.UserFunction();
+			}
 	        return cfg;
 		}
 		
