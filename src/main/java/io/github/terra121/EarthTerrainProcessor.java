@@ -82,7 +82,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         
         surfacePopulators = new HashSet<ICubicPopulator>();
         if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
-        if (TerraConfig.serverTreeEnabled) surfacePopulators.add(new EarthTreePopulator(projection));
+        if (!TerraConfig.serverTree.isEmpty()) surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
 
         cubiccfg = cfg.getCustomCubic();

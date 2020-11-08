@@ -11,22 +11,20 @@ public class TerraConfig {
 	@Name("overpass_interpreter")
 	@Comment({"Overpass interpreter for road and water OpenStreetMap data",
 			  "Make sure you follow the instances guidelines",
-			  "URL must be able to take interpreter input by adding a \'?\'",
+			  "URL must be able to take interpreter input by adding a \"?\"",
 			  "e.x. \"https://.../api/interpreter\""})
 	public static String serverOverpass = "https://overpass.kumi.systems/api/interpreter"; //"https://overpass-api.de/api/interpreter"
 	
 	@Name("rest_tree_services")
 	@Comment({"An ArcGIS REST API instance with tree cover support",
 		  	  "Should allow all tree data sources used (just TreeCover2000 right now)",
-			  "End with a \"/\" e.x. \"https://.../arcgis/rest/services/\""})
+			  "End with a \"/\" e.x. \"https://.../arcgis/rest/services/\"",
+			  "If the tree cover is not functioning properly, or has errors, leave the value blank"})
 	public static String serverTree = "https://gis-treecover.wri.org/arcgis/rest/services/";
-	@Name("rest_tree_services_enabled")
-	@Comment({"If the ArcGIS TreeCover2000 should be used, if errors appear then disable it."})
-	public static boolean serverTreeEnabled = true;
-	
+
 	@Name("terrarium_instance")
 	@Comment({"A Mapzen Terrain Tile terrarium instance allowing x/y.png queries",
-			  "End with a \"/\" e.x. https://.../terrarium/"})
+			  "End with a \"/\" e.x. \"https://.../terrarium/\""})
 	public static String serverTerrain = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/";
 	
 	@Name("cache_size")
@@ -55,6 +53,11 @@ public class TerraConfig {
 	@Name("caves")
 	@Comment({"Allows caves in the Terra121 world, not recommended because it can ruin the look of most terrain."})
 	public static boolean caves = false;
+
+	@Name("reduced_console_messages")
+	@Comment({"Removes all of Terra121's messages which contain various links in the server console",
+			  "This is just if it seems to spam the console, it is purely for appearance"})
+	public static boolean reducedConsoleMessages = false;
 
 	@SubscribeEvent
 	public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {

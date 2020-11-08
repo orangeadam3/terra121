@@ -12,6 +12,7 @@ import io.github.opencubicchunks.cubicchunks.cubicgen.preset.fixer.CustomGenerat
 import io.github.opencubicchunks.cubicchunks.cubicgen.preset.fixer.PresetLoadError;
 import io.github.terra121.projection.GeographicProjection;
 import io.github.terra121.projection.ScaleProjection;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class EarthGeneratorSettings {
 	
@@ -33,8 +34,8 @@ public class EarthGeneratorSettings {
 	private Gson gson;
 	
 	public EarthGeneratorSettings(String generatorSettings) {
-		
-		System.out.println(generatorSettings);
+
+		if (!TerraConfig.reducedConsoleMessages) TerraMod.LOGGER.info(generatorSettings);
 		
 		gson = new GsonBuilder().create();
 		
@@ -95,7 +96,7 @@ public class EarthGeneratorSettings {
 			return new ScaleProjection(p, 100000, 100000); //TODO: better default
 		}
 		
-		if(settings.scaleX==1&&settings.scaleY==1) System.exit(-1);
+		if(settings.scaleX==1&&settings.scaleY==1) FMLCommonHandler.instance().exitJava(-1, false);
 		
 		return new ScaleProjection(p, settings.scaleX, settings.scaleY);
 	}
