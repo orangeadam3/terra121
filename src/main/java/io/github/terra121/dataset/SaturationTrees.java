@@ -26,7 +26,7 @@ public class SaturationTrees extends Trees {
 
             try {
                 String urlText = URL_PREFIX + (place.x*REGION_SIZE - 180) + "," + (90-place.y*REGION_SIZE) + "," + ((place.x+1)*REGION_SIZE - 180) + "," + (90 - (place.y+1)*REGION_SIZE) +URL_SUFFIX;
-                TerraMod.LOGGER.info(urlText);
+                if (!TerraConfig.reducedConsoleMessages) TerraMod.LOGGER.info(urlText);
                 URL url = new URL(urlText);
                 is = url.openStream();
                 ByteSourceInputStream by = new ByteSourceInputStream(is, "shits and giggles");
@@ -68,11 +68,12 @@ public class SaturationTrees extends Trees {
                     } catch (IOException e) {}
                 }
 
-                TerraMod.LOGGER.error("Failed to get tree cover data " + place.x + " " + place.y + " : " + ioe);
+                if (!TerraConfig.reducedConsoleMessages) TerraMod.LOGGER.error("Failed to get tree cover data " + place.x + " " + place.y + " : " + ioe);
             }
         }
 
-        TerraMod.LOGGER.error("Failed too many times, trees will not spawn");
+        TerraMod.LOGGER.error("Tree cover has failed too many times, trees will not spawn. " +
+                "If this is a recurring issue then disable the tree cover in the config by leaving it blank.");
         return out;
 	}
 	

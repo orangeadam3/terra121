@@ -47,7 +47,7 @@ public class Heights extends TiledDataset{
 
             try {
                 String urlText = url_prefix + place.x + "/" + place.y + ".png";
-                TerraMod.LOGGER.info(urlText);
+                if (!TerraConfig.reducedConsoleMessages) TerraMod.LOGGER.info(urlText);
                 
                 URL url = new URL(urlText);
                 URLConnection con = url.openConnection();
@@ -81,11 +81,11 @@ public class Heights extends TiledDataset{
                     } catch (IOException e) {}
                 }
 
-                TerraMod.LOGGER.error("Failed to get elevation " + place.x + " " + place.y + " : " + ioe);
+                if (!TerraConfig.reducedConsoleMessages) TerraMod.LOGGER.error("Failed to get elevation " + place.x + " " + place.y + " : " + ioe);
             }
         }
 
-        TerraMod.LOGGER.error("Failed too many times chunks will be set to 0");
+        TerraMod.LOGGER.error("Failed too many times, chunks will be set to 0.");
         return out;
     }
 

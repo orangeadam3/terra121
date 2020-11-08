@@ -2,6 +2,8 @@ package io.github.terra121.control;
 
 import io.github.opencubicchunks.cubicchunks.api.worldgen.ICubeGenerator;
 import io.github.opencubicchunks.cubicchunks.core.server.CubeProviderServer;
+import io.github.terra121.TerraConfig;
+import io.github.terra121.TerraMod;
 import net.minecraft.command.CommandBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.command.CommandException;
@@ -202,8 +204,8 @@ public class TerraCommand extends CommandBase {
 		
 		Water water = terrain.osm.water;
 		water.doingInverts = true;
-		
-		System.out.println(region);
+
+		if (!TerraConfig.reducedConsoleMessages) TerraMod.LOGGER.info(region);
 		
 		if( restore ? water.inverts.remove(region) : water.inverts.add(region) ) {
 			
