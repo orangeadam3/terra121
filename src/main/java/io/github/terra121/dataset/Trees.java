@@ -15,6 +15,7 @@ import io.github.terra121.TerraConfig;
 import io.github.terra121.TerraMod;
 import io.github.terra121.projection.ImageProjection;
 
+@Deprecated /*Rest format that this was made for is no longer a thing*/
 public class Trees extends TiledDataset {
 	public String URL_PREFIX = TerraConfig.serverTree + "TreeCover2000/ImageServer/exportImage?f=image&bbox=";
 	public String URL_SUFFIX = "&imageSR=4152&bboxSR=4152&format=tiff&adjustAspectRatio=false&&interpolation=RSP_CubicConvolution&size=256,256";
