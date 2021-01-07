@@ -64,8 +64,14 @@ public class TerraTeleport extends CommandBase {
 			}
 			if(args[0].endsWith(","))
 				args[0] = args[0].substring(0, args[0].length() - 1);
-			if(args.length>1&&args[1].endsWith(","))
-				args[1] = args[1].substring(0, args[1].length() - 1);
+			if(args[0].endsWith("\u00B0"))
+				args[0] = args[0].substring(0, args[0].length() - 1);
+			if(args.length>1) {
+				if(args[1].endsWith(","))
+					args[1] = args[1].substring(0, args[1].length() - 1);
+				if(args[1].endsWith("\u00B0"))
+					args[1] = args[1].substring(0, args[1].length() - 1);
+			}
 			if(args.length!=2&&args.length!=3) {
 				throw new WrongUsageException(getUsage(sender), new Object[0]);
 			}
