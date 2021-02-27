@@ -7,7 +7,7 @@ import java.util.Set;
 import io.github.opencubicchunks.cubicchunks.api.util.CubePos;
 import io.github.opencubicchunks.cubicchunks.api.world.ICube;
 import io.github.opencubicchunks.cubicchunks.api.worldgen.populator.ICubicPopulator;
-import io.github.terra121.dataset.Trees;
+import io.github.terra121.dataset.TreesNew;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -19,13 +19,14 @@ import net.minecraft.world.gen.feature.WorldGenAbstractTree;
 
 public class EarthTreePopulator implements ICubicPopulator {
 
-	Trees trees;
+	TreesNew trees;
 	
 	public Set<Block> extraSurface;
 	private GeographicProjection projection;
 	
 	public EarthTreePopulator(GeographicProjection proj) {
-		trees = new Trees();
+		//trees = new Trees();
+		trees=new TreesNew(12);
 		extraSurface = new HashSet<Block>();
 		extraSurface.add(Blocks.CLAY);
 		extraSurface.add(Blocks.RED_SANDSTONE);

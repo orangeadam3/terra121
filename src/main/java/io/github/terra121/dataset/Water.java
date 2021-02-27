@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.HashSet;
 
 import javax.imageio.ImageIO;
 
@@ -23,11 +24,16 @@ public class Water {
 	public OpenStreetMaps osm;
 	public int hres;
 	
+	public HashSet<OpenStreetMaps.Coord> inverts;
+	public boolean doingInverts;
+	
 	public Water(OpenStreetMaps osm, int horizontalres) throws IOException {
 		InputStream is = getClass().getClassLoader().getResourceAsStream("assets/terra121/data/ground.dat");
 		grounding = new WaterGround(is);
 		this.osm = osm;
 		this.hres = horizontalres;
+		this.inverts = new HashSet<OpenStreetMaps.Coord>();
+		this.doingInverts = false;
 	}
 	
 	public byte getState(double lon, double lat) {
@@ -49,7 +55,12 @@ public class Water {
 		//TODO: range check
 		int idx = region.getStateIdx((short)lon, (short)lat);
 
-		return region.states[(int)lon][idx];
+		byte state = region.states[(int)lon][idx];
+		
+		if(doingInverts && (state==0||state==1) && inverts.contains(region.coord))
+			state = state==1?(byte)0:(byte)1; //invert state if in an inverted region
+
+		return state;
 	}
 	
 	//TODO: more efficient

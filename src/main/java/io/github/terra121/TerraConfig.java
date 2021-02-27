@@ -15,11 +15,14 @@ public class TerraConfig {
 			  "e.x. \"https://.../api/interpreter\""})
 	public static String serverOverpass = "https://overpass.kumi.systems/api/interpreter"; //"https://overpass-api.de/api/interpreter"
 	
-	@Name("rest_tree_services")
-	@Comment({"An ArcGIS REST API instance with tree cover support",
-		  	  "Should allow all tree data sources used (just TreeCover2000 right now)",
-			  "End with a \"/\" e.x. \"https://.../arcgis/rest/services/\""})
-	public static String serverTree = "https://gis-treecover.wri.org/arcgis/rest/services/";
+	@Name("tree_services_2000")
+	@Comment({"A tile service with same mapping as mapzen terrain",
+		  	  "Should store mercator tree_cover_2000 greyscale images",
+			  "End with a \"/\" before zoom"})
+	public static String serverTree = "https://storage.googleapis.com/earthenginepartners-hansen/tiles/gfc_v1.4/tree_gray/";
+	@Name("tree_services_enabled")
+	@Comment({"if errors appear then disable tree data."})
+	public static boolean serverTreeEnabled = true;
 	
 	@Name("terrarium_instance")
 	@Comment({"A Mapzen Terrain Tile terrarium instance allowing x/y.png queries",
@@ -48,6 +51,10 @@ public class TerraConfig {
 			"This will make generated streams more stable but will disrupt vanilla water mechanics like 2x2 infinite water sources",
 			"Highly expiremental, use at your own risk"})
 	public static boolean threeWater = false;
+
+	@Name("caves")
+	@Comment({"Allows caves in the Terra121 world, not recommended because it can ruin the look of most terrain."})
+	public static boolean caves = false;
 
 	@SubscribeEvent
 	public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
