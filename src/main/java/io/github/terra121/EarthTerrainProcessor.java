@@ -27,7 +27,7 @@ import io.github.terra121.dataset.Heights;
 import io.github.terra121.dataset.OpenStreetMaps;
 import io.github.terra121.populator.CliffReplacer;
 import io.github.terra121.populator.EarthTreePopulator;
-import io.github.terra121.populator.RoadGenerator;
+import io.github.terra121.populator.VectorPathGenerator;
 import io.github.terra121.populator.SnowPopulator;
 import io.github.terra121.projection.GeographicProjection;
 import net.minecraft.block.Block;
@@ -81,7 +81,7 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
         unnaturals.add(Blocks.BRICK_BLOCK);
 
         surfacePopulators = new HashSet<ICubicPopulator>();
-        if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new RoadGenerator(osm, heights, projection));
+        if(doRoads || cfg.settings.osmwater)surfacePopulators.add(new VectorPathGenerator(osm, heights, projection));
         if (TerraConfig.serverTreeEnabled) surfacePopulators.add(new EarthTreePopulator(projection));
         snow = new SnowPopulator(); //this will go after the rest
 
