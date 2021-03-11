@@ -107,26 +107,6 @@ Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UCl
 
 ## 
 
-## Public Server
-
-### We now have a public server that you can test the mod without ever having to install it!!!! 
-
-The server is currently hosted by Aang23 from the Cubic Chunks Discord, originally hosted by FyreBurns, you will need **AT LEAST** Forge and CubicChunks installed on your machine to join (download information can be found in the Prerequisites below)!
-
-Either Direct Connect or Add a new server with the following IP:
-
-### terra.altillimity.com
-
-This is also another work in progress, so permissions and things may change according to Aang23 or FyreBurns, we greatly appreciate the resources that Aang23 is placing to run this server for the public, and what FyreBurns placed in the past.
-
-**If you cannot join, then most likely it is off, do not spam message Aang23 or us, check back at another time.**
-
-**We cannot guarantee that the server will stay up to date with the latest version of the mod, it maybe a couple versions behind**
-
-*Thank you Aang23, and FyreBurns for your efforts, much appreciated*
-
-*- shejan0 and orangeadam3* 😘
-
 ## Prerequisites
 
 - **REQUIRED**: [Minecraft Forge](https://files.minecraftforge.net/) for the corrective version of Minecraft of the mod (currently Minecraft 1.12.2, this mod is tested using 2847 and 2768)
