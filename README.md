@@ -15,7 +15,7 @@ Barranca del Cobre (Copper Canyon), Chihuahua, Mexico
 
 ## Build The Earth Notice
 
-Terra 1-to-1 is not affiliated with Build The Earth-- it is a separate mod that is used in their modpack, however we do work directly with the Build The Earth team as Staff. Any and all inquiries about Build The Earth itself should go to the Build The Earth Discord server under the #support and #suggestions channels, not to this GitHub's issues page.
+Terra 1-to-1 is not affiliated with Build The Earth-- it is a separate mod that is used in their modpack, however we do work directly with the Build The Earth team as Staff. Any and all inquiries about Build The Earth itself should go to  [Build The Earth.net](http://buildtheearth.net/) under the #support and #suggestions channels, not to this GitHub's issues page.
 
 ## What is it?
 
@@ -97,7 +97,7 @@ Check out the mod showcase by [ArcticKnight98](https://www.youtube.com/channel/U
 
 (Clicking the image will take you to the video link)
 
-Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UClbmNgZmGahCDKcs8_aMN0A), Administrator and Moderator on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), and has been interested in the development of our mod since the beginning.
+Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UClbmNgZmGahCDKcs8_aMN0A), Administrator and Moderator on the Cubic Chunks Discord, and has been interested in the development of our mod since the beginning.
 
 [![Wozat Showcase](https://img.youtube.com/vi/XJG1XXOdJcc/maxresdefault.jpg)](https://www.youtube.com/watch?v=XJG1XXOdJcc)
 
@@ -111,7 +111,7 @@ Check out the mod showcase by [Baccar Wozat](https://www.youtube.com/channel/UCl
 
 ### We now have a public server that you can test the mod without ever having to install it!!!! 
 
-The server is currently hosted by Aang23 from the [Cubic Chunks Discord](https://discord.gg/kMfWg9m), originally hosted by FyreBurns, you will need **AT LEAST** Forge and CubicChunks installed on your machine to join (download information can be found in the Prerequisites below)!
+The server is currently hosted by Aang23 from the Cubic Chunks Discord, originally hosted by FyreBurns, you will need **AT LEAST** Forge and CubicChunks installed on your machine to join (download information can be found in the Prerequisites below)!
 
 Either Direct Connect or Add a new server with the following IP:
 
@@ -137,7 +137,7 @@ This is also another work in progress, so permissions and things may change acco
 - **REQUIRED**: Standard CubicWorldGen for the corrective Minecraft version of the mod **VERSION 0.0.85.0 OR HIGHER IS HIGHLY RECOMMENDED**
   - [On GitHub](https://github.com/OpenCubicChunks/CubicWorldGen/) (releases may be out of date, but can be compiled)
   - [On CurseForge](https://www.curseforge.com/minecraft/mc-mods/cubicworldgen) (may be out of date)
-  - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE [CUBIC CHUNKS DISCORD](https://discord.gg/kMfWg9m) under the **#info-new-cc** channel)
+  - (THE NEWEST VERSION OF THE CUBICCHUNKS MOD FOR ALL VERSIONS IS ALWAYS AVAILABLE ON THE CUBIC CHUNKS DISCORD under the **#info-new-cc** channel)
 - Recommended: [Malisis Core](https://www.curseforge.com/minecraft/mc-mods/malisiscore):  (The Planet Earth generation at the current moment does not have any support for Malisis, and is a future plan, but the original generation methods inside of CubicWorldGen do support Malisis)
 
 **You must have all required mods installed for the Planet Earth generation to work!!!**
@@ -154,7 +154,7 @@ However, some of you are little itchy peepers, and want the most recent version 
 
 Luckily for pretty ol' you, here are the [building instructions](BUILD_INSTRUCTIONS.md).
 
-You can also use builds from this [unofficial Jenkins CI](https://jenkins.altillimity.com/job/Terra/) that Aang23#7721 on the [Cubic Chunks Discord](https://discord.gg/kMfWg9m) created, this will always build the latest git master branch, so you don't have to build locally. (For the code that runs in Minecraft, make sure you get the file that does *not* end in **-sources.jar**)
+You can also use builds from this [unofficial Jenkins CI](https://jenkins.altillimity.com/job/Terra/) that Aang23#7721 on the Cubic Chunks Discord created, this will always build the latest git master branch, so you don't have to build locally. (For the code that runs in Minecraft, make sure you get the file that does *not* end in **-sources.jar**)
 
 - Love from shejan0 and orangeadam3 😤😖👏😘🤪 (still don't support the emoji -orangeadam3)
 
