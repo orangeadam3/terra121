@@ -215,70 +215,30 @@ public class EarthTerrainProcessor extends BasicCubeGenerator {
 
         //spawn roads
         if((doRoads || doBuildings || cfg.settings.osmwater) && surface) {
-            Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeZ);
-
-            if(edges != null) {
-
-                /*for(int x=0; x<16; x++) {
-                    for(int z=0; z<16; z++) {
-                        int y = heightarr[x][z] - Coords.cubeToMinBlock(cubeY);
-                        if(y >= 0 && y < 16)
-                            primer.setBlockState(x, y, z, Blocks.COBBLESTONE.getDefaultState());
-                    }
-                }*/
-
-                //minor one block wide roads get plastered first
-                for (OpenStreetMaps.Edge e: edges) if(e.type == OpenStreetMaps.Type.ROAD || e.type == OpenStreetMaps.Type.MINOR
-                                                    || e.type == OpenStreetMaps.Type.STREAM || e.type == OpenStreetMaps.Type.BUILDING) {
-                    double start = e.slon;
-                    double end = e.elon;
-
-                    if(start > end) {
-                        double tmp = start;
-                        start = end;
-                        end = tmp;
-                    }
-
-                    int sx = (int)Math.floor(start) - cubeX*16;
-                    int ex = (int)Math.floor(end) - cubeX*16;
-
-                    if(ex >= 16)ex = 16-1;
-
-                    for(int x=sx>0?sx:0; x<=ex; x++) {
-                        double realx = (x+cubeX*16);
-                        if(realx < start)
-                            realx = start;
-
-                        double nextx = realx + 1;
-                        if(nextx > end)
-                            nextx = end;
-
-                        int from = (int)Math.floor((e.slope*realx + e.offset)) - cubeZ*16;
-                        int to = (int)Math.floor((e.slope*nextx + e.offset)) - cubeZ*16;
-
-                        if(from > to) {
-                            int tmp = from;
-                            from = to;
-                            to = tmp;
-                        }
-
-                        if(to >= 16)to = 16-1;
-
-                        for(int z=from>0?from:0; z<=to; z++) {
-                            int y = (int)Math.floor(heightarr[x][z]) - Coords.cubeToMinBlock(cubeY);
-
-                            if(y >= 0 && y < 16) {
-                            	if(e.type == OpenStreetMaps.Type.STREAM) {
-                            		if(primer.getBlockState(x, y, z).getBlock()!=Blocks.WATER)
-                            			primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
-                            	}
-                            	else primer.setBlockState(x, y, z, ( e.type == OpenStreetMaps.Type.ROAD ? Blocks.GRASS_PATH : e.type == OpenStreetMaps.Type.BUILDING ? Blocks.BRICK_BLOCK : Blocks.STONEBRICK).getDefaultState());
-                            }
-                        }
-                    }
-                }
-            }
-        }
+			Set<OpenStreetMaps.Edge> edges = osm.chunkStructures(cubeX, cubeZ);
+			
+			if(edges != null)
+			for(OpenStreetMaps.Edge e: edges)
+			if(e.type == OpenStreetMaps.Type.ROAD || e.type == OpenStreetMaps.Type.MINOR
+					   || e.type == OpenStreetMaps.Type.STREAM || e.type == OpenStreetMaps.Type.BUILDING ||e.type == OpenStreetMaps.Type.RAIL) {
+				
+				osm.placeThin(cubeX, cubeZ, e, (x, z) -> {
+					
+					int y = (int)Math.floor(heightarr[x][z]) - Coords.cubeToMinBlock(cubeY);
+					if(!(y >= 0 && y < 16))
+						return;
+					if(e.type == OpenStreetMaps.Type.STREAM) {
+					if(primer.getBlockState(x, y, z).getBlock()!=Blocks.WATER)
+					primer.setBlockState(x, y, z, Blocks.WATER.getDefaultState());
+				}
+					else primer.setBlockState(x, y, z, 
+					( e.type == OpenStreetMaps.Type.ROAD ? Blocks.GRASS_PATH : 
+					e.type == OpenStreetMaps.Type.BUILDING ?
+					Blocks.BRICK_BLOCK : Blocks.STONEBRICK 
+					).getDefaultState() );
+				});
+			}
+		}
 
         return primer;
     }

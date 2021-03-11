@@ -19,6 +19,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockRailBase;
+import net.minecraft.block.BlockRail;
 
 public class RoadGenerator implements ICubicPopulator {
 	
@@ -26,6 +29,7 @@ public class RoadGenerator implements ICubicPopulator {
     private static final IBlockState WATER_SOURCE = Blocks.WATER.getDefaultState();
     //private static final IBlockState WATER_RAMP = Blocks.WATER.getDefaultState().withProperty(BlockLiquid.LEVEL, );
     private static final IBlockState WATER_BEACH = Blocks.DIRT.getDefaultState();
+	private static final IBlockState TRACK = Blocks.RAIL.getDefaultState();
 
     private OpenStreetMaps osm;
     private Heights heights;
@@ -41,6 +45,17 @@ public class RoadGenerator implements ICubicPopulator {
         this.heights = heights;
         projection = proj;
     }
+
+	private boolean isRailBend(IBlockState state) {
+		
+		if(state.getBlock()!=TRACK.getBlock())
+			return false;
+			
+		BlockRailBase.EnumRailDirection dir = state.getValue(BlockRail.SHAPE);
+		
+		return dir==BlockRailBase.EnumRailDirection.SOUTH_EAST || dir==BlockRailBase.EnumRailDirection.SOUTH_WEST ||
+		       dir==BlockRailBase.EnumRailDirection.NORTH_EAST || dir==BlockRailBase.EnumRailDirection.NORTH_WEST ;
+	}
 
     public void generate(World world, Random rand, CubePos pos, Biome biome) {
     	
@@ -87,6 +102,139 @@ public class RoadGenerator implements ICubicPopulator {
                         case INTERCHANGE:
                             placeEdge(e, world, cubeX, cubeY, cubeZ, Math.ceil((3 * e.lanes) / 2), (dis, bpos) -> ASPHALT);
                             break;
+						case RAIL:
+							osm.placeThin(cubeX, cubeZ, e, (x, z) -> {
+								double[] geo = projection.toGeo(x + cubeX*(16), z + cubeZ*(16));
+								int y = 1+(int)Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY*16);
+								if(!(y > 0 && y <= 16))
+									return;
+								
+								BlockPos bpos = new BlockPos(x + cubeX * 16, y + cubeY * 16, z + cubeZ * 16);
+								
+								world.setBlockState(bpos, TRACK);
+							});
+							
+							osm.placeThin(cubeX, cubeZ, e, (x, z) -> {
+								double[] geo = projection.toGeo(x + cubeX*(16), z + cubeZ*(16));
+								int y = 1+(int)Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY*16);
+								if(!(y > 0 && y <= 16))
+									return;
+								
+								BlockPos bpos = new BlockPos(x + cubeX * 16, y + cubeY * 16, z + cubeZ * 16);
+								
+								if(world.getBlockState(bpos).getBlock()==TRACK.getBlock()) {
+									int neighbors = 0;
+									boolean north = world.getBlockState(bpos.north().down()).getBlock()==TRACK.getBlock();
+									boolean south = world.getBlockState(bpos.south().down()).getBlock()==TRACK.getBlock();
+									boolean east = world.getBlockState(bpos.east().down()).getBlock()==TRACK.getBlock();
+									boolean west = world.getBlockState(bpos.west().down()).getBlock()==TRACK.getBlock();
+									neighbors += north?1:0;
+									neighbors += south?1:0;
+									neighbors += east?1:0;
+									neighbors += west?1:0;
+									
+									System.out.println("pass A " + neighbors + " " +bpos);
+									
+									if(neighbors==2) {
+										
+										if(north)world.setBlockState(bpos.north().down(), Blocks.AIR.getDefaultState());
+										if(south)world.setBlockState(bpos.south().down(), Blocks.AIR.getDefaultState());
+										if(east)world.setBlockState(bpos.east().down(), Blocks.AIR.getDefaultState());
+										if(west)world.setBlockState(bpos.west().down(), Blocks.AIR.getDefaultState());
+										
+										world.setBlockState(bpos, Blocks.AIR.getDefaultState());
+										world.setBlockState(bpos.down().down(), Blocks.BRICK_BLOCK.getDefaultState());
+										world.setBlockState(bpos.down(), TRACK);
+										
+										if(north)world.setBlockState(bpos.north().down(), TRACK);
+										if(south)world.setBlockState(bpos.south().down(), TRACK);
+										if(east)world.setBlockState(bpos.east().down(), TRACK);
+										if(west)world.setBlockState(bpos.west().down(), TRACK);
+									}
+										
+								}
+							});
+							
+							osm.placeThin(cubeX, cubeZ, e, (x, z) -> {
+								double[] geo = projection.toGeo(x + cubeX*(16), z + cubeZ*(16));
+								int y = 1+(int)Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY*16);
+								if(!(y > 0 && y <= 16))
+									return;
+								
+								BlockPos bpos = new BlockPos(x + cubeX * 16, y + cubeY * 16, z + cubeZ * 16);
+								
+								if(world.getBlockState(bpos).getBlock()==TRACK.getBlock()) {
+									int neighbors = 0;
+									neighbors += world.getBlockState(bpos.north().up()).getBlock()==TRACK.getBlock()?1:0;
+									neighbors += world.getBlockState(bpos.south().up()).getBlock()==TRACK.getBlock()?1:0;
+									neighbors += world.getBlockState(bpos.east().up()).getBlock()==TRACK.getBlock()?1:0;
+									neighbors += world.getBlockState(bpos.west().up()).getBlock()==TRACK.getBlock()?1:0;
+									
+                  System.out.println("pass B " + neighbors + " " +bpos);
+									
+									if(neighbors==2) {
+										
+										world.setBlockState(bpos, Blocks.BRICK_BLOCK.getDefaultState());
+										world.setBlockState(bpos.up(), TRACK);
+									}
+								}
+							});
+              
+              osm.placeThin(cubeX, cubeZ, e, (x, z) -> {
+								double[] geo = projection.toGeo(x + cubeX*(16), z + cubeZ*(16));
+								int y = 1+(int)Math.floor(heights.estimateLocal(geo[0], geo[1]) - cubeY*16);
+								if(!(y > 0 && y <= 16))
+									return;
+								
+								BlockPos bpos = new BlockPos(x + cubeX * 16, y + cubeY * 16, z + cubeZ * 16);
+								
+								IBlockState mystate = world.getBlockState(bpos);
+								
+								if(mystate.getBlock()==TRACK.getBlock() && isRailBend(mystate)) {
+									int bentneighbors = 0;
+									bentneighbors += isRailBend(world.getBlockState(bpos.north().down()))?1:0;
+									bentneighbors += isRailBend(world.getBlockState(bpos.south().down()))?1:0;
+									bentneighbors += isRailBend(world.getBlockState(bpos.east().down()))?1:0;
+									bentneighbors += isRailBend(world.getBlockState(bpos.west().down()))?1:0;
+									
+                  System.out.println("pass C " + bentneighbors + " " +bpos);
+                  
+									if(bentneighbors==1) {
+										BlockPos newtrack = null;
+										BlockRailBase.EnumRailDirection mydir = mystate.getValue(BlockRail.SHAPE);
+										
+										switch(mydir) {
+											case SOUTH_EAST:
+												newtrack = bpos.south().east();
+												break;
+												
+											case SOUTH_WEST:
+												newtrack = bpos.south().west();
+												break;
+											
+											case NORTH_EAST:
+												newtrack = bpos.north().east();
+												break;
+												
+											case NORTH_WEST:
+												newtrack = bpos.north().west();
+												break;
+												
+											default:
+												return;
+										}
+										System.out.println(bpos+"fix em up" + bpos);
+										
+										world.setBlockState(bpos, Blocks.AIR.getDefaultState());
+										world.setBlockState(newtrack.down(), Blocks.BRICK_BLOCK.getDefaultState());
+										world.setBlockState(newtrack, TRACK);
+									}
+								}
+							});
+							
+							
+							break;
+							
                         default:
                             // might be a tunnel or a bridge, mainly for debugging purposes
                             break;

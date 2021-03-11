@@ -220,7 +220,7 @@ public class OpenStreetMaps {
                     continue;
                 }
 
-                String naturalv = null, highway = null, waterway = null, building = null, istunnel = null, isbridge = null;
+                String naturalv = null, highway = null, waterway = null, building = null, istunnel = null, isbridge = null, railway = null;
 
                 if (doWater) {
                     naturalv = elem.tags.get("natural");
@@ -229,6 +229,7 @@ public class OpenStreetMaps {
 
                 if (doRoad) {
                     highway = elem.tags.get("highway");
+					railway = elem.tags.get("railway");
                     istunnel = elem.tags.get("tunnel");
                     // to be implemented
                     isbridge = elem.tags.get("bridge");
@@ -240,7 +241,7 @@ public class OpenStreetMaps {
 
                 if (naturalv != null && naturalv.equals("coastline")) {
                     waterway(elem, -1, region, null);
-                } else if (highway != null || (waterway != null && (waterway.equals("river") ||
+                } else if (highway != null || railway != null || (waterway != null && (waterway.equals("river") ||
                         waterway.equals("canal") || waterway.equals("stream"))) || building != null) { //TODO: fewer equals
 
                     Type type = Type.ROAD;
@@ -251,6 +252,8 @@ public class OpenStreetMaps {
                             type = Type.RIVER;
 
                     }
+					
+					if(railway != null) type = Type.RAIL;
 
                     if (building != null) type = Type.BUILDING;
 
@@ -345,7 +348,9 @@ public class OpenStreetMaps {
                         type = Type.MAIN;
 
                     addWay(elem, type, lanes, region, attributes, layer);
-                } else unusedWays.add(elem);
+                }
+				
+				else unusedWays.add(elem);
             } else if (elem.type == EType.relation && elem.members != null && elem.tags != null) {
 
                 if(doWater) {
@@ -506,6 +511,61 @@ public class OpenStreetMaps {
             }
         }
     }
+    
+    public interface PlaceFunction {
+        void apply(int x, int z);
+    }
+    
+    public void placeThin(int cubeX, int cubeZ, Edge e, PlaceFunction place) {
+
+		/*for(int x=0; x<16; x++) {
+			for(int z=0; z<16; z++) {
+				int y = heightarr[x][z] - Coords.cubeToMinBlock(cubeY);
+				if(y >= 0 && y < 16)
+					primer.setBlockState(x, y, z, Blocks.COBBLESTONE.getDefaultState());
+			}
+		}*/
+
+		//minor one block wide roads get plastered first
+			double start = e.slon;
+			double end = e.elon;
+
+			if(start > end) {
+				double tmp = start;
+				start = end;
+				end = tmp;
+			}
+
+			int sx = (int)Math.floor(start) - cubeX*16;
+			int ex = (int)Math.floor(end) - cubeX*16;
+
+			if(ex >= 16)ex = 16-1;
+
+			for(int x=sx>0?sx:0; x<=ex; x++) {
+				double realx = (x+cubeX*16);
+				double nextx = realx + 1;
+				
+				if(realx < start)
+					realx = start;
+				if(nextx > end)
+					nextx = end;
+
+				int from = (int)Math.floor((e.slope*realx + e.offset)) - cubeZ*16;
+				int to = (int)Math.floor((e.slope*nextx + e.offset)) - cubeZ*16;
+
+				if(from > to) {
+					int tmp = from;
+					from = to;
+					to = tmp;
+				}
+
+				if(to >= 16)to = 16-1;
+
+				for(int z=from>0?from:0; z<=to; z++) {
+					place.apply(x,z);
+				}
+			}
+    }
 
     //integer coordinate class
     public static class Coord {
@@ -620,8 +680,5 @@ public class OpenStreetMaps {
         String generator;
         Map<String, String> osm3s;
         List<Element> elements;
-    }
-
-    public static void main(String[] args) {
     }
 }
