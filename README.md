@@ -1,7 +1,10 @@
+# This project is no longer in active development. No new features will be added, however we will continue to maintain the project so that it continues to function on Minecraft 1.12.2 
+# For a more up-to-date fork of Terra 1-to-1 please refer to [Terra++](https://github.com/BuildTheEarth/terraplusplus)
+
+
 ![Logo](Pictures/TerraTextIconnocompress.png)
 
 # Terra 1 to 1 Minecraft Earth Project
-**Current build status:** [![Build](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fjenkins.altillimity.com%2Fjob%2FTerra%2F)](https://jenkins.altillimity.com/job/Terra/)
 
 ### Developed by orangeadam3
 ### Co-Developed and images by shejan0 
