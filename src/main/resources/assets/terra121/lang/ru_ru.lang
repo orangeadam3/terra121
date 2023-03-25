@@ -17,6 +17,10 @@ terra121.projection.web_mercator=Меркатор
 terra121.projection.equirectangular=Равнопромежуточно
 terra121.projection.sinusoidal=Синусоидальный
 terra121.projection.equal_earth=Равный Земле
+terra121.projection.transverse_mercator=Поперечный Меркатор
+terra121.projection.airocean=Аерокеан (Не BTE)
+terra121.projection.conformal=Конформный (Не BTE)
+terra121.projection.bteairocean=Построить Землю
 
 ## Projection orientations
 terra121.orientation.upright=Прямо
