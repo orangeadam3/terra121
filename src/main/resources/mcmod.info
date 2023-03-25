@@ -11,6 +11,6 @@
   "credits": "Cubics Chunks discord and all source providers specified below, especially OpenStreetMap (© OpenStreetMap contributors). A more comprehensive credits with links: https://github.com/orangeadam3/terra121/blob/master/SOURCES.md",
   "logoFile": "",
   "screenshots": [],
-  "dependencies": ["io.github.opencubicchunks.cubicchunks","org.apache.commons.imaging"]
+  "dependencies": []
 }
 ]
